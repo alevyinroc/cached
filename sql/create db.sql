@@ -10,6 +10,7 @@ create table caches as (
 	placedby varchar() not null,
 	typeid varchar() not null,
 	containerid int not null,
+	sizeid int not null,
 	difficulty double not null,
 	terrain not null,
 	country varchar(50) not null,
@@ -20,7 +21,8 @@ create table caches as (
 	available bit not null default 1,
 	archived bit not null default 0
 	constraint fk_cache_type foreign key (typeid) references point_types (typeid),
-	constraing fk_container_type foreign key (containerid) references cache_containers (containerid)
+	constraint fk_container_type foreign key (containerid) references cache_containers (containerid),
+	constraint fk_cache_size foreign key (size) references cache_sizes (sizeid)
 )
 create table attributes as (
 	attributeid int not null unique,
