@@ -1,6 +1,10 @@
 create table caches as (
 	cacheid varchar(8) not null unique,
+	gsid int not null unique
 	cachename varchar() not null,
+	latitude float not null,
+	longitude float not null,
+	latlong geography not null,
 	lastupdated datetime not null default getdate(),
 	placed date not null,
 	placedby varchar() not null,
@@ -12,7 +16,9 @@ create table caches as (
 	[state] varchar(50) not null,
 	shortdesc UNKNOWN not null,
 	longdesc UNKNOWN not null,
-	hint UNKNOWN NULL
+	hint UNKNOWN NULL,
+	available bit not null default 1,
+	archived bit not null default 0
 )
 create table attributes as (
 	attributeid int not null unique,
@@ -34,6 +40,9 @@ create table cache_owners as (
 create table waypoints as (
 	waypointid varchar(8) not null unique,
 	parentcache varchar(8) not null,
+	latitude float not null,
+	longitude float not null,
+	latlong geography not null,
 	typeid int,
 	[name] varchar(8) not null,
 	description varchar() not null,
@@ -59,7 +68,10 @@ create table logs as (
 	logdate datetime not null,
 	logtypeid int not null,
 	cacherid int not null,
-	logtext UNKNOWN
+	logtext UNKNOWN,
+	latitude float null,
+	longitude float null,
+	latlong geography null
 )
 create table cache_logs as (
 	cacheid varchar(8) not null,
