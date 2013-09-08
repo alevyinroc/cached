@@ -1,5 +1,18 @@
 create table caches as (
 	cacheid varchar(8) not null unique,
+	cachename varchar() not null,
+	lastupdated datetime not null default getdate(),
+	placed date not null,
+	placedby varchar() not null,
+	typeid varchar() not null,
+	containerid int not null,
+	difficulty double not null,
+	terrain not null,
+	country varchar(50) not null,
+	[state] varchar(50) not null,
+	shortdesc UNKNOWN not null,
+	longdesc UNKNOWN not null,
+	hint UNKNOWN NULL
 )
 create table attributes as (
 	attributeid int not null unique,
@@ -21,21 +34,46 @@ create table cache_owners as (
 create table waypoints as (
 	waypointid varchar(8) not null unique,
 	parentcache varchar(8) not null,
-	typeid int
+	typeid int,
+	[name] varchar(8) not null,
+	description varchar() not null,
+	comment varchar(),
+	url varchar(200) not null
+	
 )
-create table waypoint_types as (
+create table point_types as (
 	typeid int not null unique,
 	typename varchar(16) not null unique,
 	symbol varchar(16) not null
 )
 create table cache_sizes as (
 	sizeid int not null unique,
-	name varchar(16)
+	sizename varchar(16)
+)
+create table cache_containers as (
+	containerid int not null unique,
+	containername varchar(16)
 )
 create table logs as (
-	logid bigint not null unique
+	logid bigint not null unique,
+	logdate datetime not null,
+	logtypeid int not null,
+	cacherid int not null,
+	logtext UNKNOWN
 )
 create table cache_logs as (
 	cacheid varchar(8) not null,
 	logid bigint not null
+)
+create table log_types as (
+	logtypeid int not null unique,
+	logtypedesc varchar(20) not null
+)
+create table tbinventory as (
+	cacheid varchar(8) not null
+	tbid UNKNOWN not null
+)
+create table travelbungs as (
+	tbid UNKNOWN not null unique
+	tbname varchar() not null
 )
