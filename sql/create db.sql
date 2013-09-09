@@ -79,14 +79,15 @@ create table logs as (
 	latitude float null,
 	longitude float null,
 	latlong geography null,
-	foreign key (fk_logtype) references log_types (logtypeid),
-	foreign key (fk_cacher) references cachers (cacherid)
+	constraint fk_logtype foreign key (logtypeid) references log_types (logtypeid),
+	constraint fk_cacher foreign key (cacherid) references cachers (cacherid)
 );
 create table cache_logs as (
 	cacheid varchar(8) not null,
 	logid bigint not null,
-	foreign key (fk_log_cacheid) references caches (cacheid),
-	foreign key (fk_log_logid) references logs (logid)
+	constraint fk_log_cacheid foreign key (cacheid) references caches (cacheid),
+	constraint fk_log_logidforeign key (logid) references logs (logid),
+	constraint pk_cache_logs primary key (cacheid,logid)
 );
 create table log_types as (
 	logtypeid int not null constraint pk_log_types primary key,
@@ -94,8 +95,10 @@ create table log_types as (
 );
 create table tbinventory as (
 	cacheid varchar(8) not null,
-	tbpublicid varchar(8) not null constraint pk_tbinventory primary key,
-	constraint fk_tb_id foreign key (tbid) references travelbugs (tbid)
+	tbpublicid varchar(8) not null,
+	constraint fk_tb_id foreign key (tbid) references travelbugs (tbid),
+	constraint fk_cacheid foreign key (cacheid) references caches (cacheid),
+	constraint pk_tbinventory primary key (cacheid,dbpublicid)
 );
 create table travelbugs as (
 	tbpublicid varchar(8) not null constraint pk_travelbugs primary key,
