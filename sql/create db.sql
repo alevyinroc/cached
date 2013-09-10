@@ -1,17 +1,19 @@
 create database Geocaches;
-alter database Geocaches modify file (
+alter database Geocaches modify file 
 	(NAME = N'Geocaches', SIZE = 100MB , FILEGROWTH = 2MB);
-);
-alter database Geocaches modify file (
+
+alter database Geocaches modify file
 	(NAME = N'Geocaches_log', SIZE = 100MB , FILEGROWTH = 2MB);
-);
+
 ALTER DATABASE Geocaches SET RECOVERY FULL;
 ALTER DATABASE Geocaches SET AUTO_UPDATE_STATISTICS ON;
 ALTER DATABASE Geocaches SET AUTO_UPDATE_STATISTICS_ASYNC ON;
 
-create table caches as (
+use Geocaches;
+
+create table caches (
 	cacheid varchar(8) not null constraint pk_caches primary key,
-	gsid int not null
+	gsid int not null,
 	cachename nvarchar(50) not null,
 	latitude float not null,
 	longitude float not null,
@@ -37,28 +39,28 @@ create table caches as (
 	constraint fk_country foreign key (countryid) references countries (countryid),
 	constraint fk_state foreign key (stateid) references countries (stateid)
 );
-create table attributes as (
+create table attributes (
 	attributeid int not null constraint pk_attributes primary key,
 	attributename varchar(50) not null
 );
-create table cache_attributes as (
+create table cache_attributes (
 	cacheid varchar(8) not null,
 	attributeid int not null,
 	attribute_applies bit default 1 /* Attributes can be tagged to a cache as "yes" or "no". For example a cache may have the "poisonous plants" attribute set, but flagged as "no poisonous plants" indicating that there isn't poison ivy at a cache site. If the inc attribute of the <groundspeak:attribute> element is 1, this indicates "yes".*/
 	constraint fk_attr_cacheid foreign key (cacheid) references caches (cacheid),
 	constraint fk_attr_id foreign key (attributeid) references attributes (attributeid)
 );
-create table cachers as (
+create table cachers  (
 	cacherid int not null constraint pk_cachers primary key,
 	cachername varchar(50) not null
 );
-create table cache_owners as (
+create table cache_owners (
 	cacheid varchar(8) constraint pk_cache_owners primary key,
 	cacherid int
 	constraint fk_owner_cacheid foreign key (cacheid) references caches (cacheid),
 	constraint fk_owner_cacher foreign key (cacheid) references caches (cacheid)
 );
-create table waypoints as (
+create table waypoints (
 	waypointid varchar(8) not null constraint pk_waypoints primary key,
 	parentcache varchar(8) not null,
 	latitude float not null,
@@ -72,16 +74,16 @@ create table waypoints as (
 	constraint fk_waypoint_cacheid foreign key (parentcache) references caches (cacheid),
 	constraint fk_waypoint_type foreign key (typeid) references point_types (typeid)
 );
-create table point_types as (
+create table point_types (
 	typeid int not null constraint pk_point_types primary key,
 	typename varchar(16) not null
 );
-create table cache_sizes as (
+create table cache_sizes (
 	sizeid int not null constraint pk_cache_sizes primary key,
 	sizename varchar(16)
 );
 
-create table logs as (
+create table logs (
 	logid bigint not null constraint pk_logs primary key,
 	logdate datetime not null,
 	logtypeid int not null,
@@ -93,37 +95,44 @@ create table logs as (
 	constraint fk_logtype foreign key (logtypeid) references log_types (logtypeid),
 	constraint fk_cacher foreign key (cacherid) references cachers (cacherid)
 );
-create table cache_logs as (
+create table cache_logs (
 	cacheid varchar(8) not null,
 	logid bigint not null,
 	constraint fk_log_cacheid foreign key (cacheid) references caches (cacheid),
-	constraint fk_log_logidforeign key (logid) references logs (logid),
+	constraint fk_log_logid foreign key (logid) references logs (logid),
 	constraint pk_cache_logs primary key (cacheid,logid)
 );
-create table log_types as (
+create table log_types (
 	logtypeid int not null constraint pk_log_types primary key,
 	logtypedesc varchar(20) not null
 );
-create table tbinventory as (
+create table tbinventory (
 	cacheid varchar(8) not null,
 	tbpublicid varchar(8) not null,
 	constraint fk_tb_id foreign key (tbid) references travelbugs (tbid),
 	constraint fk_cacheid foreign key (cacheid) references caches (cacheid),
-	constraint pk_tbinventory primary key (cacheid,dbpublicid)
+	constraint pk_tbinventory primary key (cacheid,tbpublicid)
 );
-create table travelbugs as (
+create table travelbugs (
 	tbpublicid varchar(8) not null constraint pk_travelbugs primary key,
 	tbinternalid int not null,
 	tbname varchar(50) not null
 );
-create table countries as (
+create table countries (
 	countryid int not null constraint pk_countries primary key,
 	name nvarchar(50)
 );
-create table states as (
+create table states (
 	stateid int not null constraint pk_states primary key,
 	name nvarchar(50)
 );
+
+create table CenterPoints  (
+	Locationname varchar(20) not null,
+	LocationGeo geography not null
+	constraint pk_centerpoints primary key (Locationname)
+);
+
 /* IDs & names taken from geocaching.com new listing form */
 insert into cache_sizes (sizeid, sizename) values (1, 'Not Listed');
 insert into cache_sizes (sizeid, sizename) values (2, 'Micro');
@@ -867,3 +876,72 @@ insert into states (stateid, name) values (233, 'Zentralschweiz (ZG/SZ/LU/UR/OW/
 insert into states (stateid, name) values (294, 'Žilinsk&#253; kraj');
 insert into states (stateid, name) values (285, 'Zlinsky kraj');
 insert into states (stateid, name) values (390, 'Zuid-Holland');
+/* Point takes longitude, then latitude. Out of bounds CenterPoints throw an error */
+insert into CenterPoints values (
+	'Home Old',
+	geography::STGeomFromText('POINT(-77.23315 43.06525)',4326)
+);
+insert into CenterPoints values (
+	'Home',
+	geography::STGeomFromText('POINT(-77.306933 42.885983)',4326)
+);
+insert into CenterPoints values (
+	'Mom&Dad',
+	geography::STGeomFromText('POINT(-73.809733 42.853833)',4326)
+);
+insert into CenterPoints values (
+	'Geneva',
+	geography::STGeomFromText('POINT(-76.993056 42.878889)',4326)
+);
+insert into CenterPoints values (
+	'DML',
+	geography::STGeomFromText('POINT(-79.1105 42.5074)',4326)
+);
+insert into CenterPoints values (
+	'Watkins Glen',
+	geography::STGeomFromText('POINT(-76.8853 42.3386)',4326)
+);
+insert into CenterPoints values (
+	'Syracuse',
+	geography::STGeomFromText('POINT(-76.144167 43.046944)',4326)
+);
+insert into CenterPoints values (
+	'Auburn',
+	geography::STGeomFromText('POINT(-76.56477 42.93166)',4326)
+);
+insert into CenterPoints values (
+	'Niagara Falls',
+	geography::STGeomFromText('POINT(-79.017222 43.094167)',4326)
+);
+insert into CenterPoints values (
+	'Silver Creek',
+	geography::STGeomFromText('POINT(-79.167222 42.544167)',4326)
+);
+insert into CenterPoints values (
+	'Mendon Ponds',
+	geography::STGeomFromText('POINT(-77.564267 43.0293)',4326)
+);
+insert into CenterPoints values (
+	'Saratoga',
+	geography::STGeomFromText('POINT(-73.7825 43.075278)',4326)
+);
+insert into CenterPoints values (
+	'Sea Isle',
+	geography::STGeomFromText('POINT(-74.691917 39.147633)',4326)
+);
+insert into CenterPoints values (
+	'zSpun Around Center',
+	geography::STGeomFromText('POINT(-77.48055 43.09305)',4326)
+);
+insert into CenterPoints values (
+	'Dansville',
+	geography::STGeomFromText('POINT(-77.697433 42.560417)',4326)
+);
+insert into CenterPoints values (
+	'Lockport',
+	geography::STGeomFromText('POINT(-78.689767 43.17485)',4326)
+);
+insert into CenterPoints values (
+	'Seattle',
+	geography::STGeomFromText('POINT(-122.33365 47.612033)',4326)
+);
