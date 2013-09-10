@@ -11,6 +11,26 @@ ALTER DATABASE Geocaches SET AUTO_UPDATE_STATISTICS_ASYNC ON;
 
 use Geocaches;
 
+create table point_types (
+	typeid int not null constraint pk_point_types primary key,
+	typename varchar(16) not null
+);
+
+create table cache_sizes (
+	sizeid int not null constraint pk_cache_sizes primary key,
+	sizename varchar(16)
+);
+
+create table countries (
+	countryid int not null constraint pk_countries primary key,
+	name nvarchar(50)
+);
+
+create table states (
+	stateid int not null constraint pk_states primary key,
+	name nvarchar(50)
+);
+
 create table caches (
 	cacheid varchar(8) not null constraint pk_caches primary key,
 	gsid int not null,
@@ -37,7 +57,7 @@ create table caches (
 	constraint fk_cache_type foreign key (typeid) references point_types (typeid),
 	constraint fk_cache_size foreign key (sizeid) references cache_sizes (sizeid),
 	constraint fk_country foreign key (countryid) references countries (countryid),
-	constraint fk_state foreign key (stateid) references countries (stateid)
+	constraint fk_state foreign key (stateid) references states (stateid)
 );
 create table attributes (
 	attributeid int not null constraint pk_attributes primary key,
@@ -74,13 +94,10 @@ create table waypoints (
 	constraint fk_waypoint_cacheid foreign key (parentcache) references caches (cacheid),
 	constraint fk_waypoint_type foreign key (typeid) references point_types (typeid)
 );
-create table point_types (
-	typeid int not null constraint pk_point_types primary key,
-	typename varchar(16) not null
-);
-create table cache_sizes (
-	sizeid int not null constraint pk_cache_sizes primary key,
-	sizename varchar(16)
+
+create table log_types (
+	logtypeid int not null constraint pk_log_types primary key,
+	logtypedesc varchar(20) not null
 );
 
 create table logs (
@@ -102,14 +119,11 @@ create table cache_logs (
 	constraint fk_log_logid foreign key (logid) references logs (logid),
 	constraint pk_cache_logs primary key (cacheid,logid)
 );
-create table log_types (
-	logtypeid int not null constraint pk_log_types primary key,
-	logtypedesc varchar(20) not null
-);
+
 create table tbinventory (
 	cacheid varchar(8) not null,
 	tbpublicid varchar(8) not null,
-	constraint fk_tb_id foreign key (tbid) references travelbugs (tbid),
+	constraint fk_tb_id foreign key (tbpublicid) references travelbugs (tbpublicid),
 	constraint fk_cacheid foreign key (cacheid) references caches (cacheid),
 	constraint pk_tbinventory primary key (cacheid,tbpublicid)
 );
@@ -117,14 +131,6 @@ create table travelbugs (
 	tbpublicid varchar(8) not null constraint pk_travelbugs primary key,
 	tbinternalid int not null,
 	tbname varchar(50) not null
-);
-create table countries (
-	countryid int not null constraint pk_countries primary key,
-	name nvarchar(50)
-);
-create table states (
-	stateid int not null constraint pk_states primary key,
-	name nvarchar(50)
 );
 
 create table CenterPoints  (
@@ -151,7 +157,7 @@ insert into point_types (typeid, typename) values (137, 'Earthcache');
 insert into point_types (typeid, typename) values (1858, 'Wherigo Cache');
 /* Still need virtuals & other retired cache types */
 insert into point_types (typeid, typename) values (220, 'Final Location');
-insert into point_types (typeid, typename) values (217, 'Parking Area', 'Parking Area');
+insert into point_types (typeid, typename) values (217, 'Parking Area');
 insert into point_types (typeid, typename) values (218, 'Question to Answer');
 insert into point_types (typeid, typename) values (452, 'Reference Point');
 insert into point_types (typeid, typename) values (219, 'Stages of a Multicache');
