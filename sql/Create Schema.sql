@@ -1,4 +1,4 @@
-use Geocaches;
+USE Geocaches;
 
 create table point_types (
 	typeid int not null constraint pk_point_types primary key,
@@ -129,814 +129,1517 @@ create table CenterPoints  (
 );
 
 /* IDs & names taken from geocaching.com new listing form */
-insert into cache_sizes (sizeid, sizename) values (1, 'Not Listed');
-insert into cache_sizes (sizeid, sizename) values (2, 'Micro');
-insert into cache_sizes (sizeid, sizename) values (8, 'Small');
-insert into cache_sizes (sizeid, sizename) values (3, 'Regular');
-insert into cache_sizes (sizeid, sizename) values (4, 'Large');
-insert into cache_sizes (sizeid, sizename) values (6, 'Other');
+INSERT INTO cache_sizes (sizeid, sizename)
+	VALUES (1, 'Not Listed');
+INSERT INTO cache_sizes (sizeid, sizename)
+	VALUES (2, 'Micro');
+INSERT INTO cache_sizes (sizeid, sizename)
+	VALUES (8, 'Small');
+INSERT INTO cache_sizes (sizeid, sizename)
+	VALUES (3, 'Regular');
+INSERT INTO cache_sizes (sizeid, sizename)
+	VALUES (4, 'Large');
+INSERT INTO cache_sizes (sizeid, sizename)
+	VALUES (6, 'Other');
 
-insert into point_types (typeid, typename) values (1, 'Traditional Cache');
-insert into point_types (typeid, typename) values (3, 'Multi-cache');
-insert into point_types (typeid, typename) values (5, 'Letterbox Hybrid');
-insert into point_types (typeid, typename) values (6, 'Event Cache');
-insert into point_types (typeid, typename) values (8, 'Unknown Cache');
-insert into point_types (typeid, typename) values (13, 'Cache In Trash Out Event');
-insert into point_types (typeid, typename) values (137, 'Earthcache');
-insert into point_types (typeid, typename) values (1858, 'Wherigo Cache');
+INSERT INTO point_types (typeid, typename)
+	VALUES (1, 'Traditional Cache');
+INSERT INTO point_types (typeid, typename)
+	VALUES (3, 'Multi-cache');
+INSERT INTO point_types (typeid, typename)
+	VALUES (5, 'Letterbox Hybrid');
+INSERT INTO point_types (typeid, typename)
+	VALUES (6, 'Event Cache');
+INSERT INTO point_types (typeid, typename)
+	VALUES (8, 'Unknown Cache');
+INSERT INTO point_types (typeid, typename)
+	VALUES (13, 'Cache In Trash Out Event');
+INSERT INTO point_types (typeid, typename)
+	VALUES (137, 'Earthcache');
+INSERT INTO point_types (typeid, typename)
+	VALUES (1858, 'Wherigo Cache');
 /* Still need virtuals & other retired cache types */
-insert into point_types (typeid, typename) values (220, 'Final Location');
-insert into point_types (typeid, typename) values (217, 'Parking Area');
-insert into point_types (typeid, typename) values (218, 'Question to Answer');
-insert into point_types (typeid, typename) values (452, 'Reference Point');
-insert into point_types (typeid, typename) values (219, 'Stages of a Multicache');
-insert into point_types (typeid, typename) values (221, 'Trailhead');
+INSERT INTO point_types (typeid, typename)
+	VALUES (220, 'Final Location');
+INSERT INTO point_types (typeid, typename)
+	VALUES (217, 'Parking Area');
+INSERT INTO point_types (typeid, typename)
+	VALUES (218, 'Question to Answer');
+INSERT INTO point_types (typeid, typename)
+	VALUES (452, 'Reference Point');
+INSERT INTO point_types (typeid, typename)
+	VALUES (219, 'Stages of a Multicache');
+INSERT INTO point_types (typeid, typename)
+	VALUES (221, 'Trailhead');
 
-insert into countries (countryid, name) values (12, 'Afghanistan');
-insert into countries (countryid, name) values (272, 'Aland Islands');
-insert into countries (countryid, name) values (244, 'Albania');
-insert into countries (countryid, name) values (14, 'Algeria');
-insert into countries (countryid, name) values (245, 'American Samoa');
-insert into countries (countryid, name) values (16, 'Andorra');
-insert into countries (countryid, name) values (17, 'Angola');
-insert into countries (countryid, name) values (246, 'Anguilla');
-insert into countries (countryid, name) values (18, 'Antarctica');
-insert into countries (countryid, name) values (13, 'Antigua and Barbuda');
-insert into countries (countryid, name) values (19, 'Argentina');
-insert into countries (countryid, name) values (15, 'Armenia');
-insert into countries (countryid, name) values (20, 'Aruba');
-insert into countries (countryid, name) values (3, 'Australia');
-insert into countries (countryid, name) values (227, 'Austria');
-insert into countries (countryid, name) values (21, 'Azerbaijan');
-insert into countries (countryid, name) values (23, 'Bahamas');
-insert into countries (countryid, name) values (29, 'Bahrain');
-insert into countries (countryid, name) values (24, 'Bangladesh');
-insert into countries (countryid, name) values (25, 'Barbados');
-insert into countries (countryid, name) values (40, 'Belarus');
-insert into countries (countryid, name) values (4, 'Belgium');
-insert into countries (countryid, name) values (31, 'Belize');
-insert into countries (countryid, name) values (26, 'Benin');
-insert into countries (countryid, name) values (27, 'Bermuda');
-insert into countries (countryid, name) values (30, 'Bhutan');
-insert into countries (countryid, name) values (32, 'Bolivia');
-insert into countries (countryid, name) values (275, 'Bonaire');
-insert into countries (countryid, name) values (234, 'Bosnia and Herzegovina');
-insert into countries (countryid, name) values (33, 'Botswana');
-insert into countries (countryid, name) values (247, 'Bouvet Island');
-insert into countries (countryid, name) values (34, 'Brazil');
-insert into countries (countryid, name) values (248, 'British Indian Ocean Territories');
-insert into countries (countryid, name) values (39, 'British Virgin Islands');
-insert into countries (countryid, name) values (36, 'Brunei');
-insert into countries (countryid, name) values (37, 'Bulgaria');
-insert into countries (countryid, name) values (216, 'Burkina Faso');
-insert into countries (countryid, name) values (35, 'Burundi');
-insert into countries (countryid, name) values (42, 'Cambodia');
-insert into countries (countryid, name) values (43, 'Cameroon');
-insert into countries (countryid, name) values (5, 'Canada');
-insert into countries (countryid, name) values (239, 'Cape Verde');
-insert into countries (countryid, name) values (44, 'Cayman Islands');
-insert into countries (countryid, name) values (46, 'Central African Republic');
-insert into countries (countryid, name) values (249, 'Chad');
-insert into countries (countryid, name) values (6, 'Chile');
-insert into countries (countryid, name) values (47, 'China');
-insert into countries (countryid, name) values (250, 'Christmas Island');
-insert into countries (countryid, name) values (251, 'Cocos (Keeling) Islands');
-insert into countries (countryid, name) values (49, 'Colombia');
-insert into countries (countryid, name) values (50, 'Comoros');
-insert into countries (countryid, name) values (51, 'Congo');
-insert into countries (countryid, name) values (48, 'Cook Islands');
-insert into countries (countryid, name) values (52, 'Costa Rica');
-insert into countries (countryid, name) values (53, 'Croatia');
-insert into countries (countryid, name) values (238, 'Cuba');
-insert into countries (countryid, name) values (54, 'Curacao');
-insert into countries (countryid, name) values (55, 'Cyprus');
-insert into countries (countryid, name) values (56, 'Czech Republic');
-insert into countries (countryid, name) values (257, 'Democratic Republic of the Congo');
-insert into countries (countryid, name) values (57, 'Denmark');
-insert into countries (countryid, name) values (58, 'Djibouti');
-insert into countries (countryid, name) values (59, 'Dominica');
-insert into countries (countryid, name) values (60, 'Dominican Republic');
-insert into countries (countryid, name) values (252, 'East Timor');
-insert into countries (countryid, name) values (61, 'Ecuador');
-insert into countries (countryid, name) values (63, 'Egypt');
-insert into countries (countryid, name) values (64, 'El Salvador');
-insert into countries (countryid, name) values (62, 'Equatorial Guinea');
-insert into countries (countryid, name) values (65, 'Eritrea');
-insert into countries (countryid, name) values (66, 'Estonia');
-insert into countries (countryid, name) values (67, 'Ethiopia');
-insert into countries (countryid, name) values (69, 'Falkland Islands');
-insert into countries (countryid, name) values (68, 'Faroe Islands');
-insert into countries (countryid, name) values (71, 'Fiji');
-insert into countries (countryid, name) values (72, 'Finland');
-insert into countries (countryid, name) values (73, 'France');
-insert into countries (countryid, name) values (70, 'French Guiana');
-insert into countries (countryid, name) values (74, 'French Polynesia');
-insert into countries (countryid, name) values (253, 'French Southern Territories');
-insert into countries (countryid, name) values (75, 'Gabon');
-insert into countries (countryid, name) values (76, 'Gambia');
-insert into countries (countryid, name) values (78, 'Georgia');
-insert into countries (countryid, name) values (79, 'Germany');
-insert into countries (countryid, name) values (254, 'Ghana');
-insert into countries (countryid, name) values (80, 'Gibraltar');
-insert into countries (countryid, name) values (82, 'Greece');
-insert into countries (countryid, name) values (83, 'Greenland');
-insert into countries (countryid, name) values (81, 'Grenada');
-insert into countries (countryid, name) values (77, 'Guadeloupe');
-insert into countries (countryid, name) values (229, 'Guam');
-insert into countries (countryid, name) values (84, 'Guatemala');
-insert into countries (countryid, name) values (86, 'Guernsey');
-insert into countries (countryid, name) values (255, 'Guinea');
-insert into countries (countryid, name) values (85, 'Guinea-Bissau');
-insert into countries (countryid, name) values (87, 'Guyana');
-insert into countries (countryid, name) values (89, 'Haiti');
-insert into countries (countryid, name) values (256, 'Heard Island And Mcdonald Islands');
-insert into countries (countryid, name) values (90, 'Honduras');
-insert into countries (countryid, name) values (91, 'Hong Kong');
-insert into countries (countryid, name) values (92, 'Hungary');
-insert into countries (countryid, name) values (93, 'Iceland');
-insert into countries (countryid, name) values (94, 'India');
-insert into countries (countryid, name) values (95, 'Indonesia');
-insert into countries (countryid, name) values (96, 'Iran');
-insert into countries (countryid, name) values (97, 'Iraq');
-insert into countries (countryid, name) values (7, 'Ireland');
-insert into countries (countryid, name) values (243, 'Isle of Man');
-insert into countries (countryid, name) values (98, 'Israel');
-insert into countries (countryid, name) values (99, 'Italy');
-insert into countries (countryid, name) values (100, 'Ivory Coast');
-insert into countries (countryid, name) values (101, 'Jamaica');
-insert into countries (countryid, name) values (104, 'Japan');
-insert into countries (countryid, name) values (102, 'Jersey');
-insert into countries (countryid, name) values (103, 'Jordan');
-insert into countries (countryid, name) values (106, 'Kazakhstan');
-insert into countries (countryid, name) values (107, 'Kenya');
-insert into countries (countryid, name) values (109, 'Kiribati');
-insert into countries (countryid, name) values (241, 'Kuwait');
-insert into countries (countryid, name) values (108, 'Kyrgyzstan');
-insert into countries (countryid, name) values (110, 'Laos');
-insert into countries (countryid, name) values (111, 'Latvia');
-insert into countries (countryid, name) values (113, 'Lebanon');
-insert into countries (countryid, name) values (114, 'Lesotho');
-insert into countries (countryid, name) values (115, 'Liberia');
-insert into countries (countryid, name) values (112, 'Libya');
-insert into countries (countryid, name) values (116, 'Liechtenstein');
-insert into countries (countryid, name) values (117, 'Lithuania');
-insert into countries (countryid, name) values (8, 'Luxembourg');
-insert into countries (countryid, name) values (258, 'Macau');
-insert into countries (countryid, name) values (125, 'Macedonia');
-insert into countries (countryid, name) values (119, 'Madagascar');
-insert into countries (countryid, name) values (129, 'Malawi');
-insert into countries (countryid, name) values (121, 'Malaysia');
-insert into countries (countryid, name) values (124, 'Maldives');
-insert into countries (countryid, name) values (127, 'Mali');
-insert into countries (countryid, name) values (128, 'Malta');
-insert into countries (countryid, name) values (240, 'Marshall Islands');
-insert into countries (countryid, name) values (122, 'Martinique');
-insert into countries (countryid, name) values (123, 'Mauritania');
-insert into countries (countryid, name) values (134, 'Mauritius');
-insert into countries (countryid, name) values (259, 'Mayotte');
-insert into countries (countryid, name) values (228, 'Mexico');
-insert into countries (countryid, name) values (242, 'Micronesia');
-insert into countries (countryid, name) values (237, 'Moldova');
-insert into countries (countryid, name) values (130, 'Monaco');
-insert into countries (countryid, name) values (131, 'Mongolia');
-insert into countries (countryid, name) values (274, 'Montenegro');
-insert into countries (countryid, name) values (135, 'Montserrat');
-insert into countries (countryid, name) values (132, 'Morocco');
-insert into countries (countryid, name) values (133, 'Mozambique');
-insert into countries (countryid, name) values (136, 'Myanmar');
-insert into countries (countryid, name) values (137, 'Namibia');
-insert into countries (countryid, name) values (138, 'Nauru');
-insert into countries (countryid, name) values (140, 'Nepal');
-insert into countries (countryid, name) values (141, 'Netherlands');
-insert into countries (countryid, name) values (148, 'Netherlands Antilles');
-insert into countries (countryid, name) values (142, 'Nevis and St Kitts');
-insert into countries (countryid, name) values (41, 'New Caledonia');
-insert into countries (countryid, name) values (9, 'New Zealand');
-insert into countries (countryid, name) values (144, 'Nicaragua');
-insert into countries (countryid, name) values (143, 'Niger');
-insert into countries (countryid, name) values (145, 'Nigeria');
-insert into countries (countryid, name) values (149, 'Niue');
-insert into countries (countryid, name) values (260, 'Norfolk Island');
-insert into countries (countryid, name) values (146, 'North Korea');
-insert into countries (countryid, name) values (236, 'Northern Mariana Islands');
-insert into countries (countryid, name) values (147, 'Norway');
-insert into countries (countryid, name) values (150, 'Oman');
-insert into countries (countryid, name) values (151, 'Pakistan');
-insert into countries (countryid, name) values (261, 'Palau');
-insert into countries (countryid, name) values (276, 'Palestine');
-insert into countries (countryid, name) values (152, 'Panama');
-insert into countries (countryid, name) values (156, 'Papua New Guinea');
-insert into countries (countryid, name) values (262, 'Paraguay');
-insert into countries (countryid, name) values (153, 'Peru');
-insert into countries (countryid, name) values (154, 'Philippines');
-insert into countries (countryid, name) values (155, 'Pitcairn Islands');
-insert into countries (countryid, name) values (158, 'Poland');
-insert into countries (countryid, name) values (159, 'Portugal');
-insert into countries (countryid, name) values (226, 'Puerto Rico');
-insert into countries (countryid, name) values (160, 'Qatar');
-insert into countries (countryid, name) values (161, 'Reunion');
-insert into countries (countryid, name) values (162, 'Romania');
-insert into countries (countryid, name) values (163, 'Russia');
-insert into countries (countryid, name) values (164, 'Rwanda');
-insert into countries (countryid, name) values (277, 'Saba');
-insert into countries (countryid, name) values (171, 'Saint Helena');
-insert into countries (countryid, name) values (264, 'Saint Kitts and Nevis');
-insert into countries (countryid, name) values (173, 'Saint Lucia');
-insert into countries (countryid, name) values (217, 'Samoa');
-insert into countries (countryid, name) values (183, 'San Marino');
-insert into countries (countryid, name) values (176, 'Sao Tome and Principe');
-insert into countries (countryid, name) values (166, 'Saudi Arabia');
-insert into countries (countryid, name) values (167, 'Senegal');
-insert into countries (countryid, name) values (222, 'Serbia');
-insert into countries (countryid, name) values (168, 'Seychelles');
-insert into countries (countryid, name) values (178, 'Sierra Leone');
-insert into countries (countryid, name) values (179, 'Singapore');
-insert into countries (countryid, name) values (182, 'Slovakia');
-insert into countries (countryid, name) values (181, 'Slovenia');
-insert into countries (countryid, name) values (184, 'Solomon Islands');
-insert into countries (countryid, name) values (185, 'Somalia');
-insert into countries (countryid, name) values (165, 'South Africa');
-insert into countries (countryid, name) values (267, 'South Georgia and Sandwich Islands');
-insert into countries (countryid, name) values (180, 'South Korea');
-insert into countries (countryid, name) values (278, 'South Sudan');
-insert into countries (countryid, name) values (186, 'Spain');
-insert into countries (countryid, name) values (187, 'Sri Lanka');
-insert into countries (countryid, name) values (169, 'St Barthelemy');
-insert into countries (countryid, name) values (170, 'St Eustatius');
-insert into countries (countryid, name) values (172, 'St Kitts');
-insert into countries (countryid, name) values (175, 'St Pierre Miquelon');
-insert into countries (countryid, name) values (177, 'St Vince Grenadines');
-insert into countries (countryid, name) values (174, 'St. Martin');
-insert into countries (countryid, name) values (188, 'Sudan');
-insert into countries (countryid, name) values (189, 'Suriname');
-insert into countries (countryid, name) values (268, 'Svalbard and Jan Mayen');
-insert into countries (countryid, name) values (190, 'Swaziland');
-insert into countries (countryid, name) values (10, 'Sweden');
-insert into countries (countryid, name) values (192, 'Switzerland');
-insert into countries (countryid, name) values (193, 'Syria');
-insert into countries (countryid, name) values (194, 'Taiwan');
-insert into countries (countryid, name) values (195, 'Tajikistan');
-insert into countries (countryid, name) values (196, 'Tanzania');
-insert into countries (countryid, name) values (198, 'Thailand');
-insert into countries (countryid, name) values (200, 'Togo');
-insert into countries (countryid, name) values (269, 'Tokelau');
-insert into countries (countryid, name) values (201, 'Tonga');
-insert into countries (countryid, name) values (202, 'Trinidad and Tobago');
-insert into countries (countryid, name) values (203, 'Tunisia');
-insert into countries (countryid, name) values (204, 'Turkey');
-insert into countries (countryid, name) values (199, 'Turkmenistan');
-insert into countries (countryid, name) values (197, 'Turks and Caicos Islands');
-insert into countries (countryid, name) values (205, 'Tuvalu');
-insert into countries (countryid, name) values (208, 'Uganda');
-insert into countries (countryid, name) values (207, 'Ukraine');
-insert into countries (countryid, name) values (206, 'United Arab Emirates');
-insert into countries (countryid, name) values (11, 'United Kingdom');
-insert into countries (countryid, name) values (210, 'Uruguay');
-insert into countries (countryid, name) values (270, 'US Minor Outlying Islands');
-insert into countries (countryid, name) values (235, 'US Virgin Islands');
-insert into countries (countryid, name) values (211, 'Uzbekistan');
-insert into countries (countryid, name) values (212, 'Vanuatu');
-insert into countries (countryid, name) values (213, 'Vatican City State');
-insert into countries (countryid, name) values (214, 'Venezuela');
-insert into countries (countryid, name) values (215, 'Vietnam');
-insert into countries (countryid, name) values (218, 'Wallis And Futuna Islands');
-insert into countries (countryid, name) values (271, 'Western Sahara');
-insert into countries (countryid, name) values (220, 'Yemen');
-insert into countries (countryid, name) values (224, 'Zambia');
-insert into countries (countryid, name) values (225, 'Zimbabwe');
+INSERT INTO countries (countryid, name)
+	VALUES (12, 'Afghanistan');
+INSERT INTO countries (countryid, name)
+	VALUES (272, 'Aland Islands');
+INSERT INTO countries (countryid, name)
+	VALUES (244, 'Albania');
+INSERT INTO countries (countryid, name)
+	VALUES (14, 'Algeria');
+INSERT INTO countries (countryid, name)
+	VALUES (245, 'American Samoa');
+INSERT INTO countries (countryid, name)
+	VALUES (16, 'Andorra');
+INSERT INTO countries (countryid, name)
+	VALUES (17, 'Angola');
+INSERT INTO countries (countryid, name)
+	VALUES (246, 'Anguilla');
+INSERT INTO countries (countryid, name)
+	VALUES (18, 'Antarctica');
+INSERT INTO countries (countryid, name)
+	VALUES (13, 'Antigua and Barbuda');
+INSERT INTO countries (countryid, name)
+	VALUES (19, 'Argentina');
+INSERT INTO countries (countryid, name)
+	VALUES (15, 'Armenia');
+INSERT INTO countries (countryid, name)
+	VALUES (20, 'Aruba');
+INSERT INTO countries (countryid, name)
+	VALUES (3, 'Australia');
+INSERT INTO countries (countryid, name)
+	VALUES (227, 'Austria');
+INSERT INTO countries (countryid, name)
+	VALUES (21, 'Azerbaijan');
+INSERT INTO countries (countryid, name)
+	VALUES (23, 'Bahamas');
+INSERT INTO countries (countryid, name)
+	VALUES (29, 'Bahrain');
+INSERT INTO countries (countryid, name)
+	VALUES (24, 'Bangladesh');
+INSERT INTO countries (countryid, name)
+	VALUES (25, 'Barbados');
+INSERT INTO countries (countryid, name)
+	VALUES (40, 'Belarus');
+INSERT INTO countries (countryid, name)
+	VALUES (4, 'Belgium');
+INSERT INTO countries (countryid, name)
+	VALUES (31, 'Belize');
+INSERT INTO countries (countryid, name)
+	VALUES (26, 'Benin');
+INSERT INTO countries (countryid, name)
+	VALUES (27, 'Bermuda');
+INSERT INTO countries (countryid, name)
+	VALUES (30, 'Bhutan');
+INSERT INTO countries (countryid, name)
+	VALUES (32, 'Bolivia');
+INSERT INTO countries (countryid, name)
+	VALUES (275, 'Bonaire');
+INSERT INTO countries (countryid, name)
+	VALUES (234, 'Bosnia and Herzegovina');
+INSERT INTO countries (countryid, name)
+	VALUES (33, 'Botswana');
+INSERT INTO countries (countryid, name)
+	VALUES (247, 'Bouvet Island');
+INSERT INTO countries (countryid, name)
+	VALUES (34, 'Brazil');
+INSERT INTO countries (countryid, name)
+	VALUES (248, 'British Indian Ocean Territories');
+INSERT INTO countries (countryid, name)
+	VALUES (39, 'British Virgin Islands');
+INSERT INTO countries (countryid, name)
+	VALUES (36, 'Brunei');
+INSERT INTO countries (countryid, name)
+	VALUES (37, 'Bulgaria');
+INSERT INTO countries (countryid, name)
+	VALUES (216, 'Burkina Faso');
+INSERT INTO countries (countryid, name)
+	VALUES (35, 'Burundi');
+INSERT INTO countries (countryid, name)
+	VALUES (42, 'Cambodia');
+INSERT INTO countries (countryid, name)
+	VALUES (43, 'Cameroon');
+INSERT INTO countries (countryid, name)
+	VALUES (5, 'Canada');
+INSERT INTO countries (countryid, name)
+	VALUES (239, 'Cape Verde');
+INSERT INTO countries (countryid, name)
+	VALUES (44, 'Cayman Islands');
+INSERT INTO countries (countryid, name)
+	VALUES (46, 'Central African Republic');
+INSERT INTO countries (countryid, name)
+	VALUES (249, 'Chad');
+INSERT INTO countries (countryid, name)
+	VALUES (6, 'Chile');
+INSERT INTO countries (countryid, name)
+	VALUES (47, 'China');
+INSERT INTO countries (countryid, name)
+	VALUES (250, 'Christmas Island');
+INSERT INTO countries (countryid, name)
+	VALUES (251, 'Cocos (Keeling) Islands');
+INSERT INTO countries (countryid, name)
+	VALUES (49, 'Colombia');
+INSERT INTO countries (countryid, name)
+	VALUES (50, 'Comoros');
+INSERT INTO countries (countryid, name)
+	VALUES (51, 'Congo');
+INSERT INTO countries (countryid, name)
+	VALUES (48, 'Cook Islands');
+INSERT INTO countries (countryid, name)
+	VALUES (52, 'Costa Rica');
+INSERT INTO countries (countryid, name)
+	VALUES (53, 'Croatia');
+INSERT INTO countries (countryid, name)
+	VALUES (238, 'Cuba');
+INSERT INTO countries (countryid, name)
+	VALUES (54, 'Curacao');
+INSERT INTO countries (countryid, name)
+	VALUES (55, 'Cyprus');
+INSERT INTO countries (countryid, name)
+	VALUES (56, 'Czech Republic');
+INSERT INTO countries (countryid, name)
+	VALUES (257, 'Democratic Republic of the Congo');
+INSERT INTO countries (countryid, name)
+	VALUES (57, 'Denmark');
+INSERT INTO countries (countryid, name)
+	VALUES (58, 'Djibouti');
+INSERT INTO countries (countryid, name)
+	VALUES (59, 'Dominica');
+INSERT INTO countries (countryid, name)
+	VALUES (60, 'Dominican Republic');
+INSERT INTO countries (countryid, name)
+	VALUES (252, 'East Timor');
+INSERT INTO countries (countryid, name)
+	VALUES (61, 'Ecuador');
+INSERT INTO countries (countryid, name)
+	VALUES (63, 'Egypt');
+INSERT INTO countries (countryid, name)
+	VALUES (64, 'El Salvador');
+INSERT INTO countries (countryid, name)
+	VALUES (62, 'Equatorial Guinea');
+INSERT INTO countries (countryid, name)
+	VALUES (65, 'Eritrea');
+INSERT INTO countries (countryid, name)
+	VALUES (66, 'Estonia');
+INSERT INTO countries (countryid, name)
+	VALUES (67, 'Ethiopia');
+INSERT INTO countries (countryid, name)
+	VALUES (69, 'Falkland Islands');
+INSERT INTO countries (countryid, name)
+	VALUES (68, 'Faroe Islands');
+INSERT INTO countries (countryid, name)
+	VALUES (71, 'Fiji');
+INSERT INTO countries (countryid, name)
+	VALUES (72, 'Finland');
+INSERT INTO countries (countryid, name)
+	VALUES (73, 'France');
+INSERT INTO countries (countryid, name)
+	VALUES (70, 'French Guiana');
+INSERT INTO countries (countryid, name)
+	VALUES (74, 'French Polynesia');
+INSERT INTO countries (countryid, name)
+	VALUES (253, 'French Southern Territories');
+INSERT INTO countries (countryid, name)
+	VALUES (75, 'Gabon');
+INSERT INTO countries (countryid, name)
+	VALUES (76, 'Gambia');
+INSERT INTO countries (countryid, name)
+	VALUES (78, 'Georgia');
+INSERT INTO countries (countryid, name)
+	VALUES (79, 'Germany');
+INSERT INTO countries (countryid, name)
+	VALUES (254, 'Ghana');
+INSERT INTO countries (countryid, name)
+	VALUES (80, 'Gibraltar');
+INSERT INTO countries (countryid, name)
+	VALUES (82, 'Greece');
+INSERT INTO countries (countryid, name)
+	VALUES (83, 'Greenland');
+INSERT INTO countries (countryid, name)
+	VALUES (81, 'Grenada');
+INSERT INTO countries (countryid, name)
+	VALUES (77, 'Guadeloupe');
+INSERT INTO countries (countryid, name)
+	VALUES (229, 'Guam');
+INSERT INTO countries (countryid, name)
+	VALUES (84, 'Guatemala');
+INSERT INTO countries (countryid, name)
+	VALUES (86, 'Guernsey');
+INSERT INTO countries (countryid, name)
+	VALUES (255, 'Guinea');
+INSERT INTO countries (countryid, name)
+	VALUES (85, 'Guinea-Bissau');
+INSERT INTO countries (countryid, name)
+	VALUES (87, 'Guyana');
+INSERT INTO countries (countryid, name)
+	VALUES (89, 'Haiti');
+INSERT INTO countries (countryid, name)
+	VALUES (256, 'Heard Island And Mcdonald Islands');
+INSERT INTO countries (countryid, name)
+	VALUES (90, 'Honduras');
+INSERT INTO countries (countryid, name)
+	VALUES (91, 'Hong Kong');
+INSERT INTO countries (countryid, name)
+	VALUES (92, 'Hungary');
+INSERT INTO countries (countryid, name)
+	VALUES (93, 'Iceland');
+INSERT INTO countries (countryid, name)
+	VALUES (94, 'India');
+INSERT INTO countries (countryid, name)
+	VALUES (95, 'Indonesia');
+INSERT INTO countries (countryid, name)
+	VALUES (96, 'Iran');
+INSERT INTO countries (countryid, name)
+	VALUES (97, 'Iraq');
+INSERT INTO countries (countryid, name)
+	VALUES (7, 'Ireland');
+INSERT INTO countries (countryid, name)
+	VALUES (243, 'Isle of Man');
+INSERT INTO countries (countryid, name)
+	VALUES (98, 'Israel');
+INSERT INTO countries (countryid, name)
+	VALUES (99, 'Italy');
+INSERT INTO countries (countryid, name)
+	VALUES (100, 'Ivory Coast');
+INSERT INTO countries (countryid, name)
+	VALUES (101, 'Jamaica');
+INSERT INTO countries (countryid, name)
+	VALUES (104, 'Japan');
+INSERT INTO countries (countryid, name)
+	VALUES (102, 'Jersey');
+INSERT INTO countries (countryid, name)
+	VALUES (103, 'Jordan');
+INSERT INTO countries (countryid, name)
+	VALUES (106, 'Kazakhstan');
+INSERT INTO countries (countryid, name)
+	VALUES (107, 'Kenya');
+INSERT INTO countries (countryid, name)
+	VALUES (109, 'Kiribati');
+INSERT INTO countries (countryid, name)
+	VALUES (241, 'Kuwait');
+INSERT INTO countries (countryid, name)
+	VALUES (108, 'Kyrgyzstan');
+INSERT INTO countries (countryid, name)
+	VALUES (110, 'Laos');
+INSERT INTO countries (countryid, name)
+	VALUES (111, 'Latvia');
+INSERT INTO countries (countryid, name)
+	VALUES (113, 'Lebanon');
+INSERT INTO countries (countryid, name)
+	VALUES (114, 'Lesotho');
+INSERT INTO countries (countryid, name)
+	VALUES (115, 'Liberia');
+INSERT INTO countries (countryid, name)
+	VALUES (112, 'Libya');
+INSERT INTO countries (countryid, name)
+	VALUES (116, 'Liechtenstein');
+INSERT INTO countries (countryid, name)
+	VALUES (117, 'Lithuania');
+INSERT INTO countries (countryid, name)
+	VALUES (8, 'Luxembourg');
+INSERT INTO countries (countryid, name)
+	VALUES (258, 'Macau');
+INSERT INTO countries (countryid, name)
+	VALUES (125, 'Macedonia');
+INSERT INTO countries (countryid, name)
+	VALUES (119, 'Madagascar');
+INSERT INTO countries (countryid, name)
+	VALUES (129, 'Malawi');
+INSERT INTO countries (countryid, name)
+	VALUES (121, 'Malaysia');
+INSERT INTO countries (countryid, name)
+	VALUES (124, 'Maldives');
+INSERT INTO countries (countryid, name)
+	VALUES (127, 'Mali');
+INSERT INTO countries (countryid, name)
+	VALUES (128, 'Malta');
+INSERT INTO countries (countryid, name)
+	VALUES (240, 'Marshall Islands');
+INSERT INTO countries (countryid, name)
+	VALUES (122, 'Martinique');
+INSERT INTO countries (countryid, name)
+	VALUES (123, 'Mauritania');
+INSERT INTO countries (countryid, name)
+	VALUES (134, 'Mauritius');
+INSERT INTO countries (countryid, name)
+	VALUES (259, 'Mayotte');
+INSERT INTO countries (countryid, name)
+	VALUES (228, 'Mexico');
+INSERT INTO countries (countryid, name)
+	VALUES (242, 'Micronesia');
+INSERT INTO countries (countryid, name)
+	VALUES (237, 'Moldova');
+INSERT INTO countries (countryid, name)
+	VALUES (130, 'Monaco');
+INSERT INTO countries (countryid, name)
+	VALUES (131, 'Mongolia');
+INSERT INTO countries (countryid, name)
+	VALUES (274, 'Montenegro');
+INSERT INTO countries (countryid, name)
+	VALUES (135, 'Montserrat');
+INSERT INTO countries (countryid, name)
+	VALUES (132, 'Morocco');
+INSERT INTO countries (countryid, name)
+	VALUES (133, 'Mozambique');
+INSERT INTO countries (countryid, name)
+	VALUES (136, 'Myanmar');
+INSERT INTO countries (countryid, name)
+	VALUES (137, 'Namibia');
+INSERT INTO countries (countryid, name)
+	VALUES (138, 'Nauru');
+INSERT INTO countries (countryid, name)
+	VALUES (140, 'Nepal');
+INSERT INTO countries (countryid, name)
+	VALUES (141, 'Netherlands');
+INSERT INTO countries (countryid, name)
+	VALUES (148, 'Netherlands Antilles');
+INSERT INTO countries (countryid, name)
+	VALUES (142, 'Nevis and St Kitts');
+INSERT INTO countries (countryid, name)
+	VALUES (41, 'New Caledonia');
+INSERT INTO countries (countryid, name)
+	VALUES (9, 'New Zealand');
+INSERT INTO countries (countryid, name)
+	VALUES (144, 'Nicaragua');
+INSERT INTO countries (countryid, name)
+	VALUES (143, 'Niger');
+INSERT INTO countries (countryid, name)
+	VALUES (145, 'Nigeria');
+INSERT INTO countries (countryid, name)
+	VALUES (149, 'Niue');
+INSERT INTO countries (countryid, name)
+	VALUES (260, 'Norfolk Island');
+INSERT INTO countries (countryid, name)
+	VALUES (146, 'North Korea');
+INSERT INTO countries (countryid, name)
+	VALUES (236, 'Northern Mariana Islands');
+INSERT INTO countries (countryid, name)
+	VALUES (147, 'Norway');
+INSERT INTO countries (countryid, name)
+	VALUES (150, 'Oman');
+INSERT INTO countries (countryid, name)
+	VALUES (151, 'Pakistan');
+INSERT INTO countries (countryid, name)
+	VALUES (261, 'Palau');
+INSERT INTO countries (countryid, name)
+	VALUES (276, 'Palestine');
+INSERT INTO countries (countryid, name)
+	VALUES (152, 'Panama');
+INSERT INTO countries (countryid, name)
+	VALUES (156, 'Papua New Guinea');
+INSERT INTO countries (countryid, name)
+	VALUES (262, 'Paraguay');
+INSERT INTO countries (countryid, name)
+	VALUES (153, 'Peru');
+INSERT INTO countries (countryid, name)
+	VALUES (154, 'Philippines');
+INSERT INTO countries (countryid, name)
+	VALUES (155, 'Pitcairn Islands');
+INSERT INTO countries (countryid, name)
+	VALUES (158, 'Poland');
+INSERT INTO countries (countryid, name)
+	VALUES (159, 'Portugal');
+INSERT INTO countries (countryid, name)
+	VALUES (226, 'Puerto Rico');
+INSERT INTO countries (countryid, name)
+	VALUES (160, 'Qatar');
+INSERT INTO countries (countryid, name)
+	VALUES (161, 'Reunion');
+INSERT INTO countries (countryid, name)
+	VALUES (162, 'Romania');
+INSERT INTO countries (countryid, name)
+	VALUES (163, 'Russia');
+INSERT INTO countries (countryid, name)
+	VALUES (164, 'Rwanda');
+INSERT INTO countries (countryid, name)
+	VALUES (277, 'Saba');
+INSERT INTO countries (countryid, name)
+	VALUES (171, 'Saint Helena');
+INSERT INTO countries (countryid, name)
+	VALUES (264, 'Saint Kitts and Nevis');
+INSERT INTO countries (countryid, name)
+	VALUES (173, 'Saint Lucia');
+INSERT INTO countries (countryid, name)
+	VALUES (217, 'Samoa');
+INSERT INTO countries (countryid, name)
+	VALUES (183, 'San Marino');
+INSERT INTO countries (countryid, name)
+	VALUES (176, 'Sao Tome and Principe');
+INSERT INTO countries (countryid, name)
+	VALUES (166, 'Saudi Arabia');
+INSERT INTO countries (countryid, name)
+	VALUES (167, 'Senegal');
+INSERT INTO countries (countryid, name)
+	VALUES (222, 'Serbia');
+INSERT INTO countries (countryid, name)
+	VALUES (168, 'Seychelles');
+INSERT INTO countries (countryid, name)
+	VALUES (178, 'Sierra Leone');
+INSERT INTO countries (countryid, name)
+	VALUES (179, 'Singapore');
+INSERT INTO countries (countryid, name)
+	VALUES (182, 'Slovakia');
+INSERT INTO countries (countryid, name)
+	VALUES (181, 'Slovenia');
+INSERT INTO countries (countryid, name)
+	VALUES (184, 'Solomon Islands');
+INSERT INTO countries (countryid, name)
+	VALUES (185, 'Somalia');
+INSERT INTO countries (countryid, name)
+	VALUES (165, 'South Africa');
+INSERT INTO countries (countryid, name)
+	VALUES (267, 'South Georgia and Sandwich Islands');
+INSERT INTO countries (countryid, name)
+	VALUES (180, 'South Korea');
+INSERT INTO countries (countryid, name)
+	VALUES (278, 'South Sudan');
+INSERT INTO countries (countryid, name)
+	VALUES (186, 'Spain');
+INSERT INTO countries (countryid, name)
+	VALUES (187, 'Sri Lanka');
+INSERT INTO countries (countryid, name)
+	VALUES (169, 'St Barthelemy');
+INSERT INTO countries (countryid, name)
+	VALUES (170, 'St Eustatius');
+INSERT INTO countries (countryid, name)
+	VALUES (172, 'St Kitts');
+INSERT INTO countries (countryid, name)
+	VALUES (175, 'St Pierre Miquelon');
+INSERT INTO countries (countryid, name)
+	VALUES (177, 'St Vince Grenadines');
+INSERT INTO countries (countryid, name)
+	VALUES (174, 'St. Martin');
+INSERT INTO countries (countryid, name)
+	VALUES (188, 'Sudan');
+INSERT INTO countries (countryid, name)
+	VALUES (189, 'Suriname');
+INSERT INTO countries (countryid, name)
+	VALUES (268, 'Svalbard and Jan Mayen');
+INSERT INTO countries (countryid, name)
+	VALUES (190, 'Swaziland');
+INSERT INTO countries (countryid, name)
+	VALUES (10, 'Sweden');
+INSERT INTO countries (countryid, name)
+	VALUES (192, 'Switzerland');
+INSERT INTO countries (countryid, name)
+	VALUES (193, 'Syria');
+INSERT INTO countries (countryid, name)
+	VALUES (194, 'Taiwan');
+INSERT INTO countries (countryid, name)
+	VALUES (195, 'Tajikistan');
+INSERT INTO countries (countryid, name)
+	VALUES (196, 'Tanzania');
+INSERT INTO countries (countryid, name)
+	VALUES (198, 'Thailand');
+INSERT INTO countries (countryid, name)
+	VALUES (200, 'Togo');
+INSERT INTO countries (countryid, name)
+	VALUES (269, 'Tokelau');
+INSERT INTO countries (countryid, name)
+	VALUES (201, 'Tonga');
+INSERT INTO countries (countryid, name)
+	VALUES (202, 'Trinidad and Tobago');
+INSERT INTO countries (countryid, name)
+	VALUES (203, 'Tunisia');
+INSERT INTO countries (countryid, name)
+	VALUES (204, 'Turkey');
+INSERT INTO countries (countryid, name)
+	VALUES (199, 'Turkmenistan');
+INSERT INTO countries (countryid, name)
+	VALUES (197, 'Turks and Caicos Islands');
+INSERT INTO countries (countryid, name)
+	VALUES (205, 'Tuvalu');
+INSERT INTO countries (countryid, name)
+	VALUES (208, 'Uganda');
+INSERT INTO countries (countryid, name)
+	VALUES (207, 'Ukraine');
+INSERT INTO countries (countryid, name)
+	VALUES (206, 'United Arab Emirates');
+INSERT INTO countries (countryid, name)
+	VALUES (11, 'United Kingdom');
+INSERT INTO countries (countryid, name)
+	VALUES (210, 'Uruguay');
+INSERT INTO countries (countryid, name)
+	VALUES (270, 'US Minor Outlying Islands');
+INSERT INTO countries (countryid, name)
+	VALUES (235, 'US Virgin Islands');
+INSERT INTO countries (countryid, name)
+	VALUES (211, 'Uzbekistan');
+INSERT INTO countries (countryid, name)
+	VALUES (212, 'Vanuatu');
+INSERT INTO countries (countryid, name)
+	VALUES (213, 'Vatican City State');
+INSERT INTO countries (countryid, name)
+	VALUES (214, 'Venezuela');
+INSERT INTO countries (countryid, name)
+	VALUES (215, 'Vietnam');
+INSERT INTO countries (countryid, name)
+	VALUES (218, 'Wallis And Futuna Islands');
+INSERT INTO countries (countryid, name)
+	VALUES (271, 'Western Sahara');
+INSERT INTO countries (countryid, name)
+	VALUES (220, 'Yemen');
+INSERT INTO countries (countryid, name)
+	VALUES (224, 'Zambia');
+INSERT INTO countries (countryid, name)
+	VALUES (225, 'Zimbabwe');
 
 /* Need to look up/translate some of these unicode characters */
-insert into states (stateid, name) values (189, 'Abruzzo');
-insert into states (stateid, name) values (162, 'Acre');
-insert into states (stateid, name) values (454, 'Aguascalientes');
-insert into states (stateid, name) values (312, 'Aichi');
-insert into states (stateid, name) values (240, 'Akershus');
-insert into states (stateid, name) values (383, 'Akita');
-insert into states (stateid, name) values (60, 'Alabama');
-insert into states (stateid, name) values (163, 'Alagoas');
-insert into states (stateid, name) values (2, 'Alaska');
-insert into states (stateid, name) values (63, 'Alberta');
-insert into states (stateid, name) values (433, 'Alsace');
-insert into states (stateid, name) values (164, 'Amap&#225;');
-insert into states (stateid, name) values (165, 'Amazonas');
-insert into states (stateid, name) values (116, 'Andaluc&#237;a');
-insert into states (stateid, name) values (87, 'Antwerpen');
-insert into states (stateid, name) values (313, 'Aomori');
-insert into states (stateid, name) values (412, 'Aquitaine');
-insert into states (stateid, name) values (119, 'Arag&#243;n');
-insert into states (stateid, name) values (3, 'Arizona');
-insert into states (stateid, name) values (4, 'Arkansas');
-insert into states (stateid, name) values (380, 'Armed Forces Americas');
-insert into states (stateid, name) values (381, 'Armed Forces Europe');
-insert into states (stateid, name) values (382, 'Armed Forces Pacific');
-insert into states (stateid, name) values (113, 'Arquip&#233;lago da Madeira');
-insert into states (stateid, name) values (114, 'Arquip&#233;lago dos A&#231;ores');
-insert into states (stateid, name) values (247, 'Aust-Agder');
-insert into states (stateid, name) values (59, 'Australian Capital Territory');
-insert into states (stateid, name) values (413, 'Auvergne');
-insert into states (stateid, name) values (95, 'Aveiro');
-insert into states (stateid, name) values (434, 'B&#225;cs-Kiskun');
-insert into states (stateid, name) values (135, 'Baden-W&#252;rttemberg');
-insert into states (stateid, name) values (166, 'Bahia');
-insert into states (stateid, name) values (455, 'Baja California');
-insert into states (stateid, name) values (456, 'Baja California Sur');
-insert into states (stateid, name) values (287, 'Banskobystrick&#253; kraj');
-insert into states (stateid, name) values (435, 'Baranya');
-insert into states (stateid, name) values (190, 'Basilicata');
-insert into states (stateid, name) values (414, 'Basse-Normandie');
-insert into states (stateid, name) values (136, 'Bayern');
-insert into states (stateid, name) values (96, 'Beja');
-insert into states (stateid, name) values (436, 'B&#233;k&#233;s');
-insert into states (stateid, name) values (137, 'Berlin');
-insert into states (stateid, name) values (359, 'Blekinge');
-insert into states (stateid, name) values (437, 'Borsod-Aba&#250;j-Zempl&#233;n');
-insert into states (stateid, name) values (415, 'Bourgogne');
-insert into states (stateid, name) values (91, 'Brabant wallon');
-insert into states (stateid, name) values (97, 'Braga');
-insert into states (stateid, name) values (98, 'Bragan&#231;a');
-insert into states (stateid, name) values (138, 'Brandenburg');
-insert into states (stateid, name) values (288, 'Bratislavsk&#253; kraj');
-insert into states (stateid, name) values (139, 'Bremen');
-insert into states (stateid, name) values (416, 'Bretagne');
-insert into states (stateid, name) values (64, 'British Columbia');
-insert into states (stateid, name) values (93, 'Brussels');
-insert into states (stateid, name) values (438, 'Budapest');
-insert into states (stateid, name) values (258, 'Burgenland');
-insert into states (stateid, name) values (297, 'Busan');
-insert into states (stateid, name) values (244, 'Buskerud');
-insert into states (stateid, name) values (192, 'Calabria');
-insert into states (stateid, name) values (5, 'California');
-insert into states (stateid, name) values (193, 'Campania');
-insert into states (stateid, name) values (457, 'Campeche');
-insert into states (stateid, name) values (130, 'Cantabria');
-insert into states (stateid, name) values (99, 'Castelo Branco');
-insert into states (stateid, name) values (115, 'Castilla y Le&#243;n');
-insert into states (stateid, name) values (117, 'Castilla-La Mancha');
-insert into states (stateid, name) values (121, 'Catalu&#241;a');
-insert into states (stateid, name) values (167, 'Cear&#225;');
-insert into states (stateid, name) values (417, 'Centre');
-insert into states (stateid, name) values (133, 'Ceuta');
-insert into states (stateid, name) values (418, 'Champagne-Ardenne');
-insert into states (stateid, name) values (486, 'Chatham Islands');
-insert into states (stateid, name) values (458, 'Chiapas');
-insert into states (stateid, name) values (314, 'Chiba');
-insert into states (stateid, name) values (459, 'Chihuahua');
-insert into states (stateid, name) values (305, 'Chungcheong buk do');
-insert into states (stateid, name) values (306, 'Chungcheong nam do');
-insert into states (stateid, name) values (460, 'Coahuila');
-insert into states (stateid, name) values (100, 'Coimbra');
-insert into states (stateid, name) values (461, 'Colima');
-insert into states (stateid, name) values (6, 'Colorado');
-insert into states (stateid, name) values (127, 'Comunidad de Madrid');
-insert into states (stateid, name) values (126, 'Comunidad Foral de Navarra');
-insert into states (stateid, name) values (123, 'Comunidad Valenciana');
-insert into states (stateid, name) values (227, 'Connacht');
-insert into states (stateid, name) values (7, 'Connecticut');
-insert into states (stateid, name) values (419, 'Corse');
-insert into states (stateid, name) values (439, 'Csongr&#225;d');
-insert into states (stateid, name) values (298, 'Daegu');
-insert into states (stateid, name) values (301, 'Daejeon');
-insert into states (stateid, name) values (360, 'Dalarna');
-insert into states (stateid, name) values (9, 'Delaware');
-insert into states (stateid, name) values (8, 'District of Columbia');
-insert into states (stateid, name) values (168, 'Distrito Federal');
-insert into states (stateid, name) values (462, 'Distrito Federal');
-insert into states (stateid, name) values (396, 'Dolnośląskie');
-insert into states (stateid, name) values (385, 'Drenthe');
-insert into states (stateid, name) values (226, 'Dublin');
-insert into states (stateid, name) values (463, 'Durango');
-insert into states (stateid, name) values (215, 'East Midlands');
-insert into states (stateid, name) values (153, 'Eastern Cape');
-insert into states (stateid, name) values (219, 'Eastern England');
-insert into states (stateid, name) values (315, 'Ehime');
-insert into states (stateid, name) values (194, 'Emilia–Romagna ');
-insert into states (stateid, name) values (234, 'Espace Mittelland (BE/SO)');
-insert into states (stateid, name) values (169, 'Esp&#237;rito Santo');
-insert into states (stateid, name) values (101, '&#201;vora');
-insert into states (stateid, name) values (120, 'Extremadura');
-insert into states (stateid, name) values (102, 'Faro');
-insert into states (stateid, name) values (440, 'Fej&#233;r');
-insert into states (stateid, name) values (257, 'Finnmark');
-insert into states (stateid, name) values (395, 'Flevoland');
-insert into states (stateid, name) values (10, 'Florida');
-insert into states (stateid, name) values (420, 'Franche-Comt&#233;');
-insert into states (stateid, name) values (160, 'Free State');
-insert into states (stateid, name) values (394, 'Friesland');
-insert into states (stateid, name) values (195, 'Friuli–Venezia Giulia');
-insert into states (stateid, name) values (316, 'Fukui');
-insert into states (stateid, name) values (317, 'Fukuoka');
-insert into states (stateid, name) values (318, 'Fukushima');
-insert into states (stateid, name) values (122, 'Galicia');
-insert into states (stateid, name) values (304, 'Gangwondo');
-insert into states (stateid, name) values (159, 'Gauteng');
-insert into states (stateid, name) values (362, 'G&#228;vleborg');
-insert into states (stateid, name) values (387, 'Gelderland');
-insert into states (stateid, name) values (11, 'Georgia');
-insert into states (stateid, name) values (319, 'Gifu');
-insert into states (stateid, name) values (170, 'Goi&#225;s');
-insert into states (stateid, name) values (361, 'Gotland');
-insert into states (stateid, name) values (229, 'Graubuenden (GR)');
-insert into states (stateid, name) values (384, 'Groningen');
-insert into states (stateid, name) values (464, 'Guanajuato');
-insert into states (stateid, name) values (103, 'Guarda');
-insert into states (stateid, name) values (465, 'Guerrero');
-insert into states (stateid, name) values (320, 'Gunma');
-insert into states (stateid, name) values (300, 'Gwangju');
-insert into states (stateid, name) values (303, 'Gyeonggido');
-insert into states (stateid, name) values (309, 'Gyeongsang buk do');
-insert into states (stateid, name) values (310, 'Gyeongsang nam do');
-insert into states (stateid, name) values (441, 'Gyor-Moson-Sopron');
-insert into states (stateid, name) values (88, 'Hainaut');
-insert into states (stateid, name) values (442, 'Hajd&#250;-Bihar');
-insert into states (stateid, name) values (363, 'Halland');
-insert into states (stateid, name) values (140, 'Hamburg');
-insert into states (stateid, name) values (421, 'Haute-Normandie');
-insert into states (stateid, name) values (12, 'Hawaii');
-insert into states (stateid, name) values (242, 'Hedmark');
-insert into states (stateid, name) values (150, 'Hessen');
-insert into states (stateid, name) values (443, 'Heves');
-insert into states (stateid, name) values (466, 'Hidalgo');
-insert into states (stateid, name) values (321, 'Hiroshima');
-insert into states (stateid, name) values (286, 'Hlavni mesto Praha');
-insert into states (stateid, name) values (322, 'Hokkaido');
-insert into states (stateid, name) values (250, 'Hordaland');
-insert into states (stateid, name) values (323, 'Hyogo');
-insert into states (stateid, name) values (324, 'Ibaraki');
-insert into states (stateid, name) values (13, 'Idaho');
-insert into states (stateid, name) values (422, '&#206;le-de-France');
-insert into states (stateid, name) values (14, 'Illinois');
-insert into states (stateid, name) values (299, 'Incheon');
-insert into states (stateid, name) values (15, 'Indiana');
-insert into states (stateid, name) values (16, 'Iowa');
-insert into states (stateid, name) values (325, 'Ishikawa');
-insert into states (stateid, name) values (132, 'Islas Baleares');
-insert into states (stateid, name) values (128, 'Islas Canarias');
-insert into states (stateid, name) values (326, 'Iwate');
-insert into states (stateid, name) values (467, 'Jalisco');
-insert into states (stateid, name) values (364, 'J&#228;mtland');
-insert into states (stateid, name) values (444, 'J&#225;sz-Nagykun-Szolnok');
-insert into states (stateid, name) values (311, 'Jejudo');
-insert into states (stateid, name) values (307, 'Jeolla buk do');
-insert into states (stateid, name) values (308, 'Jeolla nam do');
-insert into states (stateid, name) values (274, 'Jihocesky kraj');
-insert into states (stateid, name) values (273, 'Jihomoravsky kraj');
-insert into states (stateid, name) values (365, 'J&#246;nk&#246;ping');
-insert into states (stateid, name) values (236, 'Jura (JU/NE)');
-insert into states (stateid, name) values (327, 'Kagawa');
-insert into states (stateid, name) values (328, 'Kagoshima');
-insert into states (stateid, name) values (366, 'Kalmar');
-insert into states (stateid, name) values (329, 'Kanagawa');
-insert into states (stateid, name) values (17, 'Kansas');
-insert into states (stateid, name) values (276, 'Karlovarsky kraj');
-insert into states (stateid, name) values (259, 'K&#228;rnten');
-insert into states (stateid, name) values (18, 'Kentucky');
-insert into states (stateid, name) values (330, 'Kochi');
-insert into states (stateid, name) values (445, 'Kom&#225;rom-Esztergom');
-insert into states (stateid, name) values (289, 'Košick&#253; kraj');
-insert into states (stateid, name) values (284, 'Kraj Vysocina');
-insert into states (stateid, name) values (275, 'Kralovehradecky kraj');
-insert into states (stateid, name) values (367, 'Kronoberg');
-insert into states (stateid, name) values (397, 'Kujawsko-Pomorskie');
-insert into states (stateid, name) values (331, 'Kumamoto');
-insert into states (stateid, name) values (157, 'Kwazulu Natal');
-insert into states (stateid, name) values (332, 'Kyoto');
-insert into states (stateid, name) values (131, 'La Rioja');
-insert into states (stateid, name) values (423, 'Languedoc-Roussillon');
-insert into states (stateid, name) values (196, 'Lazio');
-insert into states (stateid, name) values (228, 'Leinster');
-insert into states (stateid, name) values (104, 'Leiria');
-insert into states (stateid, name) values (277, 'Liberecky kraj');
-insert into states (stateid, name) values (80, 'Li&#232;ge');
-insert into states (stateid, name) values (197, 'Liguria');
-insert into states (stateid, name) values (89, 'Limburg');
-insert into states (stateid, name) values (393, 'Limburg');
-insert into states (stateid, name) values (424, 'Limousin');
-insert into states (stateid, name) values (158, 'Limpopo');
-insert into states (stateid, name) values (105, 'Lisboa');
-insert into states (stateid, name) values (400, 'Ł&#243;dzkie');
-insert into states (stateid, name) values (198, 'Lombardia');
-insert into states (stateid, name) values (220, 'London');
-insert into states (stateid, name) values (425, 'Lorraine');
-insert into states (stateid, name) values (19, 'Louisiana');
-insert into states (stateid, name) values (398, 'Lubelskie');
-insert into states (stateid, name) values (399, 'Lubuskie');
-insert into states (stateid, name) values (90, 'Luxembourg');
-insert into states (stateid, name) values (20, 'Maine');
-insert into states (stateid, name) values (401, 'Małopolskie');
-insert into states (stateid, name) values (65, 'Manitoba');
-insert into states (stateid, name) values (171, 'Maranh&#227;o');
-insert into states (stateid, name) values (199, 'Marche');
-insert into states (stateid, name) values (21, 'Maryland');
-insert into states (stateid, name) values (22, 'Massachusetts');
-insert into states (stateid, name) values (172, 'Mato Grosso');
-insert into states (stateid, name) values (173, 'Mato Grosso do Sul');
-insert into states (stateid, name) values (402, 'Mazowieckie');
-insert into states (stateid, name) values (141, 'Mecklenburg-Vorpommern');
-insert into states (stateid, name) values (134, 'Melilla');
-insert into states (stateid, name) values (468, 'M&#233;xico');
-insert into states (stateid, name) values (23, 'Michigan');
-insert into states (stateid, name) values (469, 'Michoac&#225;n');
-insert into states (stateid, name) values (426, 'Midi-Pyr&#233;n&#233;es');
-insert into states (stateid, name) values (333, 'Mie');
-insert into states (stateid, name) values (174, 'Minas Gerais');
-insert into states (stateid, name) values (24, 'Minnesota');
-insert into states (stateid, name) values (25, 'Mississippi');
-insert into states (stateid, name) values (26, 'Missouri');
-insert into states (stateid, name) values (334, 'Miyagi');
-insert into states (stateid, name) values (335, 'Miyazaki');
-insert into states (stateid, name) values (200, 'Molise');
-insert into states (stateid, name) values (27, 'Montana');
-insert into states (stateid, name) values (279, 'Moravskoslezsky kraj');
-insert into states (stateid, name) values (252, 'M&#248;re og Romsdal');
-insert into states (stateid, name) values (470, 'Morelos');
-insert into states (stateid, name) values (155, 'Mpumalanga');
-insert into states (stateid, name) values (225, 'Munster');
-insert into states (stateid, name) values (336, 'Nagano');
-insert into states (stateid, name) values (337, 'Nagasaki');
-insert into states (stateid, name) values (81, 'Namur');
-insert into states (stateid, name) values (338, 'Nara');
-insert into states (stateid, name) values (471, 'Nayarit');
-insert into states (stateid, name) values (28, 'Nebraska');
-insert into states (stateid, name) values (29, 'Nevada');
-insert into states (stateid, name) values (66, 'New Brunswick');
-insert into states (stateid, name) values (30, 'New Hampshire');
-insert into states (stateid, name) values (31, 'New Jersey');
-insert into states (stateid, name) values (32, 'New Mexico');
-insert into states (stateid, name) values (52, 'New South Wales');
-insert into states (stateid, name) values (33, 'New York');
-insert into states (stateid, name) values (67, 'Newfoundland and Labrador');
-insert into states (stateid, name) values (260, 'Nieder&#246;sterreich');
-insert into states (stateid, name) values (142, 'Niedersachsen');
-insert into states (stateid, name) values (339, 'Niigata');
-insert into states (stateid, name) values (290, 'Nitriansky kraj');
-insert into states (stateid, name) values (446, 'N&#243;gr&#225;d');
-insert into states (stateid, name) values (392, 'Noord-Brabant');
-insert into states (stateid, name) values (389, 'Noord-Holland');
-insert into states (stateid, name) values (255, 'Nordland');
-insert into states (stateid, name) values (427, 'Nord-Pas-de-Calais');
-insert into states (stateid, name) values (143, 'Nordrhein-Westfalen');
-insert into states (stateid, name) values (254, 'Nord-Tr&#248;ndelag');
-insert into states (stateid, name) values (232, 'Nordwestschweiz (AG/BL/BS)');
-insert into states (stateid, name) values (368, 'Norrbotten');
-insert into states (stateid, name) values (34, 'North Carolina');
-insert into states (stateid, name) values (35, 'North Dakota');
-insert into states (stateid, name) values (82, 'North Island');
-insert into states (stateid, name) values (217, 'North Wales');
-insert into states (stateid, name) values (156, 'North West');
-insert into states (stateid, name) values (212, 'Northeast England');
-insert into states (stateid, name) values (154, 'Northern Cape');
-insert into states (stateid, name) values (210, 'Northern Scotland');
-insert into states (stateid, name) values (58, 'Northern Territory');
-insert into states (stateid, name) values (213, 'Northwest England');
-insert into states (stateid, name) values (72, 'Northwest Territories');
-insert into states (stateid, name) values (68, 'Nova Scotia');
-insert into states (stateid, name) values (472, 'Nuevo Le&#243;n');
-insert into states (stateid, name) values (73, 'Nunavut');
-insert into states (stateid, name) values (473, 'Oaxaca');
-insert into states (stateid, name) values (261, 'Ober&#246;sterreich');
-insert into states (stateid, name) values (36, 'Ohio');
-insert into states (stateid, name) values (340, 'Oita');
-insert into states (stateid, name) values (341, 'Okayama');
-insert into states (stateid, name) values (342, 'Okinawa');
-insert into states (stateid, name) values (37, 'Oklahoma');
-insert into states (stateid, name) values (278, 'Olomoucky kraj');
-insert into states (stateid, name) values (69, 'Ontario');
-insert into states (stateid, name) values (76, 'Oost-Vlaanderen');
-insert into states (stateid, name) values (403, 'Opolskie');
-insert into states (stateid, name) values (243, 'Oppland');
-insert into states (stateid, name) values (378, '&#214;rebro');
-insert into states (stateid, name) values (38, 'Oregon');
-insert into states (stateid, name) values (343, 'Osaka');
-insert into states (stateid, name) values (241, 'Oslo');
-insert into states (stateid, name) values (379, '&#214;sterg&#246;tland');
-insert into states (stateid, name) values (239, '&#216;stfold');
-insert into states (stateid, name) values (230, 'Ostschweiz (SG/SH/TG/AI/AR/GL)');
-insert into states (stateid, name) values (386, 'Overijssel');
-insert into states (stateid, name) values (129, 'Pa&#237;s Vasco');
-insert into states (stateid, name) values (175, 'Par&#225;');
-insert into states (stateid, name) values (176, 'Para&#237;ba');
-insert into states (stateid, name) values (177, 'Paran&#225;');
-insert into states (stateid, name) values (280, 'Pardubicky kraj');
-insert into states (stateid, name) values (428, 'Pays de la Loire');
-insert into states (stateid, name) values (39, 'Pennsylvania');
-insert into states (stateid, name) values (178, 'Pernambuco');
-insert into states (stateid, name) values (447, 'Pest');
-insert into states (stateid, name) values (179, 'Piau&#237;');
-insert into states (stateid, name) values (429, 'Picardie');
-insert into states (stateid, name) values (201, 'Piemonte');
-insert into states (stateid, name) values (281, 'Plzensky kraj');
-insert into states (stateid, name) values (404, 'Podkarpackie');
-insert into states (stateid, name) values (405, 'Podlaskie');
-insert into states (stateid, name) values (430, 'Poitou-Charentes');
-insert into states (stateid, name) values (406, 'Pomorskie');
-insert into states (stateid, name) values (106, 'Portalegre');
-insert into states (stateid, name) values (107, 'Porto');
-insert into states (stateid, name) values (291, 'Prešovsk&#253; kraj');
-insert into states (stateid, name) values (70, 'Prince Edward Island');
-insert into states (stateid, name) values (125, 'Principado de Asturias');
-insert into states (stateid, name) values (431, 'Provence-Alpes-C&#244;te d&#39;Azur');
-insert into states (stateid, name) values (474, 'Puebla');
-insert into states (stateid, name) values (202, 'Puglia');
-insert into states (stateid, name) values (62, 'Quebec');
-insert into states (stateid, name) values (54, 'Queensland');
-insert into states (stateid, name) values (475, 'Quer&#233;taro');
-insert into states (stateid, name) values (476, 'Quintana Roo');
-insert into states (stateid, name) values (124, 'Regi&#243;n de Murcia');
-insert into states (stateid, name) values (231, 'Region Zuerich (ZH)');
-insert into states (stateid, name) values (144, 'Rheinland-Pfalz');
-insert into states (stateid, name) values (40, 'Rhode Island');
-insert into states (stateid, name) values (432, 'Rh&#244;ne-Alpes');
-insert into states (stateid, name) values (180, 'Rio de Janeiro');
-insert into states (stateid, name) values (181, 'Rio Grande do Norte');
-insert into states (stateid, name) values (182, 'Rio Grande do Sul');
-insert into states (stateid, name) values (249, 'Rogaland');
-insert into states (stateid, name) values (183, 'Rond&#244;nia');
-insert into states (stateid, name) values (184, 'Roraima');
-insert into states (stateid, name) values (145, 'Saarland');
-insert into states (stateid, name) values (146, 'Sachsen');
-insert into states (stateid, name) values (147, 'Sachsen-Anhalt');
-insert into states (stateid, name) values (344, 'Saga');
-insert into states (stateid, name) values (345, 'Saitama');
-insert into states (stateid, name) values (262, 'Salzburg');
-insert into states (stateid, name) values (477, 'San Luis Potos&#237;');
-insert into states (stateid, name) values (185, 'Santa Catarina');
-insert into states (stateid, name) values (108, 'Santar&#233;m');
-insert into states (stateid, name) values (186, 'S&#227;o Paulo');
-insert into states (stateid, name) values (203, 'Sardegna');
-insert into states (stateid, name) values (71, 'Saskatchewan');
-insert into states (stateid, name) values (148, 'Schleswig-Holstein');
-insert into states (stateid, name) values (296, 'Seoul');
-insert into states (stateid, name) values (187, 'Sergipe');
-insert into states (stateid, name) values (109, 'Set&#250;bal');
-insert into states (stateid, name) values (346, 'Shiga');
-insert into states (stateid, name) values (347, 'Shimane');
-insert into states (stateid, name) values (348, 'Shizuoka');
-insert into states (stateid, name) values (204, 'Sicilia');
-insert into states (stateid, name) values (478, 'Sinaloa');
-insert into states (stateid, name) values (369, 'Sk&#229;ne');
-insert into states (stateid, name) values (407, 'Śląskie');
-insert into states (stateid, name) values (371, 'S&#246;dermanland');
-insert into states (stateid, name) values (251, 'Sogn og Fjordane');
-insert into states (stateid, name) values (448, 'Somogy');
-insert into states (stateid, name) values (479, 'Sonora');
-insert into states (stateid, name) values (253, 'S&#248;r-Tr&#248;ndelag');
-insert into states (stateid, name) values (55, 'South Australia');
-insert into states (stateid, name) values (41, 'South Carolina');
-insert into states (stateid, name) values (42, 'South Dakota');
-insert into states (stateid, name) values (223, 'South East England');
-insert into states (stateid, name) values (86, 'South Island');
-insert into states (stateid, name) values (218, 'South Wales');
-insert into states (stateid, name) values (222, 'South West England');
-insert into states (stateid, name) values (221, 'Southern England');
-insert into states (stateid, name) values (211, 'Southern Scotland');
-insert into states (stateid, name) values (263, 'Steiermark');
-insert into states (stateid, name) values (370, 'Stockholm');
-insert into states (stateid, name) values (282, 'Stredocesky kraj');
-insert into states (stateid, name) values (235, 'Suisse romande (GE/VD/FR)');
-insert into states (stateid, name) values (408, 'Świętokrzyskie');
-insert into states (stateid, name) values (449, 'Szabolcs-Szatm&#225;r-Bereg');
-insert into states (stateid, name) values (480, 'Tabasco');
-insert into states (stateid, name) values (481, 'Tamaulipas');
-insert into states (stateid, name) values (57, 'Tasmania');
-insert into states (stateid, name) values (245, 'Telemark');
-insert into states (stateid, name) values (43, 'Tennessee');
-insert into states (stateid, name) values (238, 'Tessin (TI)');
-insert into states (stateid, name) values (44, 'Texas');
-insert into states (stateid, name) values (149, 'Th&#252;ringen');
-insert into states (stateid, name) values (264, 'Tirol');
-insert into states (stateid, name) values (482, 'Tlaxcala');
-insert into states (stateid, name) values (188, 'Tocantins');
-insert into states (stateid, name) values (349, 'Tochigi');
-insert into states (stateid, name) values (350, 'Tokushima');
-insert into states (stateid, name) values (351, 'Tokyo');
-insert into states (stateid, name) values (450, 'Tolna');
-insert into states (stateid, name) values (205, 'Toscana');
-insert into states (stateid, name) values (352, 'Tottori');
-insert into states (stateid, name) values (353, 'Toyama');
-insert into states (stateid, name) values (292, 'Trenčiansky kraj');
-insert into states (stateid, name) values (206, 'Trentino–Alto Adige ');
-insert into states (stateid, name) values (293, 'Trnavsk&#253; kraj');
-insert into states (stateid, name) values (256, 'Troms');
-insert into states (stateid, name) values (302, 'Ulsan');
-insert into states (stateid, name) values (224, 'Ulster');
-insert into states (stateid, name) values (207, 'Umbria');
-insert into states (stateid, name) values (372, 'Uppsala');
-insert into states (stateid, name) values (283, 'Ustecky kraj');
-insert into states (stateid, name) values (45, 'Utah');
-insert into states (stateid, name) values (388, 'Utrecht');
-insert into states (stateid, name) values (208, 'Valle d&#39;Aosta');
-insert into states (stateid, name) values (373, 'V&#228;rmland');
-insert into states (stateid, name) values (451, 'Vas');
-insert into states (stateid, name) values (374, 'V&#228;sterbotten');
-insert into states (stateid, name) values (375, 'V&#228;sternorrland');
-insert into states (stateid, name) values (376, 'V&#228;stmanland');
-insert into states (stateid, name) values (377, 'V&#228;stra G&#246;taland');
-insert into states (stateid, name) values (209, 'Veneto');
-insert into states (stateid, name) values (483, 'Veracruz');
-insert into states (stateid, name) values (46, 'Vermont');
-insert into states (stateid, name) values (248, 'Vest-Agder');
-insert into states (stateid, name) values (246, 'Vestfold');
-insert into states (stateid, name) values (452, 'Veszpr&#233;m');
-insert into states (stateid, name) values (110, 'Viana do Castelo');
-insert into states (stateid, name) values (53, 'Victoria');
-insert into states (stateid, name) values (112, 'Vila Real');
-insert into states (stateid, name) values (47, 'Virginia');
-insert into states (stateid, name) values (111, 'Viseu');
-insert into states (stateid, name) values (78, 'Vlaams-Brabant');
-insert into states (stateid, name) values (265, 'Vorarlberg');
-insert into states (stateid, name) values (354, 'Wakayama');
-insert into states (stateid, name) values (237, 'Wallis (VS)');
-insert into states (stateid, name) values (409, 'Warmińsko-Mazurskie');
-insert into states (stateid, name) values (48, 'Washington');
-insert into states (stateid, name) values (216, 'West Midlands');
-insert into states (stateid, name) values (49, 'West Virginia');
-insert into states (stateid, name) values (56, 'Western Australia');
-insert into states (stateid, name) values (152, 'Western Cape');
-insert into states (stateid, name) values (92, 'West-Vlaanderen');
-insert into states (stateid, name) values (410, 'Wielkopolskie');
-insert into states (stateid, name) values (295, 'Wien');
-insert into states (stateid, name) values (50, 'Wisconsin');
-insert into states (stateid, name) values (51, 'Wyoming');
-insert into states (stateid, name) values (355, 'Yamagata');
-insert into states (stateid, name) values (356, 'Yamaguchi');
-insert into states (stateid, name) values (357, 'Yamanashi');
-insert into states (stateid, name) values (214, 'Yorkshire');
-insert into states (stateid, name) values (484, 'Yucat&#225;n');
-insert into states (stateid, name) values (74, 'Yukon Territory');
-insert into states (stateid, name) values (485, 'Zacatecas');
-insert into states (stateid, name) values (411, 'Zachodniopomorskie');
-insert into states (stateid, name) values (453, 'Zala');
-insert into states (stateid, name) values (391, 'Zeeland');
-insert into states (stateid, name) values (233, 'Zentralschweiz (ZG/SZ/LU/UR/OW/NW)');
-insert into states (stateid, name) values (294, 'Žilinsk&#253; kraj');
-insert into states (stateid, name) values (285, 'Zlinsky kraj');
-insert into states (stateid, name) values (390, 'Zuid-Holland');
+INSERT INTO states (stateid, name)
+	VALUES (189, 'Abruzzo');
+INSERT INTO states (stateid, name)
+	VALUES (162, 'Acre');
+INSERT INTO states (stateid, name)
+	VALUES (454, 'Aguascalientes');
+INSERT INTO states (stateid, name)
+	VALUES (312, 'Aichi');
+INSERT INTO states (stateid, name)
+	VALUES (240, 'Akershus');
+INSERT INTO states (stateid, name)
+	VALUES (383, 'Akita');
+INSERT INTO states (stateid, name)
+	VALUES (60, 'Alabama');
+INSERT INTO states (stateid, name)
+	VALUES (163, 'Alagoas');
+INSERT INTO states (stateid, name)
+	VALUES (2, 'Alaska');
+INSERT INTO states (stateid, name)
+	VALUES (63, 'Alberta');
+INSERT INTO states (stateid, name)
+	VALUES (433, 'Alsace');
+INSERT INTO states (stateid, name)
+	VALUES (164, 'Amap&#225;');
+INSERT INTO states (stateid, name)
+	VALUES (165, 'Amazonas');
+INSERT INTO states (stateid, name)
+	VALUES (116, 'Andaluc&#237;a');
+INSERT INTO states (stateid, name)
+	VALUES (87, 'Antwerpen');
+INSERT INTO states (stateid, name)
+	VALUES (313, 'Aomori');
+INSERT INTO states (stateid, name)
+	VALUES (412, 'Aquitaine');
+INSERT INTO states (stateid, name)
+	VALUES (119, 'Arag&#243;n');
+INSERT INTO states (stateid, name)
+	VALUES (3, 'Arizona');
+INSERT INTO states (stateid, name)
+	VALUES (4, 'Arkansas');
+INSERT INTO states (stateid, name)
+	VALUES (380, 'Armed Forces Americas');
+INSERT INTO states (stateid, name)
+	VALUES (381, 'Armed Forces Europe');
+INSERT INTO states (stateid, name)
+	VALUES (382, 'Armed Forces Pacific');
+INSERT INTO states (stateid, name)
+	VALUES (113, 'Arquip&#233;lago da Madeira');
+INSERT INTO states (stateid, name)
+	VALUES (114, 'Arquip&#233;lago dos A&#231;ores');
+INSERT INTO states (stateid, name)
+	VALUES (247, 'Aust-Agder');
+INSERT INTO states (stateid, name)
+	VALUES (59, 'Australian Capital Territory');
+INSERT INTO states (stateid, name)
+	VALUES (413, 'Auvergne');
+INSERT INTO states (stateid, name)
+	VALUES (95, 'Aveiro');
+INSERT INTO states (stateid, name)
+	VALUES (434, 'B&#225;cs-Kiskun');
+INSERT INTO states (stateid, name)
+	VALUES (135, 'Baden-W&#252;rttemberg');
+INSERT INTO states (stateid, name)
+	VALUES (166, 'Bahia');
+INSERT INTO states (stateid, name)
+	VALUES (455, 'Baja California');
+INSERT INTO states (stateid, name)
+	VALUES (456, 'Baja California Sur');
+INSERT INTO states (stateid, name)
+	VALUES (287, 'Banskobystrick&#253; kraj');
+INSERT INTO states (stateid, name)
+	VALUES (435, 'Baranya');
+INSERT INTO states (stateid, name)
+	VALUES (190, 'Basilicata');
+INSERT INTO states (stateid, name)
+	VALUES (414, 'Basse-Normandie');
+INSERT INTO states (stateid, name)
+	VALUES (136, 'Bayern');
+INSERT INTO states (stateid, name)
+	VALUES (96, 'Beja');
+INSERT INTO states (stateid, name)
+	VALUES (436, 'B&#233;k&#233;s');
+INSERT INTO states (stateid, name)
+	VALUES (137, 'Berlin');
+INSERT INTO states (stateid, name)
+	VALUES (359, 'Blekinge');
+INSERT INTO states (stateid, name)
+	VALUES (437, 'Borsod-Aba&#250;j-Zempl&#233;n');
+INSERT INTO states (stateid, name)
+	VALUES (415, 'Bourgogne');
+INSERT INTO states (stateid, name)
+	VALUES (91, 'Brabant wallon');
+INSERT INTO states (stateid, name)
+	VALUES (97, 'Braga');
+INSERT INTO states (stateid, name)
+	VALUES (98, 'Bragan&#231;a');
+INSERT INTO states (stateid, name)
+	VALUES (138, 'Brandenburg');
+INSERT INTO states (stateid, name)
+	VALUES (288, 'Bratislavsk&#253; kraj');
+INSERT INTO states (stateid, name)
+	VALUES (139, 'Bremen');
+INSERT INTO states (stateid, name)
+	VALUES (416, 'Bretagne');
+INSERT INTO states (stateid, name)
+	VALUES (64, 'British Columbia');
+INSERT INTO states (stateid, name)
+	VALUES (93, 'Brussels');
+INSERT INTO states (stateid, name)
+	VALUES (438, 'Budapest');
+INSERT INTO states (stateid, name)
+	VALUES (258, 'Burgenland');
+INSERT INTO states (stateid, name)
+	VALUES (297, 'Busan');
+INSERT INTO states (stateid, name)
+	VALUES (244, 'Buskerud');
+INSERT INTO states (stateid, name)
+	VALUES (192, 'Calabria');
+INSERT INTO states (stateid, name)
+	VALUES (5, 'California');
+INSERT INTO states (stateid, name)
+	VALUES (193, 'Campania');
+INSERT INTO states (stateid, name)
+	VALUES (457, 'Campeche');
+INSERT INTO states (stateid, name)
+	VALUES (130, 'Cantabria');
+INSERT INTO states (stateid, name)
+	VALUES (99, 'Castelo Branco');
+INSERT INTO states (stateid, name)
+	VALUES (115, 'Castilla y Le&#243;n');
+INSERT INTO states (stateid, name)
+	VALUES (117, 'Castilla-La Mancha');
+INSERT INTO states (stateid, name)
+	VALUES (121, 'Catalu&#241;a');
+INSERT INTO states (stateid, name)
+	VALUES (167, 'Cear&#225;');
+INSERT INTO states (stateid, name)
+	VALUES (417, 'Centre');
+INSERT INTO states (stateid, name)
+	VALUES (133, 'Ceuta');
+INSERT INTO states (stateid, name)
+	VALUES (418, 'Champagne-Ardenne');
+INSERT INTO states (stateid, name)
+	VALUES (486, 'Chatham Islands');
+INSERT INTO states (stateid, name)
+	VALUES (458, 'Chiapas');
+INSERT INTO states (stateid, name)
+	VALUES (314, 'Chiba');
+INSERT INTO states (stateid, name)
+	VALUES (459, 'Chihuahua');
+INSERT INTO states (stateid, name)
+	VALUES (305, 'Chungcheong buk do');
+INSERT INTO states (stateid, name)
+	VALUES (306, 'Chungcheong nam do');
+INSERT INTO states (stateid, name)
+	VALUES (460, 'Coahuila');
+INSERT INTO states (stateid, name)
+	VALUES (100, 'Coimbra');
+INSERT INTO states (stateid, name)
+	VALUES (461, 'Colima');
+INSERT INTO states (stateid, name)
+	VALUES (6, 'Colorado');
+INSERT INTO states (stateid, name)
+	VALUES (127, 'Comunidad de Madrid');
+INSERT INTO states (stateid, name)
+	VALUES (126, 'Comunidad Foral de Navarra');
+INSERT INTO states (stateid, name)
+	VALUES (123, 'Comunidad Valenciana');
+INSERT INTO states (stateid, name)
+	VALUES (227, 'Connacht');
+INSERT INTO states (stateid, name)
+	VALUES (7, 'Connecticut');
+INSERT INTO states (stateid, name)
+	VALUES (419, 'Corse');
+INSERT INTO states (stateid, name)
+	VALUES (439, 'Csongr&#225;d');
+INSERT INTO states (stateid, name)
+	VALUES (298, 'Daegu');
+INSERT INTO states (stateid, name)
+	VALUES (301, 'Daejeon');
+INSERT INTO states (stateid, name)
+	VALUES (360, 'Dalarna');
+INSERT INTO states (stateid, name)
+	VALUES (9, 'Delaware');
+INSERT INTO states (stateid, name)
+	VALUES (8, 'District of Columbia');
+INSERT INTO states (stateid, name)
+	VALUES (168, 'Distrito Federal');
+INSERT INTO states (stateid, name)
+	VALUES (462, 'Distrito Federal');
+INSERT INTO states (stateid, name)
+	VALUES (396, 'Dolnośląskie');
+INSERT INTO states (stateid, name)
+	VALUES (385, 'Drenthe');
+INSERT INTO states (stateid, name)
+	VALUES (226, 'Dublin');
+INSERT INTO states (stateid, name)
+	VALUES (463, 'Durango');
+INSERT INTO states (stateid, name)
+	VALUES (215, 'East Midlands');
+INSERT INTO states (stateid, name)
+	VALUES (153, 'Eastern Cape');
+INSERT INTO states (stateid, name)
+	VALUES (219, 'Eastern England');
+INSERT INTO states (stateid, name)
+	VALUES (315, 'Ehime');
+INSERT INTO states (stateid, name)
+	VALUES (194, 'Emilia–Romagna ');
+INSERT INTO states (stateid, name)
+	VALUES (234, 'Espace Mittelland (BE/SO)');
+INSERT INTO states (stateid, name)
+	VALUES (169, 'Esp&#237;rito Santo');
+INSERT INTO states (stateid, name)
+	VALUES (101, '&#201;vora');
+INSERT INTO states (stateid, name)
+	VALUES (120, 'Extremadura');
+INSERT INTO states (stateid, name)
+	VALUES (102, 'Faro');
+INSERT INTO states (stateid, name)
+	VALUES (440, 'Fej&#233;r');
+INSERT INTO states (stateid, name)
+	VALUES (257, 'Finnmark');
+INSERT INTO states (stateid, name)
+	VALUES (395, 'Flevoland');
+INSERT INTO states (stateid, name)
+	VALUES (10, 'Florida');
+INSERT INTO states (stateid, name)
+	VALUES (420, 'Franche-Comt&#233;');
+INSERT INTO states (stateid, name)
+	VALUES (160, 'Free State');
+INSERT INTO states (stateid, name)
+	VALUES (394, 'Friesland');
+INSERT INTO states (stateid, name)
+	VALUES (195, 'Friuli–Venezia Giulia');
+INSERT INTO states (stateid, name)
+	VALUES (316, 'Fukui');
+INSERT INTO states (stateid, name)
+	VALUES (317, 'Fukuoka');
+INSERT INTO states (stateid, name)
+	VALUES (318, 'Fukushima');
+INSERT INTO states (stateid, name)
+	VALUES (122, 'Galicia');
+INSERT INTO states (stateid, name)
+	VALUES (304, 'Gangwondo');
+INSERT INTO states (stateid, name)
+	VALUES (159, 'Gauteng');
+INSERT INTO states (stateid, name)
+	VALUES (362, 'G&#228;vleborg');
+INSERT INTO states (stateid, name)
+	VALUES (387, 'Gelderland');
+INSERT INTO states (stateid, name)
+	VALUES (11, 'Georgia');
+INSERT INTO states (stateid, name)
+	VALUES (319, 'Gifu');
+INSERT INTO states (stateid, name)
+	VALUES (170, 'Goi&#225;s');
+INSERT INTO states (stateid, name)
+	VALUES (361, 'Gotland');
+INSERT INTO states (stateid, name)
+	VALUES (229, 'Graubuenden (GR)');
+INSERT INTO states (stateid, name)
+	VALUES (384, 'Groningen');
+INSERT INTO states (stateid, name)
+	VALUES (464, 'Guanajuato');
+INSERT INTO states (stateid, name)
+	VALUES (103, 'Guarda');
+INSERT INTO states (stateid, name)
+	VALUES (465, 'Guerrero');
+INSERT INTO states (stateid, name)
+	VALUES (320, 'Gunma');
+INSERT INTO states (stateid, name)
+	VALUES (300, 'Gwangju');
+INSERT INTO states (stateid, name)
+	VALUES (303, 'Gyeonggido');
+INSERT INTO states (stateid, name)
+	VALUES (309, 'Gyeongsang buk do');
+INSERT INTO states (stateid, name)
+	VALUES (310, 'Gyeongsang nam do');
+INSERT INTO states (stateid, name)
+	VALUES (441, 'Gyor-Moson-Sopron');
+INSERT INTO states (stateid, name)
+	VALUES (88, 'Hainaut');
+INSERT INTO states (stateid, name)
+	VALUES (442, 'Hajd&#250;-Bihar');
+INSERT INTO states (stateid, name)
+	VALUES (363, 'Halland');
+INSERT INTO states (stateid, name)
+	VALUES (140, 'Hamburg');
+INSERT INTO states (stateid, name)
+	VALUES (421, 'Haute-Normandie');
+INSERT INTO states (stateid, name)
+	VALUES (12, 'Hawaii');
+INSERT INTO states (stateid, name)
+	VALUES (242, 'Hedmark');
+INSERT INTO states (stateid, name)
+	VALUES (150, 'Hessen');
+INSERT INTO states (stateid, name)
+	VALUES (443, 'Heves');
+INSERT INTO states (stateid, name)
+	VALUES (466, 'Hidalgo');
+INSERT INTO states (stateid, name)
+	VALUES (321, 'Hiroshima');
+INSERT INTO states (stateid, name)
+	VALUES (286, 'Hlavni mesto Praha');
+INSERT INTO states (stateid, name)
+	VALUES (322, 'Hokkaido');
+INSERT INTO states (stateid, name)
+	VALUES (250, 'Hordaland');
+INSERT INTO states (stateid, name)
+	VALUES (323, 'Hyogo');
+INSERT INTO states (stateid, name)
+	VALUES (324, 'Ibaraki');
+INSERT INTO states (stateid, name)
+	VALUES (13, 'Idaho');
+INSERT INTO states (stateid, name)
+	VALUES (422, '&#206;le-de-France');
+INSERT INTO states (stateid, name)
+	VALUES (14, 'Illinois');
+INSERT INTO states (stateid, name)
+	VALUES (299, 'Incheon');
+INSERT INTO states (stateid, name)
+	VALUES (15, 'Indiana');
+INSERT INTO states (stateid, name)
+	VALUES (16, 'Iowa');
+INSERT INTO states (stateid, name)
+	VALUES (325, 'Ishikawa');
+INSERT INTO states (stateid, name)
+	VALUES (132, 'Islas Baleares');
+INSERT INTO states (stateid, name)
+	VALUES (128, 'Islas Canarias');
+INSERT INTO states (stateid, name)
+	VALUES (326, 'Iwate');
+INSERT INTO states (stateid, name)
+	VALUES (467, 'Jalisco');
+INSERT INTO states (stateid, name)
+	VALUES (364, 'J&#228;mtland');
+INSERT INTO states (stateid, name)
+	VALUES (444, 'J&#225;sz-Nagykun-Szolnok');
+INSERT INTO states (stateid, name)
+	VALUES (311, 'Jejudo');
+INSERT INTO states (stateid, name)
+	VALUES (307, 'Jeolla buk do');
+INSERT INTO states (stateid, name)
+	VALUES (308, 'Jeolla nam do');
+INSERT INTO states (stateid, name)
+	VALUES (274, 'Jihocesky kraj');
+INSERT INTO states (stateid, name)
+	VALUES (273, 'Jihomoravsky kraj');
+INSERT INTO states (stateid, name)
+	VALUES (365, 'J&#246;nk&#246;ping');
+INSERT INTO states (stateid, name)
+	VALUES (236, 'Jura (JU/NE)');
+INSERT INTO states (stateid, name)
+	VALUES (327, 'Kagawa');
+INSERT INTO states (stateid, name)
+	VALUES (328, 'Kagoshima');
+INSERT INTO states (stateid, name)
+	VALUES (366, 'Kalmar');
+INSERT INTO states (stateid, name)
+	VALUES (329, 'Kanagawa');
+INSERT INTO states (stateid, name)
+	VALUES (17, 'Kansas');
+INSERT INTO states (stateid, name)
+	VALUES (276, 'Karlovarsky kraj');
+INSERT INTO states (stateid, name)
+	VALUES (259, 'K&#228;rnten');
+INSERT INTO states (stateid, name)
+	VALUES (18, 'Kentucky');
+INSERT INTO states (stateid, name)
+	VALUES (330, 'Kochi');
+INSERT INTO states (stateid, name)
+	VALUES (445, 'Kom&#225;rom-Esztergom');
+INSERT INTO states (stateid, name)
+	VALUES (289, 'Košick&#253; kraj');
+INSERT INTO states (stateid, name)
+	VALUES (284, 'Kraj Vysocina');
+INSERT INTO states (stateid, name)
+	VALUES (275, 'Kralovehradecky kraj');
+INSERT INTO states (stateid, name)
+	VALUES (367, 'Kronoberg');
+INSERT INTO states (stateid, name)
+	VALUES (397, 'Kujawsko-Pomorskie');
+INSERT INTO states (stateid, name)
+	VALUES (331, 'Kumamoto');
+INSERT INTO states (stateid, name)
+	VALUES (157, 'Kwazulu Natal');
+INSERT INTO states (stateid, name)
+	VALUES (332, 'Kyoto');
+INSERT INTO states (stateid, name)
+	VALUES (131, 'La Rioja');
+INSERT INTO states (stateid, name)
+	VALUES (423, 'Languedoc-Roussillon');
+INSERT INTO states (stateid, name)
+	VALUES (196, 'Lazio');
+INSERT INTO states (stateid, name)
+	VALUES (228, 'Leinster');
+INSERT INTO states (stateid, name)
+	VALUES (104, 'Leiria');
+INSERT INTO states (stateid, name)
+	VALUES (277, 'Liberecky kraj');
+INSERT INTO states (stateid, name)
+	VALUES (80, 'Li&#232;ge');
+INSERT INTO states (stateid, name)
+	VALUES (197, 'Liguria');
+INSERT INTO states (stateid, name)
+	VALUES (89, 'Limburg');
+INSERT INTO states (stateid, name)
+	VALUES (393, 'Limburg');
+INSERT INTO states (stateid, name)
+	VALUES (424, 'Limousin');
+INSERT INTO states (stateid, name)
+	VALUES (158, 'Limpopo');
+INSERT INTO states (stateid, name)
+	VALUES (105, 'Lisboa');
+INSERT INTO states (stateid, name)
+	VALUES (400, 'Ł&#243;dzkie');
+INSERT INTO states (stateid, name)
+	VALUES (198, 'Lombardia');
+INSERT INTO states (stateid, name)
+	VALUES (220, 'London');
+INSERT INTO states (stateid, name)
+	VALUES (425, 'Lorraine');
+INSERT INTO states (stateid, name)
+	VALUES (19, 'Louisiana');
+INSERT INTO states (stateid, name)
+	VALUES (398, 'Lubelskie');
+INSERT INTO states (stateid, name)
+	VALUES (399, 'Lubuskie');
+INSERT INTO states (stateid, name)
+	VALUES (90, 'Luxembourg');
+INSERT INTO states (stateid, name)
+	VALUES (20, 'Maine');
+INSERT INTO states (stateid, name)
+	VALUES (401, 'Małopolskie');
+INSERT INTO states (stateid, name)
+	VALUES (65, 'Manitoba');
+INSERT INTO states (stateid, name)
+	VALUES (171, 'Maranh&#227;o');
+INSERT INTO states (stateid, name)
+	VALUES (199, 'Marche');
+INSERT INTO states (stateid, name)
+	VALUES (21, 'Maryland');
+INSERT INTO states (stateid, name)
+	VALUES (22, 'Massachusetts');
+INSERT INTO states (stateid, name)
+	VALUES (172, 'Mato Grosso');
+INSERT INTO states (stateid, name)
+	VALUES (173, 'Mato Grosso do Sul');
+INSERT INTO states (stateid, name)
+	VALUES (402, 'Mazowieckie');
+INSERT INTO states (stateid, name)
+	VALUES (141, 'Mecklenburg-Vorpommern');
+INSERT INTO states (stateid, name)
+	VALUES (134, 'Melilla');
+INSERT INTO states (stateid, name)
+	VALUES (468, 'M&#233;xico');
+INSERT INTO states (stateid, name)
+	VALUES (23, 'Michigan');
+INSERT INTO states (stateid, name)
+	VALUES (469, 'Michoac&#225;n');
+INSERT INTO states (stateid, name)
+	VALUES (426, 'Midi-Pyr&#233;n&#233;es');
+INSERT INTO states (stateid, name)
+	VALUES (333, 'Mie');
+INSERT INTO states (stateid, name)
+	VALUES (174, 'Minas Gerais');
+INSERT INTO states (stateid, name)
+	VALUES (24, 'Minnesota');
+INSERT INTO states (stateid, name)
+	VALUES (25, 'Mississippi');
+INSERT INTO states (stateid, name)
+	VALUES (26, 'Missouri');
+INSERT INTO states (stateid, name)
+	VALUES (334, 'Miyagi');
+INSERT INTO states (stateid, name)
+	VALUES (335, 'Miyazaki');
+INSERT INTO states (stateid, name)
+	VALUES (200, 'Molise');
+INSERT INTO states (stateid, name)
+	VALUES (27, 'Montana');
+INSERT INTO states (stateid, name)
+	VALUES (279, 'Moravskoslezsky kraj');
+INSERT INTO states (stateid, name)
+	VALUES (252, 'M&#248;re og Romsdal');
+INSERT INTO states (stateid, name)
+	VALUES (470, 'Morelos');
+INSERT INTO states (stateid, name)
+	VALUES (155, 'Mpumalanga');
+INSERT INTO states (stateid, name)
+	VALUES (225, 'Munster');
+INSERT INTO states (stateid, name)
+	VALUES (336, 'Nagano');
+INSERT INTO states (stateid, name)
+	VALUES (337, 'Nagasaki');
+INSERT INTO states (stateid, name)
+	VALUES (81, 'Namur');
+INSERT INTO states (stateid, name)
+	VALUES (338, 'Nara');
+INSERT INTO states (stateid, name)
+	VALUES (471, 'Nayarit');
+INSERT INTO states (stateid, name)
+	VALUES (28, 'Nebraska');
+INSERT INTO states (stateid, name)
+	VALUES (29, 'Nevada');
+INSERT INTO states (stateid, name)
+	VALUES (66, 'New Brunswick');
+INSERT INTO states (stateid, name)
+	VALUES (30, 'New Hampshire');
+INSERT INTO states (stateid, name)
+	VALUES (31, 'New Jersey');
+INSERT INTO states (stateid, name)
+	VALUES (32, 'New Mexico');
+INSERT INTO states (stateid, name)
+	VALUES (52, 'New South Wales');
+INSERT INTO states (stateid, name)
+	VALUES (33, 'New York');
+INSERT INTO states (stateid, name)
+	VALUES (67, 'Newfoundland and Labrador');
+INSERT INTO states (stateid, name)
+	VALUES (260, 'Nieder&#246;sterreich');
+INSERT INTO states (stateid, name)
+	VALUES (142, 'Niedersachsen');
+INSERT INTO states (stateid, name)
+	VALUES (339, 'Niigata');
+INSERT INTO states (stateid, name)
+	VALUES (290, 'Nitriansky kraj');
+INSERT INTO states (stateid, name)
+	VALUES (446, 'N&#243;gr&#225;d');
+INSERT INTO states (stateid, name)
+	VALUES (392, 'Noord-Brabant');
+INSERT INTO states (stateid, name)
+	VALUES (389, 'Noord-Holland');
+INSERT INTO states (stateid, name)
+	VALUES (255, 'Nordland');
+INSERT INTO states (stateid, name)
+	VALUES (427, 'Nord-Pas-de-Calais');
+INSERT INTO states (stateid, name)
+	VALUES (143, 'Nordrhein-Westfalen');
+INSERT INTO states (stateid, name)
+	VALUES (254, 'Nord-Tr&#248;ndelag');
+INSERT INTO states (stateid, name)
+	VALUES (232, 'Nordwestschweiz (AG/BL/BS)');
+INSERT INTO states (stateid, name)
+	VALUES (368, 'Norrbotten');
+INSERT INTO states (stateid, name)
+	VALUES (34, 'North Carolina');
+INSERT INTO states (stateid, name)
+	VALUES (35, 'North Dakota');
+INSERT INTO states (stateid, name)
+	VALUES (82, 'North Island');
+INSERT INTO states (stateid, name)
+	VALUES (217, 'North Wales');
+INSERT INTO states (stateid, name)
+	VALUES (156, 'North West');
+INSERT INTO states (stateid, name)
+	VALUES (212, 'Northeast England');
+INSERT INTO states (stateid, name)
+	VALUES (154, 'Northern Cape');
+INSERT INTO states (stateid, name)
+	VALUES (210, 'Northern Scotland');
+INSERT INTO states (stateid, name)
+	VALUES (58, 'Northern Territory');
+INSERT INTO states (stateid, name)
+	VALUES (213, 'Northwest England');
+INSERT INTO states (stateid, name)
+	VALUES (72, 'Northwest Territories');
+INSERT INTO states (stateid, name)
+	VALUES (68, 'Nova Scotia');
+INSERT INTO states (stateid, name)
+	VALUES (472, 'Nuevo Le&#243;n');
+INSERT INTO states (stateid, name)
+	VALUES (73, 'Nunavut');
+INSERT INTO states (stateid, name)
+	VALUES (473, 'Oaxaca');
+INSERT INTO states (stateid, name)
+	VALUES (261, 'Ober&#246;sterreich');
+INSERT INTO states (stateid, name)
+	VALUES (36, 'Ohio');
+INSERT INTO states (stateid, name)
+	VALUES (340, 'Oita');
+INSERT INTO states (stateid, name)
+	VALUES (341, 'Okayama');
+INSERT INTO states (stateid, name)
+	VALUES (342, 'Okinawa');
+INSERT INTO states (stateid, name)
+	VALUES (37, 'Oklahoma');
+INSERT INTO states (stateid, name)
+	VALUES (278, 'Olomoucky kraj');
+INSERT INTO states (stateid, name)
+	VALUES (69, 'Ontario');
+INSERT INTO states (stateid, name)
+	VALUES (76, 'Oost-Vlaanderen');
+INSERT INTO states (stateid, name)
+	VALUES (403, 'Opolskie');
+INSERT INTO states (stateid, name)
+	VALUES (243, 'Oppland');
+INSERT INTO states (stateid, name)
+	VALUES (378, '&#214;rebro');
+INSERT INTO states (stateid, name)
+	VALUES (38, 'Oregon');
+INSERT INTO states (stateid, name)
+	VALUES (343, 'Osaka');
+INSERT INTO states (stateid, name)
+	VALUES (241, 'Oslo');
+INSERT INTO states (stateid, name)
+	VALUES (379, '&#214;sterg&#246;tland');
+INSERT INTO states (stateid, name)
+	VALUES (239, '&#216;stfold');
+INSERT INTO states (stateid, name)
+	VALUES (230, 'Ostschweiz (SG/SH/TG/AI/AR/GL)');
+INSERT INTO states (stateid, name)
+	VALUES (386, 'Overijssel');
+INSERT INTO states (stateid, name)
+	VALUES (129, 'Pa&#237;s Vasco');
+INSERT INTO states (stateid, name)
+	VALUES (175, 'Par&#225;');
+INSERT INTO states (stateid, name)
+	VALUES (176, 'Para&#237;ba');
+INSERT INTO states (stateid, name)
+	VALUES (177, 'Paran&#225;');
+INSERT INTO states (stateid, name)
+	VALUES (280, 'Pardubicky kraj');
+INSERT INTO states (stateid, name)
+	VALUES (428, 'Pays de la Loire');
+INSERT INTO states (stateid, name)
+	VALUES (39, 'Pennsylvania');
+INSERT INTO states (stateid, name)
+	VALUES (178, 'Pernambuco');
+INSERT INTO states (stateid, name)
+	VALUES (447, 'Pest');
+INSERT INTO states (stateid, name)
+	VALUES (179, 'Piau&#237;');
+INSERT INTO states (stateid, name)
+	VALUES (429, 'Picardie');
+INSERT INTO states (stateid, name)
+	VALUES (201, 'Piemonte');
+INSERT INTO states (stateid, name)
+	VALUES (281, 'Plzensky kraj');
+INSERT INTO states (stateid, name)
+	VALUES (404, 'Podkarpackie');
+INSERT INTO states (stateid, name)
+	VALUES (405, 'Podlaskie');
+INSERT INTO states (stateid, name)
+	VALUES (430, 'Poitou-Charentes');
+INSERT INTO states (stateid, name)
+	VALUES (406, 'Pomorskie');
+INSERT INTO states (stateid, name)
+	VALUES (106, 'Portalegre');
+INSERT INTO states (stateid, name)
+	VALUES (107, 'Porto');
+INSERT INTO states (stateid, name)
+	VALUES (291, 'Prešovsk&#253; kraj');
+INSERT INTO states (stateid, name)
+	VALUES (70, 'Prince Edward Island');
+INSERT INTO states (stateid, name)
+	VALUES (125, 'Principado de Asturias');
+INSERT INTO states (stateid, name)
+	VALUES (431, 'Provence-Alpes-C&#244;te d&#39;Azur');
+INSERT INTO states (stateid, name)
+	VALUES (474, 'Puebla');
+INSERT INTO states (stateid, name)
+	VALUES (202, 'Puglia');
+INSERT INTO states (stateid, name)
+	VALUES (62, 'Quebec');
+INSERT INTO states (stateid, name)
+	VALUES (54, 'Queensland');
+INSERT INTO states (stateid, name)
+	VALUES (475, 'Quer&#233;taro');
+INSERT INTO states (stateid, name)
+	VALUES (476, 'Quintana Roo');
+INSERT INTO states (stateid, name)
+	VALUES (124, 'Regi&#243;n de Murcia');
+INSERT INTO states (stateid, name)
+	VALUES (231, 'Region Zuerich (ZH)');
+INSERT INTO states (stateid, name)
+	VALUES (144, 'Rheinland-Pfalz');
+INSERT INTO states (stateid, name)
+	VALUES (40, 'Rhode Island');
+INSERT INTO states (stateid, name)
+	VALUES (432, 'Rh&#244;ne-Alpes');
+INSERT INTO states (stateid, name)
+	VALUES (180, 'Rio de Janeiro');
+INSERT INTO states (stateid, name)
+	VALUES (181, 'Rio Grande do Norte');
+INSERT INTO states (stateid, name)
+	VALUES (182, 'Rio Grande do Sul');
+INSERT INTO states (stateid, name)
+	VALUES (249, 'Rogaland');
+INSERT INTO states (stateid, name)
+	VALUES (183, 'Rond&#244;nia');
+INSERT INTO states (stateid, name)
+	VALUES (184, 'Roraima');
+INSERT INTO states (stateid, name)
+	VALUES (145, 'Saarland');
+INSERT INTO states (stateid, name)
+	VALUES (146, 'Sachsen');
+INSERT INTO states (stateid, name)
+	VALUES (147, 'Sachsen-Anhalt');
+INSERT INTO states (stateid, name)
+	VALUES (344, 'Saga');
+INSERT INTO states (stateid, name)
+	VALUES (345, 'Saitama');
+INSERT INTO states (stateid, name)
+	VALUES (262, 'Salzburg');
+INSERT INTO states (stateid, name)
+	VALUES (477, 'San Luis Potos&#237;');
+INSERT INTO states (stateid, name)
+	VALUES (185, 'Santa Catarina');
+INSERT INTO states (stateid, name)
+	VALUES (108, 'Santar&#233;m');
+INSERT INTO states (stateid, name)
+	VALUES (186, 'S&#227;o Paulo');
+INSERT INTO states (stateid, name)
+	VALUES (203, 'Sardegna');
+INSERT INTO states (stateid, name)
+	VALUES (71, 'Saskatchewan');
+INSERT INTO states (stateid, name)
+	VALUES (148, 'Schleswig-Holstein');
+INSERT INTO states (stateid, name)
+	VALUES (296, 'Seoul');
+INSERT INTO states (stateid, name)
+	VALUES (187, 'Sergipe');
+INSERT INTO states (stateid, name)
+	VALUES (109, 'Set&#250;bal');
+INSERT INTO states (stateid, name)
+	VALUES (346, 'Shiga');
+INSERT INTO states (stateid, name)
+	VALUES (347, 'Shimane');
+INSERT INTO states (stateid, name)
+	VALUES (348, 'Shizuoka');
+INSERT INTO states (stateid, name)
+	VALUES (204, 'Sicilia');
+INSERT INTO states (stateid, name)
+	VALUES (478, 'Sinaloa');
+INSERT INTO states (stateid, name)
+	VALUES (369, 'Sk&#229;ne');
+INSERT INTO states (stateid, name)
+	VALUES (407, 'Śląskie');
+INSERT INTO states (stateid, name)
+	VALUES (371, 'S&#246;dermanland');
+INSERT INTO states (stateid, name)
+	VALUES (251, 'Sogn og Fjordane');
+INSERT INTO states (stateid, name)
+	VALUES (448, 'Somogy');
+INSERT INTO states (stateid, name)
+	VALUES (479, 'Sonora');
+INSERT INTO states (stateid, name)
+	VALUES (253, 'S&#248;r-Tr&#248;ndelag');
+INSERT INTO states (stateid, name)
+	VALUES (55, 'South Australia');
+INSERT INTO states (stateid, name)
+	VALUES (41, 'South Carolina');
+INSERT INTO states (stateid, name)
+	VALUES (42, 'South Dakota');
+INSERT INTO states (stateid, name)
+	VALUES (223, 'South East England');
+INSERT INTO states (stateid, name)
+	VALUES (86, 'South Island');
+INSERT INTO states (stateid, name)
+	VALUES (218, 'South Wales');
+INSERT INTO states (stateid, name)
+	VALUES (222, 'South West England');
+INSERT INTO states (stateid, name)
+	VALUES (221, 'Southern England');
+INSERT INTO states (stateid, name)
+	VALUES (211, 'Southern Scotland');
+INSERT INTO states (stateid, name)
+	VALUES (263, 'Steiermark');
+INSERT INTO states (stateid, name)
+	VALUES (370, 'Stockholm');
+INSERT INTO states (stateid, name)
+	VALUES (282, 'Stredocesky kraj');
+INSERT INTO states (stateid, name)
+	VALUES (235, 'Suisse romande (GE/VD/FR)');
+INSERT INTO states (stateid, name)
+	VALUES (408, 'Świętokrzyskie');
+INSERT INTO states (stateid, name)
+	VALUES (449, 'Szabolcs-Szatm&#225;r-Bereg');
+INSERT INTO states (stateid, name)
+	VALUES (480, 'Tabasco');
+INSERT INTO states (stateid, name)
+	VALUES (481, 'Tamaulipas');
+INSERT INTO states (stateid, name)
+	VALUES (57, 'Tasmania');
+INSERT INTO states (stateid, name)
+	VALUES (245, 'Telemark');
+INSERT INTO states (stateid, name)
+	VALUES (43, 'Tennessee');
+INSERT INTO states (stateid, name)
+	VALUES (238, 'Tessin (TI)');
+INSERT INTO states (stateid, name)
+	VALUES (44, 'Texas');
+INSERT INTO states (stateid, name)
+	VALUES (149, 'Th&#252;ringen');
+INSERT INTO states (stateid, name)
+	VALUES (264, 'Tirol');
+INSERT INTO states (stateid, name)
+	VALUES (482, 'Tlaxcala');
+INSERT INTO states (stateid, name)
+	VALUES (188, 'Tocantins');
+INSERT INTO states (stateid, name)
+	VALUES (349, 'Tochigi');
+INSERT INTO states (stateid, name)
+	VALUES (350, 'Tokushima');
+INSERT INTO states (stateid, name)
+	VALUES (351, 'Tokyo');
+INSERT INTO states (stateid, name)
+	VALUES (450, 'Tolna');
+INSERT INTO states (stateid, name)
+	VALUES (205, 'Toscana');
+INSERT INTO states (stateid, name)
+	VALUES (352, 'Tottori');
+INSERT INTO states (stateid, name)
+	VALUES (353, 'Toyama');
+INSERT INTO states (stateid, name)
+	VALUES (292, 'Trenčiansky kraj');
+INSERT INTO states (stateid, name)
+	VALUES (206, 'Trentino–Alto Adige ');
+INSERT INTO states (stateid, name)
+	VALUES (293, 'Trnavsk&#253; kraj');
+INSERT INTO states (stateid, name)
+	VALUES (256, 'Troms');
+INSERT INTO states (stateid, name)
+	VALUES (302, 'Ulsan');
+INSERT INTO states (stateid, name)
+	VALUES (224, 'Ulster');
+INSERT INTO states (stateid, name)
+	VALUES (207, 'Umbria');
+INSERT INTO states (stateid, name)
+	VALUES (372, 'Uppsala');
+INSERT INTO states (stateid, name)
+	VALUES (283, 'Ustecky kraj');
+INSERT INTO states (stateid, name)
+	VALUES (45, 'Utah');
+INSERT INTO states (stateid, name)
+	VALUES (388, 'Utrecht');
+INSERT INTO states (stateid, name)
+	VALUES (208, 'Valle d&#39;Aosta');
+INSERT INTO states (stateid, name)
+	VALUES (373, 'V&#228;rmland');
+INSERT INTO states (stateid, name)
+	VALUES (451, 'Vas');
+INSERT INTO states (stateid, name)
+	VALUES (374, 'V&#228;sterbotten');
+INSERT INTO states (stateid, name)
+	VALUES (375, 'V&#228;sternorrland');
+INSERT INTO states (stateid, name)
+	VALUES (376, 'V&#228;stmanland');
+INSERT INTO states (stateid, name)
+	VALUES (377, 'V&#228;stra G&#246;taland');
+INSERT INTO states (stateid, name)
+	VALUES (209, 'Veneto');
+INSERT INTO states (stateid, name)
+	VALUES (483, 'Veracruz');
+INSERT INTO states (stateid, name)
+	VALUES (46, 'Vermont');
+INSERT INTO states (stateid, name)
+	VALUES (248, 'Vest-Agder');
+INSERT INTO states (stateid, name)
+	VALUES (246, 'Vestfold');
+INSERT INTO states (stateid, name)
+	VALUES (452, 'Veszpr&#233;m');
+INSERT INTO states (stateid, name)
+	VALUES (110, 'Viana do Castelo');
+INSERT INTO states (stateid, name)
+	VALUES (53, 'Victoria');
+INSERT INTO states (stateid, name)
+	VALUES (112, 'Vila Real');
+INSERT INTO states (stateid, name)
+	VALUES (47, 'Virginia');
+INSERT INTO states (stateid, name)
+	VALUES (111, 'Viseu');
+INSERT INTO states (stateid, name)
+	VALUES (78, 'Vlaams-Brabant');
+INSERT INTO states (stateid, name)
+	VALUES (265, 'Vorarlberg');
+INSERT INTO states (stateid, name)
+	VALUES (354, 'Wakayama');
+INSERT INTO states (stateid, name)
+	VALUES (237, 'Wallis (VS)');
+INSERT INTO states (stateid, name)
+	VALUES (409, 'Warmińsko-Mazurskie');
+INSERT INTO states (stateid, name)
+	VALUES (48, 'Washington');
+INSERT INTO states (stateid, name)
+	VALUES (216, 'West Midlands');
+INSERT INTO states (stateid, name)
+	VALUES (49, 'West Virginia');
+INSERT INTO states (stateid, name)
+	VALUES (56, 'Western Australia');
+INSERT INTO states (stateid, name)
+	VALUES (152, 'Western Cape');
+INSERT INTO states (stateid, name)
+	VALUES (92, 'West-Vlaanderen');
+INSERT INTO states (stateid, name)
+	VALUES (410, 'Wielkopolskie');
+INSERT INTO states (stateid, name)
+	VALUES (295, 'Wien');
+INSERT INTO states (stateid, name)
+	VALUES (50, 'Wisconsin');
+INSERT INTO states (stateid, name)
+	VALUES (51, 'Wyoming');
+INSERT INTO states (stateid, name)
+	VALUES (355, 'Yamagata');
+INSERT INTO states (stateid, name)
+	VALUES (356, 'Yamaguchi');
+INSERT INTO states (stateid, name)
+	VALUES (357, 'Yamanashi');
+INSERT INTO states (stateid, name)
+	VALUES (214, 'Yorkshire');
+INSERT INTO states (stateid, name)
+	VALUES (484, 'Yucat&#225;n');
+INSERT INTO states (stateid, name)
+	VALUES (74, 'Yukon Territory');
+INSERT INTO states (stateid, name)
+	VALUES (485, 'Zacatecas');
+INSERT INTO states (stateid, name)
+	VALUES (411, 'Zachodniopomorskie');
+INSERT INTO states (stateid, name)
+	VALUES (453, 'Zala');
+INSERT INTO states (stateid, name)
+	VALUES (391, 'Zeeland');
+INSERT INTO states (stateid, name)
+	VALUES (233, 'Zentralschweiz (ZG/SZ/LU/UR/OW/NW)');
+INSERT INTO states (stateid, name)
+	VALUES (294, 'Žilinsk&#253; kraj');
+INSERT INTO states (stateid, name)
+	VALUES (285, 'Zlinsky kraj');
+INSERT INTO states (stateid, name)
+	VALUES (390, 'Zuid-Holland');
 /* Point takes longitude, then latitude. Out of bounds CenterPoints throw an error */
-insert into CenterPoints values (
-	'Home Old',
-	geography::STGeomFromText('POINT(-77.23315 43.06525)',4326)
-);
-insert into CenterPoints values (
-	'Home',
-	geography::STGeomFromText('POINT(-77.306933 42.885983)',4326)
-);
-insert into CenterPoints values (
-	'Mom&Dad',
-	geography::STGeomFromText('POINT(-73.809733 42.853833)',4326)
-);
-insert into CenterPoints values (
-	'Geneva',
-	geography::STGeomFromText('POINT(-76.993056 42.878889)',4326)
-);
-insert into CenterPoints values (
-	'DML',
-	geography::STGeomFromText('POINT(-79.1105 42.5074)',4326)
-);
-insert into CenterPoints values (
-	'Watkins Glen',
-	geography::STGeomFromText('POINT(-76.8853 42.3386)',4326)
-);
-insert into CenterPoints values (
-	'Syracuse',
-	geography::STGeomFromText('POINT(-76.144167 43.046944)',4326)
-);
-insert into CenterPoints values (
-	'Auburn',
-	geography::STGeomFromText('POINT(-76.56477 42.93166)',4326)
-);
-insert into CenterPoints values (
-	'Niagara Falls',
-	geography::STGeomFromText('POINT(-79.017222 43.094167)',4326)
-);
-insert into CenterPoints values (
-	'Silver Creek',
-	geography::STGeomFromText('POINT(-79.167222 42.544167)',4326)
-);
-insert into CenterPoints values (
-	'Mendon Ponds',
-	geography::STGeomFromText('POINT(-77.564267 43.0293)',4326)
-);
-insert into CenterPoints values (
-	'Saratoga',
-	geography::STGeomFromText('POINT(-73.7825 43.075278)',4326)
-);
-insert into CenterPoints values (
-	'Sea Isle',
-	geography::STGeomFromText('POINT(-74.691917 39.147633)',4326)
-);
-insert into CenterPoints values (
-	'zSpun Around Center',
-	geography::STGeomFromText('POINT(-77.48055 43.09305)',4326)
-);
-insert into CenterPoints values (
-	'Dansville',
-	geography::STGeomFromText('POINT(-77.697433 42.560417)',4326)
-);
-insert into CenterPoints values (
-	'Lockport',
-	geography::STGeomFromText('POINT(-78.689767 43.17485)',4326)
-);
-insert into CenterPoints values (
-	'Seattle',
-	geography::STGeomFromText('POINT(-122.33365 47.612033)',4326)
-);
+INSERT INTO CenterPoints
+	VALUES ('Home Old', geography ::STGeomFromText('POINT(-77.23315 43.06525)', 4326));
+INSERT INTO CenterPoints
+	VALUES ('Home', geography ::STGeomFromText('POINT(-77.306933 42.885983)', 4326));
+INSERT INTO CenterPoints
+	VALUES ('Mom&Dad', geography ::STGeomFromText('POINT(-73.809733 42.853833)', 4326));
+INSERT INTO CenterPoints
+	VALUES ('Geneva', geography ::STGeomFromText('POINT(-76.993056 42.878889)', 4326));
+INSERT INTO CenterPoints
+	VALUES ('DML', geography ::STGeomFromText('POINT(-79.1105 42.5074)', 4326));
+INSERT INTO CenterPoints
+	VALUES ('Watkins Glen', geography ::STGeomFromText('POINT(-76.8853 42.3386)', 4326));
+INSERT INTO CenterPoints
+	VALUES ('Syracuse', geography ::STGeomFromText('POINT(-76.144167 43.046944)', 4326));
+INSERT INTO CenterPoints
+	VALUES ('Auburn', geography ::STGeomFromText('POINT(-76.56477 42.93166)', 4326));
+INSERT INTO CenterPoints
+	VALUES ('Niagara Falls', geography ::STGeomFromText('POINT(-79.017222 43.094167)', 4326));
+INSERT INTO CenterPoints
+	VALUES ('Silver Creek', geography ::STGeomFromText('POINT(-79.167222 42.544167)', 4326));
+INSERT INTO CenterPoints
+	VALUES ('Mendon Ponds', geography ::STGeomFromText('POINT(-77.564267 43.0293)', 4326));
+INSERT INTO CenterPoints
+	VALUES ('Saratoga', geography ::STGeomFromText('POINT(-73.7825 43.075278)', 4326));
+INSERT INTO CenterPoints
+	VALUES ('Sea Isle', geography ::STGeomFromText('POINT(-74.691917 39.147633)', 4326));
+INSERT INTO CenterPoints
+	VALUES ('zSpun Around Center', geography ::STGeomFromText('POINT(-77.48055 43.09305)', 4326));
+INSERT INTO CenterPoints
+	VALUES ('Dansville', geography ::STGeomFromText('POINT(-77.697433 42.560417)', 4326));
+INSERT INTO CenterPoints
+	VALUES ('Lockport', geography ::STGeomFromText('POINT(-78.689767 43.17485)', 4326));
+INSERT INTO CenterPoints
+	VALUES ('Seattle', geography ::STGeomFromText('POINT(-122.33365 47.612033)', 4326));

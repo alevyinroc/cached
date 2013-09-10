@@ -1,7 +1,8 @@
-ALTER DATABASE Geocaches
-SET SINGLE_USER
-WITH ROLLBACK IMMEDIATE;
-drop database geocaches;
+if db_id('Geocaches') is not null
+BEGIN
+	ALTER DATABASE Geocaches SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+	DROP DATABASE geocaches;
+end
 
 create database Geocaches;
 alter database Geocaches modify file 
