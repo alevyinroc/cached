@@ -2,7 +2,7 @@ use Geocaches;
 
 create table point_types (
 	typeid int not null constraint pk_point_types primary key,
-	typename varchar(16) not null
+	typename varchar(30) not null
 );
 
 create table cache_sizes (
