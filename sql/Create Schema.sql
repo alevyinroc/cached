@@ -1,14 +1,3 @@
-create database Geocaches;
-alter database Geocaches modify file 
-	(NAME = N'Geocaches', SIZE = 100MB , FILEGROWTH = 2MB);
-
-alter database Geocaches modify file
-	(NAME = N'Geocaches_log', SIZE = 100MB , FILEGROWTH = 2MB);
-
-ALTER DATABASE Geocaches SET RECOVERY FULL;
-ALTER DATABASE Geocaches SET AUTO_UPDATE_STATISTICS ON;
-ALTER DATABASE Geocaches SET AUTO_UPDATE_STATISTICS_ASYNC ON;
-
 use Geocaches;
 
 create table point_types (
@@ -119,6 +108,11 @@ create table cache_logs (
 	constraint fk_log_logid foreign key (logid) references logs (logid),
 	constraint pk_cache_logs primary key (cacheid,logid)
 );
+create table travelbugs (
+	tbpublicid varchar(8) not null constraint pk_travelbugs primary key,
+	tbinternalid int not null,
+	tbname varchar(50) not null
+);
 
 create table tbinventory (
 	cacheid varchar(8) not null,
@@ -126,11 +120,6 @@ create table tbinventory (
 	constraint fk_tb_id foreign key (tbpublicid) references travelbugs (tbpublicid),
 	constraint fk_cacheid foreign key (cacheid) references caches (cacheid),
 	constraint pk_tbinventory primary key (cacheid,tbpublicid)
-);
-create table travelbugs (
-	tbpublicid varchar(8) not null constraint pk_travelbugs primary key,
-	tbinternalid int not null,
-	tbname varchar(50) not null
 );
 
 create table CenterPoints  (
