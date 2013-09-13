@@ -5,3 +5,4 @@ from
 where
 	travelbugs <> ''
 ;
+# TODO: Parse out values & insert into travelbugs
