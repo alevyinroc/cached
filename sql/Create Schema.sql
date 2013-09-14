@@ -19,7 +19,10 @@ create table states (
 	stateid int not null constraint pk_states primary key,
 	name nvarchar(50)
 );
-
+create table statuses (
+	statusid int not null constrain pk_statuses primary key,
+	statusname varchar(12) not null
+);
 create table caches (
 	cacheid varchar(8) not null constraint pk_caches primary key,
 	gsid int not null,
