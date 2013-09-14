@@ -26,12 +26,106 @@ $CacheExistsCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::varchar,8);
 $CacheExistsCmd.Parameters["@CacheId"].Value = $GCNum;
 $CacheExists = $CacheExistsCmd.ExecuteScalar();
 
+# Get Type & Size lookup tables
+$PointTypeLookup = invoke-sqlcmd -server $MyServer -database $MyDatabase -query "select typeid, typename from point_types;";
+$CacheSizeLookup = invoke-sqlcmd -server $MyServer -database $MyDatabase -query "select sizeid, sizename from cache_sizes;";
+
 # Load/Update cache table
 if (!$CacheExists){
-    $CacheLoadCmd.CommandText = "insert into Caches () values ();";
+    $CacheLoadCmd.CommandText = @"
+INSERT INTO [dbo].[caches]
+           ([cacheid]
+           ,[gsid]
+           ,[cachename]
+           ,[latitude]
+           ,[longitude]
+           ,[latlong]
+           ,[lastupdated]
+           ,[placed]
+           ,[placedby]
+           ,[typeid]
+           ,[sizeid]
+           ,[difficulty]
+           ,[terrain]
+           ,[countryid]
+           ,[stateid]
+           ,[shortdesc]
+           ,[longdesc]
+           ,[hint]
+           ,[available]
+           ,[archived]
+           ,[webpage]
+           ,[premiumonly])
+     VALUES
+           (@CacheId
+           ,@GSID
+           ,@CacheName
+           ,@Lat
+           ,@Long
+           ,<latlong, geography,>
+           ,getdate()
+           ,@Placed
+           ,@PlacedBy
+           ,@TypeId
+           ,@SizeId
+           ,@Diff
+           ,@Terrain
+           ,@ShortDesc
+           ,@LongDesc
+           ,@Hint
+           ,@Avail
+           ,@Archived
+           ,@Webpage
+           ,@PremOnly
+           );
+"@;
 } else {
-    $CacheLoadCmd.CommandText = "update Caches set;";
+    $CacheLoadCmd.CommandText = @"
+UPDATE [dbo].[caches]
+   SET [gsid] = @gsid
+      ,[cachename] = @CacheName
+      ,[latitude] = @Lat
+      ,[longitude] = @Long
+      ,[latlong] = <latlong, geography,>
+      ,[lastupdated] = getdate()
+      ,[placed] = @Placed
+      ,[placedby] = @PlacedBy
+      ,[typeid] = @TypeId
+      ,[sizeid] = @SizeId
+      ,[difficulty] = @Diff
+      ,[terrain] = @Terrain
+      ,[shortdesc] = @ShortDesc
+      ,[longdesc] = @LongDesc
+      ,[hint] = @Hint
+      ,[available] = @Avail
+      ,[archived] = @Archived
+      ,[webpage] = @Webpage
+      ,[premiumonly] = @PremOnly
+ WHERE CacheId = @CacheId;
+"@;
 }
+# Set parameters
+$CacheLoadCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::varchar, 8);
+$CacheLoadCmd.Parameters.Add("@gsid", [System.Data.SqlDbType]::int);
+$CacheLoadCmd.Parameters.Add("@CacheName", [System.Data.SqlDbType]::nvarchar, 50);
+$CacheLoadCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::float);
+$CacheLoadCmd.Parameters.Add("@Long", [System.Data.SqlDbType]::float);
+#TODO
+$CacheLoadCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::float);
+$CacheLoadCmd.Parameters.Add("@Placed", [System.Data.SqlDbType]::datetime);
+$CacheLoadCmd.Parameters.Add("@PlacedBy", [System.Data.SqlDbType]::nvarchar);
+$CacheLoadCmd.Parameters.Add("@TypeId", [System.Data.SqlDbType]::int);
+$CacheLoadCmd.Parameters.Add("@SizeId", [System.Data.SqlDbType]::int);
+$CacheLoadCmd.Parameters.Add("@Diff", [System.Data.SqlDbType]::float);
+$CacheLoadCmd.Parameters.Add("@Terrain", [System.Data.SqlDbType]::float);
+$CacheLoadCmd.Parameters.Add("@ShortDesc", [System.Data.SqlDbType]::nvarchar, 5000);
+$CacheLoadCmd.Parameters.Add("@LongDesc", [System.Data.SqlDbType]::ntext);
+$CacheLoadCmd.Parameters.Add("@Hint", [System.Data.SqlDbType]::nvarchar, 1000);
+$CacheLoadCmd.Parameters.Add("@Avail", [System.Data.SqlDbType]::bit);
+$CacheLoadCmd.Parameters.Add("@Archived", [System.Data.SqlDbType]::bit);
+$CacheLoadCmd.Parameters.Add("@Webpage", [System.Data.SqlDbType]::nvarchar, 2083);
+$CacheLoadCmd.Parameters.Add("@PremOnly", [System.Data.SqlDbType]::bit);
+# Execute
 
 # Load cacher table if no record for current cache's owner, or update name
 $OwnerId = $cachedata.gpx.wpt.cache.owner.id;
