@@ -34,8 +34,6 @@ create table caches (
 	sizeid int not null,
 	difficulty float not null,
 	terrain float not null,
-	countryid int not null,
-	stateid int,
 	shortdesc nvarchar(500) not null, /* Matches geocaching.com maximum length */
 	longdesc ntext not null,
 	hint nvarchar(1000) NULL,
@@ -45,8 +43,6 @@ create table caches (
 	premiumonly bit not null default 0
 	constraint fk_cache_type foreign key (typeid) references point_types (typeid),
 	constraint fk_cache_size foreign key (sizeid) references cache_sizes (sizeid),
-	constraint fk_country foreign key (countryid) references countries (countryid),
-	constraint fk_state foreign key (stateid) references states (stateid)
 );
 create table attributes (
 	attributeid int not null constraint pk_attributes primary key,
