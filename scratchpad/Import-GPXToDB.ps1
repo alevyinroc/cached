@@ -111,6 +111,13 @@ $CacheLoadCmd.Parameters.Add("@CacheName", [System.Data.SqlDbType]::nvarchar, 50
 $CacheLoadCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::float);
 $CacheLoadCmd.Parameters.Add("@Long", [System.Data.SqlDbType]::float);
 #TODO
+$GeoParam = new-object System.Data.SqlClient.SqlParameter;
+$GeoParam.Direction = [System.Data.SqlClient.SqlParameter.ParameterDirection]::Input;
+$GeoParam.ParameterName = "@LatLong";
+$GeoParam.SqlDbType = [System.Data.SqlClient.SqlDbType]::Udt;
+$GeoParam.UdtTypeName = "GEOGRAPHY";
+$GeoParam.SourceVersion = [System.Data.DataRowVersion]::Current;
+$GeoParam.Value = 
 $CacheLoadCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::float);
 $CacheLoadCmd.Parameters.Add("@Placed", [System.Data.SqlDbType]::datetime);
 $CacheLoadCmd.Parameters.Add("@PlacedBy", [System.Data.SqlDbType]::nvarchar);
