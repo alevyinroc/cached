@@ -6,14 +6,32 @@ set-location $CurDir;
 #region Globals
 $MyServer = 'Hobbes\sqlexpress';
 $MyDatabase = 'Geocaches';
+$SQLConnectionString = "Server=$MyServer;Database=$MyDatabase;Trusted_Connection=True;";
 $CheckForAttributeQuery = "select count(1) as attrexists from attributes where attributeid = ATTRID;";
 $InsertAttributeQuery = "insert into attributes (attributeid,attributename) values (ATTRID, 'ATTRNAME');";
 $CheckForTBQuery = "select count(1) as tbexists from travelbugs where tbinternalid = TBID;";
 $InsertTBQuery = "insert into travelbugs (tbinternalid, tbpublicid,tbname) values (TBID, 'TBTRACKINGID', 'TBNAME');";
 #endregion
 
+$SQLConnection = new-object System.Data.SqlClient.SqlConnection;
+$SQLConnection.ConnectionString = $SQLConnectionString;
+$SQLConnection.Open();
+
 [xml]$cachedata = get-content C:\users\andy\Downloads\GCF7C6.gpx;
 $GCNum = $cachedata.gpx.wpt.name;
+$CacheLoadCmd = $SQLConnection.CreateCommand();
+$CacheExistsCmd = $SQLConnection.CreateCommand();
+$CacheExistsCmd.CommandText = "select count(1) from caches where cacheid = @CacheId;";
+$CacheExistsCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::varchar,8);
+$CacheExistsCmd.Parameters["@CacheId"].Value = $GCNum;
+$CacheExists = $CacheExistsCmd.ExecuteScalar();
+
+# Load/Update cache table
+if (!$CacheExists){
+    $CacheLoadCmd.CommandText = "insert into Caches () values ();";
+} else {
+    $CacheLoadCmd.CommandText = "update Caches set;";
+}
 
 # Load cacher table if no record for current cache's owner, or update name
 $OwnerId = $cachedata.gpx.wpt.cache.owner.id;
@@ -64,5 +82,5 @@ $tbs | foreach-object {
 }
 
 # Link attributes & TBs to caches
-
+$SQLConnection.Close();
 remove-module sqlps;
