@@ -42,7 +42,6 @@ create table caches (
 	hint nvarchar(1000) NULL,
 	available bit not null default 1,
 	archived bit not null default 0,
-	webpage nvarchar(2083), /* Maximum length in IE. geocaching.com allows only 100 characters */
 	premiumonly bit not null default 0
 	constraint fk_cache_type foreign key (typeid) references point_types (typeid),
 	constraint fk_cache_size foreign key (sizeid) references cache_sizes (sizeid),
