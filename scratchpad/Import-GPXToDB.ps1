@@ -136,6 +136,7 @@ $CacheLoadCmd.Parameters.Add("@Avail", [System.Data.SqlDbType]::bit);
 $CacheLoadCmd.Parameters.Add("@Archived", [System.Data.SqlDbType]::bit);
 $CacheLoadCmd.Parameters.Add("@PremOnly", [System.Data.SqlDbType]::bit);
 # Handle the "point" parameter specially.
+# TODO: Not working quite right. "UdtTypeName property must be set only for UDT parameters."
 $GeoParam = new-object System.Data.SqlClient.SqlParameter;
 $GeoParam.Direction = [System.Data.SqlClient.SqlParameter.ParameterDirection]::Input;
 $GeoParam.ParameterName = "@LatLong";
@@ -149,6 +150,7 @@ $CacheLoadCmd.Parameters["@gsid"].Value = $cachedata.gpx.wpt.cache.id;
 $CacheLoadCmd.Parameters["@CacheName"].Value = $cachedata.gpx.wpt.cache.name;
 $CacheLoadCmd.Parameters["@Lat"].Value = $cachedata.gpx.wpt.lat;
 $CacheLoadCmd.Parameters["@Long"].Value = $cachedata.gpx.wpt.lon;
+#TODO: Broken
 $CacheLoadCmd.Parameters["@Placed"].Value = get-date $cachedata.gpx.wpt.time;
 $CacheLoadCmd.Parameters["@PlacedBy"].Value = $cachedata.gpx.wpt.cache.placed_by;
 $CacheLoadCmd.Parameters["@TypeId"].Value = $PointTypeLookup|?{$_.typename -eq $cachedata.gpx.wpt.cache.type}|select -expandproperty typeid;
@@ -170,6 +172,7 @@ $CacheLoadCmd.ExecuteNonQuery();
 $OwnerId = $cachedata.gpx.wpt.cache.owner.id;
 $OwnerName = $cachedata.gpx.wpt.cache.owner|select-object -expandproperty "#text";
 
+# TODO: Switch to parameterized queries
 $OwnerExists = invoke-sqlcmd -server $MyServer -database $MyDatabase -query "select count(1) as CacherExists from cachers where cacherid = $OwnerId;" | select-object -expandproperty CacherExists;
 if ($OwnerExists){
 # Update owner name if it's changed
