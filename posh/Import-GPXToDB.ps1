@@ -172,16 +172,24 @@ $CacheLoadCmd.ExecuteNonQuery();
 $OwnerId = $cachedata.gpx.wpt.cache.owner.id;
 $OwnerName = $cachedata.gpx.wpt.cache.owner|select-object -expandproperty "#text";
 
-# TODO: Switch to parameterized queries
-$OwnerExists = invoke-sqlcmd -server $MyServer -database $MyDatabase -query "select count(1) as CacherExists from cachers where cacherid = $OwnerId;" | select-object -expandproperty CacherExists;
+$OwnerExistsCmd = $SQLConnection.CreateCommand();
+$OwnerExistsCmd.CommandText = "select count(1) as CacherExists from cachers where cacherid = @OwnerId;"
+$OwnerExistsCmd.Parameters.Add("@OwnerId", [System.Data.SqlDbType]::int);
+$OwnerExistsCmd.Parameters["@OwnerId"].Value = $OwnerId;
+$OwnerExists = $OwnerExistsCmd.ExecuteScalar();
+
+$CacherTableUpdateCmd = $SQLConnection.CreateCommand();
 if ($OwnerExists){
 # Update owner name if it's changed
-    Invoke-sqlcmd -server $MyServer -Database $MyDatabase -query "update cachers set cachername = '$OwnerName' where cacherid = $OwnerId and cachername <> '$OwnerName';";
+	$CacherTableUpdateCmd.CommandText = "update cachers set cachername = @OwnerName where cacherid = @OwnerId and cachername <> @OwnerName;";
 } else {
-    invoke-sqlcmd -server $myserver -database $mydatabase -query "insert into cachers (cacherid, cachername) values ($OwnerId, '$OwnerName');";
+    $CacherTableUpdateCmd.CommandText = "insert into cachers (cacherid, cachername) values (@OwnerId, @OwnerName);";
 }
 
-# Insert/update cache on caches table. This has to be done before owner checks because of FK constraints
+# TODO: Would AddWithValue be better?
+$CacherTableUpdateCmd.Parameters.Add("@OwnerId", [System.Data.SqlDbType]::int).Value = $OwnerId;
+$CacherTableUpdateCmd.Parameters.Add("@OwnerName", [System.Data.SqlDbType]::varchar, 50).Value = $OwnerName;;
+$CacherTableUpdateCmd.ExecuteNonQuery();
 
 # Check to see if cache is already on the owner table. If owner has changed, update with new value. If cache isn't on the table, add it
 $CacheHasOwner = invoke-sqlcmd -server $myserver -database $mydatabase -query "select count(1) as CacheOnOwners from cache_owners where cacheid = '$GCNum';"|select-object -expandproperty CacheOnOwners;
