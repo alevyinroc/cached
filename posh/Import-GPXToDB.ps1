@@ -1,4 +1,4 @@
-﻿$CurDir = $pwd;
+$CurDir = $pwd;
 import-module sqlps;
 # Import downloaded GPX
 set-location $CurDir;
@@ -192,7 +192,10 @@ $CacherTableUpdateCmd.Parameters.Add("@OwnerName", [System.Data.SqlDbType]::varc
 $CacherTableUpdateCmd.ExecuteNonQuery();
 
 # Check to see if cache is already on the owner table. If owner has changed, update with new value. If cache isn't on the table, add it
-$CacheHasOwner = invoke-sqlcmd -server $myserver -database $mydatabase -query "select count(1) as CacheOnOwners from cache_owners where cacheid = '$GCNum';"|select-object -expandproperty CacheOnOwners;
+$CacheHasOwnerCmd = $SQLConnection.CreateCommand();
+$CacheHasOwnerCmd.CommandText = "select count(1) as CacheOnOwners from cache_owners where cacheid = @gsid;";
+$CacheHasOwnerCmd.Parameters.Add("@gsid", [System.Data.SqlDbType]::int).Value = $cachedata.gpx.wpt.cache.id;
+$CacheHasOwner = $CacheHasOwnerCmd.ExecuteScalar();
 if ($CacheHasOwner) {
     $OwnerMatches = invoke-sqlcmd -server $myserver -database $mydatabase -query "select count(1) as OwnerMatches from cache_owners where cacheid = '$GCNum' and cacherid = $OwnerId;"|select-object -expandproperty OwnerMatches;
     if (!$OwnerMatches) {
