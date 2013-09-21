@@ -230,6 +230,18 @@ $TBInsertCmd.Parameters.Add("@tbpublicid", [System.Data.SqlDbType]::varchar, 8)|
 $TBInsertCmd.Parameters.Add("@tbname", [System.Data.SqlDbType]::varchar, 50)|Out-Null;
 $TBInsertCmd.Prepare();
 
+$TBRemoveFromCacheInventoryCmd = $SQLConnection.CreateCommand();
+$TBRemoveFromCacheInventoryCmd.CommandText = "delete from tbinventory where cacheid <> @cacheid and tbpublicid = @tbpublicid";
+$TBRemoveFromCacheInventoryCmd.Parameters.Add("@tbpublicid", [System.Data.SqlDbType]::VarChar, 50)|Out-Null;
+$TBRemoveFromCacheInventoryCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar, 8)|Out-Null;
+$TBRemoveFromCacheInventoryCmd.Prepare();
+
+$TBAddToCacheCmd = $SQLConnection.CreateCommand();
+$TBAddToCacheCmd.CommandText = "insert into tbinventory (cacheid, tbpublicid) values (@cacheid,@tbpublicid)";
+$TBAddToCacheCmd.Parameters.Add("@tbpublicid", [System.Data.SqlDbType]::VarChar, 50)|Out-Null;
+$TBAddToCacheCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar, 8)|Out-Null;
+$TBAddToCacheCmd.Prepare();
+
 $tbs | foreach-object {
 	$TBCheckCmd.Parameters["@tbid"].Value = $_.id;
 	$TBExists = $TBCheckCmd.ExecuteScalar();
@@ -238,8 +250,17 @@ $tbs | foreach-object {
 		$TBInsertCmd.Parameters["@tbname"].Value = $_.name;
 		$TBInsertCmd.Parameters["@tbpublicid"].Value = $_.ref;
 		$TBInsertCmd.ExecuteNonQuery();
-    }
-# TODO: Update tbinventory
+	}
+	
+	$TBRemoveFromCacheInventoryCmd.Parameters["@cacheid"].Value = $GCNum;
+	$TBRemoveFromCacheInventoryCmd.Parameters["@tbpublicid"].Value = $_.ref;
+	$TBWasInOtherCache = $TBRemoveFromCacheInventoryCmd.ExecuteNonQuery();
+	if (!$TBExists -or $TBWasInOtherCache) {
+		$TBAddToCacheCmd.Parameters["@cacheid"].Value = $gcnum;
+		$TBAddToCacheCmd.Parameters["@tbpublicid"].Value = $_.ref;
+		$TBAddToCacheCmd.ExecuteNonQuery();
+	}
 }
+$logs = $cachedata.gpx.wpt.cache.logs.log;
 $SQLConnection.Close();
 remove-module sqlps;
