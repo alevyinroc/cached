@@ -29,11 +29,16 @@ param (
 
 Function Update-Cachers {
 param(
-	[Parameter(Mandatory=$true)]
+	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacherDetails")]
 	[string]$CacherName,
-	[Parameter(Mandatory=$true)]
-	[int]$CacherId
+	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacherDetails")]
+	[int]$CacherId,
+	[Parameter(Mandatory=$true,ParameterSetName="CacherObject")]
+	[object]$Cacher
 )
+	switch ($PsCmdlet.ParameterSetName) {
+		"CacherObject" {$CacherName = $Cacher.innertext;$CacherId= $Cacher.id;}
+	}
 	$CacherExistsCmd = $SQLConnection.CreateCommand();
 	$CacherExistsCmd.CommandText = "select count(1) from cachers where cacherid = @CacherId;"
 	$CacherExistsCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::int)|out-null;
@@ -182,10 +187,7 @@ $CacheLoadCmd.Parameters["@PremOnly"].Value = 0; #Get-DBTypeFromTrueFalse $cache
 $CacheLoadCmd.ExecuteNonQuery();
 
 # Load cacher table if no record for current cache's owner, or update name
-$OwnerId = $cachedata.gpx.wpt.cache.owner.id;
-$OwnerName = $cachedata.gpx.wpt.cache.owner.innertext;
-
-Update-Cachers -CacherName $OwnerName -CacherId $OwnerId;
+Update-Cachers -Cacher $cachedata.gpx.wpt.cache.owner;
 
 # Check to see if cache is already on the owner table. If owner has changed, update with new value. If cache isn't on the table, add it
 $CacheHasOwnerCmd = $SQLConnection.CreateCommand();
@@ -276,6 +278,6 @@ $tbs | foreach-object {
 	}
 }
 $logs = $cachedata.gpx.wpt.cache.logs.log;
-$logs|ForEach-Object{Update-Cachers -CacherId $_.finder.id -CacherName $_.finder.innertext};
+$logs|ForEach-Object{Update-Cachers -Cacher $_.finder};
 $SQLConnection.Close();
 remove-module sqlps;
