@@ -55,7 +55,6 @@ INSERT INTO [dbo].[caches]
            ,[cachename]
            ,[latitude]
            ,[longitude]
-           ,[latlong]
            ,[lastupdated]
            ,[placed]
            ,[placedby]
@@ -63,8 +62,6 @@ INSERT INTO [dbo].[caches]
            ,[sizeid]
            ,[difficulty]
            ,[terrain]
-           ,[countryid]
-           ,[stateid]
            ,[shortdesc]
            ,[longdesc]
            ,[hint]
@@ -77,7 +74,6 @@ INSERT INTO [dbo].[caches]
            ,@CacheName
            ,@Lat
            ,@Long
-           ,@LatLong
            ,getdate()
            ,@Placed
            ,@PlacedBy
@@ -100,7 +96,6 @@ UPDATE [dbo].[caches]
       ,[cachename] = @CacheName
       ,[latitude] = @Lat
       ,[longitude] = @Long
-      ,[latlong] = @LatLong
       ,[lastupdated] = getdate()
       ,[placed] = @Placed
       ,[placedby] = @PlacedBy
@@ -113,7 +108,6 @@ UPDATE [dbo].[caches]
       ,[hint] = @Hint
       ,[available] = @Avail
       ,[archived] = @Archived
-      ,[webpage] = @Webpage
       ,[premiumonly] = @PremOnly
  WHERE CacheId = @CacheId;
 "@;
@@ -124,7 +118,6 @@ $CacheLoadCmd.Parameters.Add("@gsid", [System.Data.SqlDbType]::int)|out-null;
 $CacheLoadCmd.Parameters.Add("@CacheName", [System.Data.SqlDbType]::nvarchar, 50)|out-null;
 $CacheLoadCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::float)|out-null;
 $CacheLoadCmd.Parameters.Add("@Long", [System.Data.SqlDbType]::float)|out-null;
-$CacheLoadCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::float)|out-null;
 $CacheLoadCmd.Parameters.Add("@Placed", [System.Data.SqlDbType]::datetime)|out-null;
 $CacheLoadCmd.Parameters.Add("@PlacedBy", [System.Data.SqlDbType]::nvarchar)|out-null;
 $CacheLoadCmd.Parameters.Add("@TypeId", [System.Data.SqlDbType]::int)|out-null;
@@ -137,17 +130,7 @@ $CacheLoadCmd.Parameters.Add("@Hint", [System.Data.SqlDbType]::nvarchar, 1000)|o
 $CacheLoadCmd.Parameters.Add("@Avail", [System.Data.SqlDbType]::bit)|out-null;
 $CacheLoadCmd.Parameters.Add("@Archived", [System.Data.SqlDbType]::bit)|out-null;
 $CacheLoadCmd.Parameters.Add("@PremOnly", [System.Data.SqlDbType]::bit)|out-null;
-# Handle the "point" parameter specially.
-# TODO: Not working quite right. "UdtTypeName property must be set only for UDT parameters."
-$GeoParam = new-object System.Data.SqlClient.SqlParameter;
-$GeoParam.Direction = [System.Data.SqlClient.SqlParameter.ParameterDirection]::Input;
-$GeoParam.ParameterName = "@LatLong";
-$GeoParam.SqlDbType = [System.Data.SqlClient.SqlDbType]::Udt;
-$GeoParam.UdtTypeName = "GEOGRAPHY";
-$GeoParam.SourceVersion = [System.Data.DataRowVersion]::Current;
-$GeoParam.Value = "geography::STGeomFromText('POINT($($cachedata.gpx.wpt.lon) $($cachedata.gpx.wpt.lat))', 4326)";
-$CacheLoadCmd.Parameters.Add($GeoParam)|out-null;
-$CacheLoadCmd.Parameters["@CacheId"].Value = $CacheId;
+$CacheLoadCmd.Parameters["@CacheId"].Value = $GCNum;
 $CacheLoadCmd.Parameters["@gsid"].Value = $cachedata.gpx.wpt.cache.id;
 $CacheLoadCmd.Parameters["@CacheName"].Value = $cachedata.gpx.wpt.cache.name;
 $CacheLoadCmd.Parameters["@Lat"].Value = $cachedata.gpx.wpt.lat;
@@ -159,8 +142,8 @@ $CacheLoadCmd.Parameters["@TypeId"].Value = $PointTypeLookup|?{$_.typename -eq $
 $CacheLoadCmd.Parameters["@SizeId"].Value = $CacheSizeLookup|?{$_.sizename -eq $cachedata.gpx.wpt.cache.container}|select -expandproperty sizeid;
 $CacheLoadCmd.Parameters["@Diff"].Value = $cachedata.gpx.wpt.cache.difficulty;
 $CacheLoadCmd.Parameters["@Terrain"].Value = $cachedata.gpx.wpt.cache.terrain;
-$CacheLoadCmd.Parameters["@ShortDesc"].Value = $cachedata.gpx.wpt.cache.short_description;
-$CacheLoadCmd.Parameters["@LongDesc"].Value = $cachedata.gpx.wpt.cache.long_description
+$CacheLoadCmd.Parameters["@ShortDesc"].Value = $cachedata.gpx.wpt.cache.short_description.innertext;
+$CacheLoadCmd.Parameters["@LongDesc"].Value = $cachedata.gpx.wpt.cache.long_description.innertext;
 $CacheLoadCmd.Parameters["@Hint"].Value = $cachedata.gpx.wpt.cache.encoded_hints;
 $CacheLoadCmd.Parameters["@Avail"].Value = Get-DBTypeFromTrueFalse $cachedata.gpx.wpt.cache.available;
 $CacheLoadCmd.Parameters["@Archived"].Value = Get-DBTypeFromTrueFalse $cachedata.gpx.wpt.cache.archived;
@@ -206,8 +189,8 @@ if ($CacheHasOwner) {
 	$CacheOwnerUpdateCmd.CommandText = "insert into cache_owners (cacherid, cacheid) values (@OwnerId, @GCNum);"
 }
 $CacheOwnerUpdateCmd.Parameters.Add("@ownerid", [System.Data.SqlDbType]::int).Value = $ownerid;
-$CacheOwnerUpdateCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::int).Value = $gcnum;
-$CacheOnwerUpdateCmd.ExecuteNonQuery();
+$CacheOwnerUpdateCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::varchar, 8).Value = $gcnum;
+$CacheOwnerUpdateCmd.ExecuteNonQuery();
 
 
 # Insert attributes & TBs into respective tables
