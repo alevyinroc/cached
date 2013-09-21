@@ -1,4 +1,4 @@
-USE Geocaches;
+USE @DBID;
 
 create table point_types (
 	typeid int not null constraint pk_point_types primary key,
