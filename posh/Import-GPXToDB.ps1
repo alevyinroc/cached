@@ -39,7 +39,7 @@ param(
 	$CacherExistsCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::int)|out-null;
 	$CacherExistsCmd.Prepare();
 	$CacherExistsCmd.Parameters["@CacherId"].Value = $CacherId;
-	$CacherExists = $OwnerExistsCmd.ExecuteScalar();
+	$CacherExists = $CacherExistsCmd.ExecuteScalar();
 
 	$CacherTableUpdateCmd = $SQLConnection.CreateCommand();
 	if ($CacherExists){
@@ -150,6 +150,8 @@ $CacheLoadCmd.Parameters.Add("@SizeId", [System.Data.SqlDbType]::int)|out-null;
 $CacheLoadCmd.Parameters.Add("@Diff", [System.Data.SqlDbType]::float)|out-null;
 $CacheLoadCmd.Parameters.Add("@Terrain", [System.Data.SqlDbType]::float)|out-null;
 $CacheLoadCmd.Parameters.Add("@ShortDesc", [System.Data.SqlDbType]::nvarchar, 5000)|out-null;
+#See http://support.microsoft.com/kb/970519 for bug workaround
+$CacheLoadCmd.Parameters["@ShortDesc"].Size = -1;
 $CacheLoadCmd.Parameters.Add("@LongDesc", [System.Data.SqlDbType]::ntext)|out-null;
 $CacheLoadCmd.Parameters.Add("@Hint", [System.Data.SqlDbType]::nvarchar, 1000)|out-null;
 $CacheLoadCmd.Parameters.Add("@Avail", [System.Data.SqlDbType]::bit)|out-null;
@@ -274,5 +276,6 @@ $tbs | foreach-object {
 	}
 }
 $logs = $cachedata.gpx.wpt.cache.logs.log;
+$logs|ForEach-Object{Update-Cachers -CacherId $_.finder.id -CacherName $_.finder.innertext};
 $SQLConnection.Close();
 remove-module sqlps;
