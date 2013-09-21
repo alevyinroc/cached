@@ -1,14 +1,26 @@
+<#
+#>
+
+#requires -version 2.0
+[cmdletbinding()]
+param (
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({Test-Path -path $_ -Pathtype Leaf})]
+	[string]$FileToImport = 'C:\Users\andy\Documents\Code\cachedb\scratchpad\GCF7C6.gpx',
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance = 'Hobbes\sqlexpress',
+	[Parameter(Mandatory=$true)]
+	[string]$Database = 'Geocaches';
+)
 $Error.Clear();
 $CurDir = $pwd;
 import-module sqlps;
-# Import downloaded GPX
 set-location $CurDir;
 clear-host;
 
 #region Globals
-$MyServer = 'Hobbes\sqlexpress';
-$MyDatabase = 'Geocaches';
-$SQLConnectionString = "Server=$MyServer;Database=$MyDatabase;Trusted_Connection=True;";
+$SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;";
 $SQLConnection = new-object System.Data.SqlClient.SqlConnection;
 $SQLConnection.ConnectionString = $SQLConnectionString;
 $SQLConnection.Open();
@@ -16,6 +28,7 @@ $SQLConnection.Open();
 
 #region functions
 function Get-DBTypeFromTrueFalse{
+[cmdletbinding()]
 param (
 	[Parameter(Mandatory=$true)]
 	[string]$XmlValue
@@ -28,6 +41,7 @@ param (
 }
 
 Function Update-Cachers {
+[cmdletbinding()]
 param(
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacherDetails")]
 	[string]$CacherName,
@@ -61,7 +75,8 @@ param(
 }
 #endregion
 
-[xml]$cachedata = get-content C:\Users\andy\Documents\Code\cachedb\scratchpad\GCF7C6.gpx;
+[xml]$cachedata = get-content $FileToImport;
+
 $GCNum = $cachedata.gpx.wpt.name;
 $CacheLoadCmd = $SQLConnection.CreateCommand();
 $CacheExistsCmd = $SQLConnection.CreateCommand();
@@ -72,8 +87,8 @@ $CacheExistsCmd.Parameters["@CacheId"].Value = $GCNum;
 $CacheExists = $CacheExistsCmd.ExecuteScalar();
 
 # Get Type & Size lookup tables
-$PointTypeLookup = invoke-sqlcmd -server $MyServer -database $MyDatabase -query "select typeid, typename from point_types;";
-$CacheSizeLookup = invoke-sqlcmd -server $MyServer -database $MyDatabase -query "select sizeid, sizename from cache_sizes;";
+$PointTypeLookup = invoke-sqlcmd -server $SQLInstance -database $Database -query "select typeid, typename from point_types;";
+$CacheSizeLookup = invoke-sqlcmd -server $SQLInstance -database $Database -query "select sizeid, sizename from cache_sizes;";
 
 # Load/Update cache table
 # TODO: Use GPX time for Last Updated. $cachedata.gpx.time
