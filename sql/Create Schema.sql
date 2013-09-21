@@ -20,7 +20,7 @@ create table states (
 	name nvarchar(50)
 );
 create table statuses (
-	statusid int not null constrain pk_statuses primary key,
+	statusid int not null constraint pk_statuses primary key,
 	statusname varchar(12) not null
 );
 create table caches (
@@ -29,7 +29,6 @@ create table caches (
 	cachename nvarchar(50) not null,
 	latitude float not null,
 	longitude float not null,
-	latlong geography::Point(latitude, longitude, 4326) persisted;,
 	lastupdated datetime not null default getdate(),
 	placed date not null,
 	placedby nvarchar(50) not null,
@@ -46,6 +45,11 @@ create table caches (
 	constraint fk_cache_type foreign key (typeid) references point_types (typeid),
 	constraint fk_cache_size foreign key (sizeid) references cache_sizes (sizeid),
 );
+alter table caches
+add latlong
+as geography::Point(latitude, longitude, 4326) persisted;
+
+
 create table attributes (
 	attributeid int not null constraint pk_attributes primary key,
 	attributename varchar(50) not null
@@ -72,7 +76,6 @@ create table waypoints (
 	parentcache varchar(8) not null,
 	latitude float not null,
 	longitude float not null,
-	latlong geography::Point(latitude, longitude, 4326) persisted,
 	typeid int,
 	[name] varchar(50) not null,
 	description varchar(2000) not null,
@@ -81,6 +84,10 @@ create table waypoints (
 	constraint fk_waypoint_cacheid foreign key (parentcache) references caches (cacheid),
 	constraint fk_waypoint_type foreign key (typeid) references point_types (typeid)
 );
+alter table waypoints
+add latlong
+as geography::Point(latitude, longitude, 4326) persisted;
+
 
 create table log_types (
 	logtypeid int not null constraint pk_log_types primary key,

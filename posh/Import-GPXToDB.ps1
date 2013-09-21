@@ -17,6 +17,7 @@ $SQLConnection.Open();
 #region functions
 function Get-DBTypeFromTrueFalse{
 param (
+	[Parameter(Mandatory=$true)]
 	[string]$XmlValue
 )
 	switch ($XmlValue.ToLower()) {
@@ -24,6 +25,34 @@ param (
 		"false" { 0; }
 		default { 0;}
 	}
+}
+
+Function Update-Cachers {
+param(
+	[Parameter(Mandatory=$true)]
+	[string]$CacherName,
+	[Parameter(Mandatory=$true)]
+	[int]$CacherId
+)
+	$CacherExistsCmd = $SQLConnection.CreateCommand();
+	$CacherExistsCmd.CommandText = "select count(1) from cachers where cacherid = @CacherId;"
+	$CacherExistsCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::int)|out-null;
+	$CacherExistsCmd.Prepare();
+	$CacherExistsCmd.Parameters["@CacherId"].Value = $CacherId;
+	$CacherExists = $OwnerExistsCmd.ExecuteScalar();
+
+	$CacherTableUpdateCmd = $SQLConnection.CreateCommand();
+	if ($CacherExists){
+	# Update cacher name if it's changed
+		$CacherTableUpdateCmd.CommandText = "update cachers set cachername = @CacherName where cacherid = @CacherId and cachername <> @CacherName;";
+	} else {
+	    $CacherTableUpdateCmd.CommandText = "insert into cachers (cacherid, cachername) values (@CacherId, @CacherName);";
+	}
+
+	# TODO: Would AddWithValue be better?
+	$CacherTableUpdateCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::int).Value = $CacherId;
+	$CacherTableUpdateCmd.Parameters.Add("@CacherName", [System.Data.SqlDbType]::varchar, 50).Value = $CacherName;
+	$CacherTableUpdateCmd.ExecuteNonQuery();
 }
 #endregion
 
@@ -146,7 +175,7 @@ $CacheLoadCmd.Parameters["@Avail"].Value = Get-DBTypeFromTrueFalse $cachedata.gp
 $CacheLoadCmd.Parameters["@Archived"].Value = Get-DBTypeFromTrueFalse $cachedata.gpx.wpt.cache.archived;
 # TODO: Figure out where premium only comes from. Doesn't appear to be in the GPX
 $CacheLoadCmd.Parameters["@PremOnly"].Value = 0; #Get-DBTypeFromTrueFalse $cachedata.gpx.wpt.
-
+#$CacheLoadCmd.Prepare();
 # Execute
 $CacheLoadCmd.ExecuteNonQuery();
 
@@ -154,25 +183,7 @@ $CacheLoadCmd.ExecuteNonQuery();
 $OwnerId = $cachedata.gpx.wpt.cache.owner.id;
 $OwnerName = $cachedata.gpx.wpt.cache.owner.innertext;
 
-$OwnerExistsCmd = $SQLConnection.CreateCommand();
-$OwnerExistsCmd.CommandText = "select count(1) from cachers where cacherid = @OwnerId;"
-$OwnerExistsCmd.Parameters.Add("@OwnerId", [System.Data.SqlDbType]::int)|out-null;
-$OwnerExistsCmd.Prepare();
-$OwnerExistsCmd.Parameters["@OwnerId"].Value = $OwnerId;
-$OwnerExists = $OwnerExistsCmd.ExecuteScalar();
-
-$CacherTableUpdateCmd = $SQLConnection.CreateCommand();
-if ($OwnerExists){
-# Update owner name if it's changed
-	$CacherTableUpdateCmd.CommandText = "update cachers set cachername = @OwnerName where cacherid = @OwnerId and cachername <> @OwnerName;";
-} else {
-    $CacherTableUpdateCmd.CommandText = "insert into cachers (cacherid, cachername) values (@OwnerId, @OwnerName);";
-}
-
-# TODO: Would AddWithValue be better?
-$CacherTableUpdateCmd.Parameters.Add("@OwnerId", [System.Data.SqlDbType]::int).Value = $OwnerId;
-$CacherTableUpdateCmd.Parameters.Add("@OwnerName", [System.Data.SqlDbType]::varchar, 50).Value = $OwnerName;
-$CacherTableUpdateCmd.ExecuteNonQuery();
+Update-Cachers -CacherName $OwnerName -CacherId $OwnerId;
 
 # Check to see if cache is already on the owner table. If owner has changed, update with new value. If cache isn't on the table, add it
 $CacheHasOwnerCmd = $SQLConnection.CreateCommand();
@@ -204,14 +215,15 @@ $CacheAttributeCheckCmd.Prepare();
 $CacheAttributeInsertCmd = $SQLConnection.CreateCommand();
 $CacheAttributeInsertCmd.CommandText = "insert into attributes (attributeid,attributename) values (@attrid, @attrname)";
 $CacheAttributeInsertCmd.Parameters.Add("@attrid", [System.Data.SqlDbType]::Int)|Out-Null;
-$CacheAttributeInsertCmd.Parameters.Add("@attrame", [System.Data.SqlDbType]::varchar, 50)|Out-Null;
+$CacheAttributeInsertCmd.Parameters.Add("@attrname", [System.Data.SqlDbType]::varchar, 50)|Out-Null;
 $CacheAttributeInsertCmd.Prepare();
 $attributes | foreach-object {
 	$CacheAttributeCheckCmd.Parameters["@attrid"].Value = $_.id;
 	$AttrExists = $CacheAttributeCheckCmd.ExecuteScalar();
     if (!$AttrExists) {
 		$CacheAttributeInsertCmd.Parameters["@attrid"].Value = $_.id;
-		$CacheAttributeInsertCmd.Parameters["@attrname"].Value = $_|select-object -expandproperty "#text";
+		$AttrName = $_|Select-Object -ExpandProperty "#text";
+		$CacheAttributeInsertCmd.Parameters["@attrname"].Value = $AttrName;
 		$CacheAttributeInsertCmd.ExecuteNonQuery();
     }
 }
