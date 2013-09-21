@@ -9,11 +9,6 @@ clear-host;
 $MyServer = 'Hobbes\sqlexpress';
 $MyDatabase = 'Geocaches';
 $SQLConnectionString = "Server=$MyServer;Database=$MyDatabase;Trusted_Connection=True;";
-$CheckForAttributeQuery = "select count(1) as attrexists from attributes where attributeid = ATTRID;";
-$InsertAttributeQuery = "insert into attributes (attributeid,attributename) values (ATTRID, 'ATTRNAME');";
-$CheckForTBQuery = "select count(1) as tbexists from travelbugs where tbinternalid = TBID;";
-$InsertTBQuery = "insert into travelbugs (tbinternalid, tbpublicid,tbname) values (TBID, 'TBTRACKINGID', 'TBNAME');";
-
 $SQLConnection = new-object System.Data.SqlClient.SqlConnection;
 $SQLConnection.ConnectionString = $SQLConnectionString;
 $SQLConnection.Open();
@@ -38,6 +33,7 @@ $CacheLoadCmd = $SQLConnection.CreateCommand();
 $CacheExistsCmd = $SQLConnection.CreateCommand();
 $CacheExistsCmd.CommandText = "select count(1) from caches where cacheid = @CacheId;";
 $CacheExistsCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::varchar,8)|out-null;
+$CacheExistsCmd.Prepare();
 $CacheExistsCmd.Parameters["@CacheId"].Value = $GCNum;
 $CacheExists = $CacheExistsCmd.ExecuteScalar();
 
@@ -130,12 +126,13 @@ $CacheLoadCmd.Parameters.Add("@Hint", [System.Data.SqlDbType]::nvarchar, 1000)|o
 $CacheLoadCmd.Parameters.Add("@Avail", [System.Data.SqlDbType]::bit)|out-null;
 $CacheLoadCmd.Parameters.Add("@Archived", [System.Data.SqlDbType]::bit)|out-null;
 $CacheLoadCmd.Parameters.Add("@PremOnly", [System.Data.SqlDbType]::bit)|out-null;
+#$CacheLoadCmd.Prepare();
+
 $CacheLoadCmd.Parameters["@CacheId"].Value = $GCNum;
 $CacheLoadCmd.Parameters["@gsid"].Value = $cachedata.gpx.wpt.cache.id;
 $CacheLoadCmd.Parameters["@CacheName"].Value = $cachedata.gpx.wpt.cache.name;
 $CacheLoadCmd.Parameters["@Lat"].Value = $cachedata.gpx.wpt.lat;
 $CacheLoadCmd.Parameters["@Long"].Value = $cachedata.gpx.wpt.lon;
-#TODO: Broken
 $CacheLoadCmd.Parameters["@Placed"].Value = get-date $cachedata.gpx.wpt.time;
 $CacheLoadCmd.Parameters["@PlacedBy"].Value = $cachedata.gpx.wpt.cache.placed_by;
 $CacheLoadCmd.Parameters["@TypeId"].Value = $PointTypeLookup|?{$_.typename -eq $cachedata.gpx.wpt.cache.type}|select -expandproperty typeid;
@@ -155,11 +152,12 @@ $CacheLoadCmd.ExecuteNonQuery();
 
 # Load cacher table if no record for current cache's owner, or update name
 $OwnerId = $cachedata.gpx.wpt.cache.owner.id;
-$OwnerName = $cachedata.gpx.wpt.cache.owner|select-object -expandproperty "#text";
+$OwnerName = $cachedata.gpx.wpt.cache.owner.innertext;
 
 $OwnerExistsCmd = $SQLConnection.CreateCommand();
 $OwnerExistsCmd.CommandText = "select count(1) from cachers where cacherid = @OwnerId;"
 $OwnerExistsCmd.Parameters.Add("@OwnerId", [System.Data.SqlDbType]::int)|out-null;
+$OwnerExistsCmd.Prepare();
 $OwnerExistsCmd.Parameters["@OwnerId"].Value = $OwnerId;
 $OwnerExists = $OwnerExistsCmd.ExecuteScalar();
 
@@ -178,8 +176,8 @@ $CacherTableUpdateCmd.ExecuteNonQuery();
 
 # Check to see if cache is already on the owner table. If owner has changed, update with new value. If cache isn't on the table, add it
 $CacheHasOwnerCmd = $SQLConnection.CreateCommand();
-$CacheHasOwnerCmd.CommandText = "select count(1) as CacheOnOwners from cache_owners where cacheid = @gsid;";
-$CacheHasOwnerCmd.Parameters.Add("@gsid", [System.Data.SqlDbType]::int).Value = $cachedata.gpx.wpt.cache.id;
+$CacheHasOwnerCmd.CommandText = "select count(1) as CacheOnOwners from cache_owners where cacheid = @gcnum;";
+$CacheHasOwnerCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::varchar, 8).Value = $gcnum;
 $CacheHasOwner = $CacheHasOwnerCmd.ExecuteScalar();
 $CacheOwnerUpdateCmd = $SQLConnection.CreateCommand()
 if ($CacheHasOwner) {
@@ -188,34 +186,60 @@ if ($CacheHasOwner) {
 } else {
 	$CacheOwnerUpdateCmd.CommandText = "insert into cache_owners (cacherid, cacheid) values (@OwnerId, @GCNum);"
 }
-$CacheOwnerUpdateCmd.Parameters.Add("@ownerid", [System.Data.SqlDbType]::int).Value = $ownerid;
-$CacheOwnerUpdateCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::varchar, 8).Value = $gcnum;
+$CacheOwnerUpdateCmd.Parameters.Add("@ownerid", [System.Data.SqlDbType]::int)|Out-Null;
+$CacheOwnerUpdateCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::varchar, 8)|Out-Null;
+$CacheOwnerUpdateCmd.Prepare();
+$CacheOwnerUpdateCmd.Parameters["@ownerid"].Value = $ownerid;
+$CacheOwnerUpdateCmd.Parameters["@gcnum"].Value = $gcnum;
 $CacheOwnerUpdateCmd.ExecuteNonQuery();
-
 
 # Insert attributes & TBs into respective tables
 $attributes = $cachedata.gpx.wpt.cache.attributes|foreach-object{$_.attribute|select id,"#text"};
-$tbs = $cachedata.gpx.wpt.cache.travelbugs|foreach-object{$_.travelbug};
 
+$CacheAttributeCheckCmd = $SQLConnection.CreateCommand();
+$CacheAttributeCheckCmd.CommandText = "select count(1) as attrexists from attributes where attributeid = @attrid";
+$CacheAttributeCheckCmd.Parameters.Add("@attrid", [System.Data.SqlDbType]::Int)|Out-Null;
+$CacheAttributeCheckCmd.Prepare();
+
+$CacheAttributeInsertCmd = $SQLConnection.CreateCommand();
+$CacheAttributeInsertCmd.CommandText = "insert into attributes (attributeid,attributename) values (@attrid, @attrname)";
+$CacheAttributeInsertCmd.Parameters.Add("@attrid", [System.Data.SqlDbType]::Int)|Out-Null;
+$CacheAttributeInsertCmd.Parameters.Add("@attrame", [System.Data.SqlDbType]::varchar, 50)|Out-Null;
+$CacheAttributeInsertCmd.Prepare();
 $attributes | foreach-object {
-# TODO: Use PreparedStatement & ExecuteScalar()
-    $AttrExists = invoke-sqlcmd -server $MyServer -database $MyDatabase -query $CheckForAttributeQuery.Replace("ATTRID", $_.id)|select-object -expandproperty attrexists;
+	$CacheAttributeCheckCmd.Parameters["@attrid"].Value = $_.id;
+	$AttrExists = $CacheAttributeCheckCmd.ExecuteScalar();
     if (!$AttrExists) {
-# TODO: Use PreparedStatement & ExecuteNonQuery()
-        invoke-sqlcmd -server $MyServer -database $MyDatabase -query $InsertAttributeQuery.Replace("ATTRID", $_.id).Replace("ATTRNAME", $($_|select-object -expandproperty "#text"));
+		$CacheAttributeInsertCmd.Parameters["@attrid"].Value = $_.id;
+		$CacheAttributeInsertCmd.Parameters["@attrname"].Value = $_|select-object -expandproperty "#text";
+		$CacheAttributeInsertCmd.ExecuteNonQuery();
     }
 }
+# TODO: Link attributes to cache
+
+$tbs = $cachedata.gpx.wpt.cache.travelbugs|foreach-object{$_.travelbug};
+$TBCheckCmd = $SQLConnection.CreateCommand();
+$TBCheckCmd.CommandText = "select count(1) as tbexists from travelbugs where tbinternalid = @tbid";
+$TBCheckCmd.Parameters.Add("@tbid", [System.Data.SqlDbType]::Int)|Out-Null;
+$TBCheckCmd.Prepare();
+
+$TBInsertCmd = $SQLConnection.CreateCommand();
+$TBInsertCmd.CommandText = "insert into travelbugs (tbinternalid, tbpublicid,tbname) values (@tbid, @tbpublicid, @tbname)";
+$TBInsertCmd.Parameters.Add("@tbid", [System.Data.SqlDbType]::Int)|Out-Null;
+$TBInsertCmd.Parameters.Add("@tbpublicid", [System.Data.SqlDbType]::varchar, 8)|Out-Null;
+$TBInsertCmd.Parameters.Add("@tbname", [System.Data.SqlDbType]::varchar, 50)|Out-Null;
+$TBInsertCmd.Prepare();
 
 $tbs | foreach-object {
-# TODO: Use PreparedStatement & ExecuteScalar()
-    $TBExists = invoke-sqlcmd -server $MyServer -database $MyDatabase -query $CheckForTBQuery.Replace("TBID", $_.id)|select-object -expandproperty tbexists;
+	$TBCheckCmd.Parameters["@tbid"].Value = $_.id;
+	$TBExists = $TBCheckCmd.ExecuteScalar();
     if (!$TBExists) {
-# TODO: Use PreparedStatement & ExecuteNonQuery()
-# TODO: Properly escape characters for input. Should go along with the PreparedStatement
-        invoke-sqlcmd -server $MyServer -database $MyDatabase -query $InsertTBQuery.Replace("TBID", $_.id).Replace("TBNAME", $($_.name).replace("'","&APOS;")).Replace("TBTRACKINGID", $_.ref);
+		$TBInsertCmd.Parameters["@tbid"].Value = $_.id;
+		$TBInsertCmd.Parameters["@tbname"].Value = $_.name;
+		$TBInsertCmd.Parameters["@tbpublicid"].Value = $_.ref;
+		$TBInsertCmd.ExecuteNonQuery();
     }
+# TODO: Update tbinventory
 }
-
-# Link attributes & TBs to caches
 $SQLConnection.Close();
 remove-module sqlps;
