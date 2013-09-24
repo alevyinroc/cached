@@ -143,7 +143,6 @@ param (
 	[ValidationScript({$_.Length -le 50})]
 	[string]$TBName
 )
-{
 	begin {
 		$TBCheckCmd = $SQLConnection.CreateCommand();
 		$TBCheckCmd.CommandText = "select count(1) as tbexists from travelbugs where tbinternalid = @tbid";
@@ -238,14 +237,148 @@ param (
 function Update-Geocache {
 [cmdletbinding()]
 param (
-	[Parameter(Mandatory=$true)]
-	[Object]$CacheWaypoint
+	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+	[System.Xml.XmlElement[]]$CacheWaypoint
 )
 	begin {
+		$CacheLoadCmd = $SQLConnection.CreateCommand();
+		$CacheExistsCmd = $SQLConnection.CreateCommand();
+		$CacheExistsCmd.CommandText = "select count(1) from caches where cacheid = @CacheId;";
+		$CacheExistsCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::varchar,8)|out-null;
+		$CacheExistsCmd.Prepare();
+		$CacheLoadCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::varchar, 8)|out-null;
+		$CacheLoadCmd.Parameters.Add("@gsid", [System.Data.SqlDbType]::int)|out-null;
+		$CacheLoadCmd.Parameters.Add("@CacheName", [System.Data.SqlDbType]::nvarchar, 50)|out-null;
+		$CacheLoadCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::float)|out-null;
+		$CacheLoadCmd.Parameters.Add("@Long", [System.Data.SqlDbType]::float)|out-null;
+		$CacheLoadCmd.Parameters.Add("@Placed", [System.Data.SqlDbType]::datetime)|out-null;
+		$CacheLoadCmd.Parameters.Add("@PlacedBy", [System.Data.SqlDbType]::nvarchar)|out-null;
+		$CacheLoadCmd.Parameters.Add("@TypeId", [System.Data.SqlDbType]::int)|out-null;
+		$CacheLoadCmd.Parameters.Add("@SizeId", [System.Data.SqlDbType]::int)|out-null;
+		$CacheLoadCmd.Parameters.Add("@Diff", [System.Data.SqlDbType]::float)|out-null;
+		$CacheLoadCmd.Parameters.Add("@Terrain", [System.Data.SqlDbType]::float)|out-null;
+		$CacheLoadCmd.Parameters.Add("@ShortDesc", [System.Data.SqlDbType]::nvarchar, 5000)|out-null;
+		#See http://support.microsoft.com/kb/970519 for bug workaround
+		$CacheLoadCmd.Parameters["@ShortDesc"].Size = -1;
+		$CacheLoadCmd.Parameters.Add("@LongDesc", [System.Data.SqlDbType]::ntext)|out-null;
+		$CacheLoadCmd.Parameters.Add("@Hint", [System.Data.SqlDbType]::nvarchar, 1000)|out-null;
+		$CacheLoadCmd.Parameters.Add("@Avail", [System.Data.SqlDbType]::bit)|out-null;
+		$CacheLoadCmd.Parameters.Add("@Archived", [System.Data.SqlDbType]::bit)|out-null;
+		$CacheLoadCmd.Parameters.Add("@PremOnly", [System.Data.SqlDbType]::bit)|out-null;
+		#$CacheLoadCmd.Prepare();
 	}
 	process {
+	# TODO: Can't navigate XML element structure anymore, need to use ugliness like $CacheWaypoint|select -expandproperty cache|select -expandproperty name
+		$GCNum = $CacheWaypoint.name;
+		$CacheExistsCmd.Parameters["@CacheId"].Value = $GCNum;
+		$CacheExists = $CacheExistsCmd.ExecuteScalar();
+		# Load/Update cache table
+# TODO: Use GPX time for Last Updated. $cachedata.gpx.time
+		if (!$CacheExists){
+		    $CacheLoadCmd.CommandText = @"
+		INSERT INTO [dbo].[caches]
+		           ([cacheid]
+		           ,[gsid]
+		           ,[cachename]
+		           ,[latitude]
+		           ,[longitude]
+		           ,[lastupdated]
+		           ,[placed]
+		           ,[placedby]
+		           ,[typeid]
+		           ,[sizeid]
+		           ,[difficulty]
+		           ,[terrain]
+		           ,[shortdesc]
+		           ,[longdesc]
+		           ,[hint]
+		           ,[available]
+		           ,[archived]
+		           ,[premiumonly])
+		     VALUES
+		           (@CacheId
+		           ,@GSID
+		           ,@CacheName
+		           ,@Lat
+		           ,@Long
+		           ,getdate()
+		           ,@Placed
+		           ,@PlacedBy
+		           ,@TypeId
+		           ,@SizeId
+		           ,@Diff
+		           ,@Terrain
+		           ,@ShortDesc
+		           ,@LongDesc
+		           ,@Hint
+		           ,@Avail
+		           ,@Archived
+		           ,@PremOnly
+		           );
+"@;
+		} else {
+		    $CacheLoadCmd.CommandText = @"
+		UPDATE [dbo].[caches]
+		   SET [gsid] = @gsid
+		      ,[cachename] = @CacheName
+		      ,[latitude] = @Lat
+		      ,[longitude] = @Long
+		      ,[lastupdated] = getdate()
+		      ,[placed] = @Placed
+		      ,[placedby] = @PlacedBy
+		      ,[typeid] = @TypeId
+		      ,[sizeid] = @SizeId
+		      ,[difficulty] = @Diff
+		      ,[terrain] = @Terrain
+		      ,[shortdesc] = @ShortDesc
+		      ,[longdesc] = @LongDesc
+		      ,[hint] = @Hint
+		      ,[available] = @Avail
+		      ,[archived] = @Archived
+		      ,[premiumonly] = @PremOnly
+		 WHERE CacheId = @CacheId;
+"@;
+		}
+		$CacheLoadCmd.Parameters["@CacheId"].Value = $GCNum;
+		$CacheLoadCmd.Parameters["@gsid"].Value = $CacheWaypoint.cache.id;
+		$CacheLoadCmd.Parameters["@CacheName"].Value = $CacheWaypoint.cache.name;
+		$CacheLoadCmd.Parameters["@Lat"].Value = $CacheWaypoint.lat;
+		$CacheLoadCmd.Parameters["@Long"].Value = $CacheWaypoint.lon;
+		$CacheLoadCmd.Parameters["@Placed"].Value = get-date $CacheWaypoint.time;
+		$CacheLoadCmd.Parameters["@PlacedBy"].Value = $CacheWaypoint.cache.placed_by;
+		$CacheLoadCmd.Parameters["@TypeId"].Value = $PointTypeLookup|where-object{$_.typename -eq $CacheWaypoint.cache.type}|select -expandproperty typeid;
+		$CacheLoadCmd.Parameters["@SizeId"].Value = $CacheSizeLookup|where-object{$_.sizename -eq $CacheWaypoint.cache.container}|select -expandproperty sizeid;
+		$CacheLoadCmd.Parameters["@Diff"].Value = $CacheWaypoint.cache.difficulty;
+		$CacheLoadCmd.Parameters["@Terrain"].Value = $CacheWaypoint.cache.terrain;
+		$CacheLoadCmd.Parameters["@ShortDesc"].Value = $CacheWaypoint.cache.short_description.innertext;
+		$CacheLoadCmd.Parameters["@LongDesc"].Value = $CacheWaypoint.cache.long_description.innertext;
+		$CacheLoadCmd.Parameters["@Hint"].Value = $CacheWaypoint.cache.encoded_hints;
+		$CacheLoadCmd.Parameters["@Avail"].Value = Get-DBTypeFromTrueFalse $CacheWaypoint.cache.available;
+		$CacheLoadCmd.Parameters["@Archived"].Value = Get-DBTypeFromTrueFalse $CacheWaypoint.cache.archived;
+		# TODO: Figure out where premium only comes from. Doesn't appear to be in the GPX
+		$CacheLoadCmd.Parameters["@PremOnly"].Value = 0; #Get-DBTypeFromTrueFalse $cachedata.gpx.wpt.
+		# Execute
+		$CacheLoadCmd.ExecuteNonQuery();
+
+		# Load cacher table if no record for current cache's owner, or update name
+		Update-Cacher -Cacher $CacheWaypoint.cache.owner;
+		Update-CacheOwner -GCNum $GCNum -OwnerId $OwnerId
+
+		# Insert attributes & TBs into respective tables
+		$CacheWaypoint.cache.attributes|foreach-object{$_.attribute|select id,"#text"}|New-Attribute;
+		# TODO: Link attributes to cache
+
+		#TODO: Make this pipeline aware with $cachedata.gpx.wpt.cache.travelbugs.travelbug|update-travelbugs
+		$tbs = $CacheWaypoint.cache.travelbugs|foreach-object{$_.travelbug};
+		Update-TravelBugs -AllTBs $tbs -GCNum $GCNum;
+
+		$logs = $CacheWaypoint.cache.logs.log;
+# TODO: Make this pipeline aware with $logs.finder |Update-Cacher
+		$logs|ForEach-Object{Update-Cacher -Cacher $_.finder};
 	}
 	end {
+		$CacheLoadCmd.Dispose();
+		$CacheExistsCmd.Dispose();
 	}
 }
 
@@ -307,146 +440,8 @@ $CacheSizeLookup = invoke-sqlcmd -server $SQLInstance -database $Database -query
 # Check for a cache child element
 # If one exists, it's a cache
 # Otherwise, it's a waypoint
-$cachedata.gpx.wpt|where-object{$_.type.split("|") -eq "Geocache"} | Update-Geocache; #Process as geocache;
-$cachedata.gpx.wpt|where-object{$_.type.split("|") -ne "Geocache"} | Update-Waypoint; #Process as wyapoint;
+$cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | Update-Geocache; #Process as geocache;
+$cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -ne "Geocache"} | Update-Waypoint; #Process as wyapoint;
 
-$GCNum = $cachedata.gpx.wpt.name;
-$CacheLoadCmd = $SQLConnection.CreateCommand();
-$CacheExistsCmd = $SQLConnection.CreateCommand();
-$CacheExistsCmd.CommandText = "select count(1) from caches where cacheid = @CacheId;";
-$CacheExistsCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::varchar,8)|out-null;
-$CacheExistsCmd.Prepare();
-$CacheExistsCmd.Parameters["@CacheId"].Value = $GCNum;
-$CacheExists = $CacheExistsCmd.ExecuteScalar();
-
-
-# Load/Update cache table
-# TODO: Use GPX time for Last Updated. $cachedata.gpx.time
-if (!$CacheExists){
-    $CacheLoadCmd.CommandText = @"
-INSERT INTO [dbo].[caches]
-           ([cacheid]
-           ,[gsid]
-           ,[cachename]
-           ,[latitude]
-           ,[longitude]
-           ,[lastupdated]
-           ,[placed]
-           ,[placedby]
-           ,[typeid]
-           ,[sizeid]
-           ,[difficulty]
-           ,[terrain]
-           ,[shortdesc]
-           ,[longdesc]
-           ,[hint]
-           ,[available]
-           ,[archived]
-           ,[premiumonly])
-     VALUES
-           (@CacheId
-           ,@GSID
-           ,@CacheName
-           ,@Lat
-           ,@Long
-           ,getdate()
-           ,@Placed
-           ,@PlacedBy
-           ,@TypeId
-           ,@SizeId
-           ,@Diff
-           ,@Terrain
-           ,@ShortDesc
-           ,@LongDesc
-           ,@Hint
-           ,@Avail
-           ,@Archived
-           ,@PremOnly
-           );
-"@;
-} else {
-    $CacheLoadCmd.CommandText = @"
-UPDATE [dbo].[caches]
-   SET [gsid] = @gsid
-      ,[cachename] = @CacheName
-      ,[latitude] = @Lat
-      ,[longitude] = @Long
-      ,[lastupdated] = getdate()
-      ,[placed] = @Placed
-      ,[placedby] = @PlacedBy
-      ,[typeid] = @TypeId
-      ,[sizeid] = @SizeId
-      ,[difficulty] = @Diff
-      ,[terrain] = @Terrain
-      ,[shortdesc] = @ShortDesc
-      ,[longdesc] = @LongDesc
-      ,[hint] = @Hint
-      ,[available] = @Avail
-      ,[archived] = @Archived
-      ,[premiumonly] = @PremOnly
- WHERE CacheId = @CacheId;
-"@;
-}
-# Set parameters
-$CacheLoadCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::varchar, 8)|out-null;
-$CacheLoadCmd.Parameters.Add("@gsid", [System.Data.SqlDbType]::int)|out-null;
-$CacheLoadCmd.Parameters.Add("@CacheName", [System.Data.SqlDbType]::nvarchar, 50)|out-null;
-$CacheLoadCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::float)|out-null;
-$CacheLoadCmd.Parameters.Add("@Long", [System.Data.SqlDbType]::float)|out-null;
-$CacheLoadCmd.Parameters.Add("@Placed", [System.Data.SqlDbType]::datetime)|out-null;
-$CacheLoadCmd.Parameters.Add("@PlacedBy", [System.Data.SqlDbType]::nvarchar)|out-null;
-$CacheLoadCmd.Parameters.Add("@TypeId", [System.Data.SqlDbType]::int)|out-null;
-$CacheLoadCmd.Parameters.Add("@SizeId", [System.Data.SqlDbType]::int)|out-null;
-$CacheLoadCmd.Parameters.Add("@Diff", [System.Data.SqlDbType]::float)|out-null;
-$CacheLoadCmd.Parameters.Add("@Terrain", [System.Data.SqlDbType]::float)|out-null;
-$CacheLoadCmd.Parameters.Add("@ShortDesc", [System.Data.SqlDbType]::nvarchar, 5000)|out-null;
-#See http://support.microsoft.com/kb/970519 for bug workaround
-$CacheLoadCmd.Parameters["@ShortDesc"].Size = -1;
-$CacheLoadCmd.Parameters.Add("@LongDesc", [System.Data.SqlDbType]::ntext)|out-null;
-$CacheLoadCmd.Parameters.Add("@Hint", [System.Data.SqlDbType]::nvarchar, 1000)|out-null;
-$CacheLoadCmd.Parameters.Add("@Avail", [System.Data.SqlDbType]::bit)|out-null;
-$CacheLoadCmd.Parameters.Add("@Archived", [System.Data.SqlDbType]::bit)|out-null;
-$CacheLoadCmd.Parameters.Add("@PremOnly", [System.Data.SqlDbType]::bit)|out-null;
-#$CacheLoadCmd.Prepare();
-
-$CacheLoadCmd.Parameters["@CacheId"].Value = $GCNum;
-$CacheLoadCmd.Parameters["@gsid"].Value = $cachedata.gpx.wpt.cache.id;
-$CacheLoadCmd.Parameters["@CacheName"].Value = $cachedata.gpx.wpt.cache.name;
-$CacheLoadCmd.Parameters["@Lat"].Value = $cachedata.gpx.wpt.lat;
-$CacheLoadCmd.Parameters["@Long"].Value = $cachedata.gpx.wpt.lon;
-$CacheLoadCmd.Parameters["@Placed"].Value = get-date $cachedata.gpx.wpt.time;
-$CacheLoadCmd.Parameters["@PlacedBy"].Value = $cachedata.gpx.wpt.cache.placed_by;
-$CacheLoadCmd.Parameters["@TypeId"].Value = $PointTypeLookup|?{$_.typename -eq $cachedata.gpx.wpt.cache.type}|select -expandproperty typeid;
-$CacheLoadCmd.Parameters["@SizeId"].Value = $CacheSizeLookup|?{$_.sizename -eq $cachedata.gpx.wpt.cache.container}|select -expandproperty sizeid;
-$CacheLoadCmd.Parameters["@Diff"].Value = $cachedata.gpx.wpt.cache.difficulty;
-$CacheLoadCmd.Parameters["@Terrain"].Value = $cachedata.gpx.wpt.cache.terrain;
-$CacheLoadCmd.Parameters["@ShortDesc"].Value = $cachedata.gpx.wpt.cache.short_description.innertext;
-$CacheLoadCmd.Parameters["@LongDesc"].Value = $cachedata.gpx.wpt.cache.long_description.innertext;
-$CacheLoadCmd.Parameters["@Hint"].Value = $cachedata.gpx.wpt.cache.encoded_hints;
-$CacheLoadCmd.Parameters["@Avail"].Value = Get-DBTypeFromTrueFalse $cachedata.gpx.wpt.cache.available;
-$CacheLoadCmd.Parameters["@Archived"].Value = Get-DBTypeFromTrueFalse $cachedata.gpx.wpt.cache.archived;
-# TODO: Figure out where premium only comes from. Doesn't appear to be in the GPX
-$CacheLoadCmd.Parameters["@PremOnly"].Value = 0; #Get-DBTypeFromTrueFalse $cachedata.gpx.wpt.
-# Execute
-$CacheLoadCmd.ExecuteNonQuery();
-
-# Load cacher table if no record for current cache's owner, or update name
-Update-Cacher -Cacher $cachedata.gpx.wpt.cache.owner;
-Update-CacheOwner -GCNum $GCNum -OwnerId $OwnerId
-
-# Insert attributes & TBs into respective tables
-$attributes = $cachedata.gpx.wpt.cache.attributes|foreach-object{$_.attribute|select id,"#text"};
-
-
-$attributes | New-Attribute;
-# TODO: Link attributes to cache
-
-#TODO: Make this pipeline aware with $cachedata.gpx.wpt.cache.travelbugs.travelbug|update-travelbugs
-$tbs = $cachedata.gpx.wpt.cache.travelbugs|foreach-object{$_.travelbug};
-Update-TravelBugs -AllTBs $tbs -GCNum $GCNum;
-
-$logs = $cachedata.gpx.wpt.cache.logs.log;
-# TODO: Make this pipeline aware with $logs.finder |Update-Cacher
-$logs|ForEach-Object{Update-Cacher -Cacher $_.finder};
 $SQLConnection.Close();
 remove-module sqlps;
