@@ -56,8 +56,8 @@ param(
 		$CacherExistsCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::int)|out-null;
 		$CacherExistsCmd.Prepare();
 		$CacherTableUpdateCmd = $SQLConnection.CreateCommand();
-		$CacherTableUpdateCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::int);
-		$CacherTableUpdateCmd.Parameters.Add("@CacherName", [System.Data.SqlDbType]::varchar, 50);
+		$CacherTableUpdateCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::int)|Out-Null;
+		$CacherTableUpdateCmd.Parameters.Add("@CacherName", [System.Data.SqlDbType]::varchar, 50)|Out-Null;
 	}
 	process{
 		switch ($PsCmdlet.ParameterSetName) {
@@ -82,18 +82,6 @@ param(
 	}
 }
 
-function Update-Caches{
-[cmdletbinding()]
-param(
-)
-	begin {
-	}
-	process {
-	}
-	end {
-	}
-}
-
 function Update-CacheOwner {
 [cmdletbinding()]
 param(
@@ -105,7 +93,7 @@ param(
 	begin {
 		$CacheHasOwnerCmd = $SQLConnection.CreateCommand();
 		$CacheHasOwnerCmd.CommandText = "select count(1) as CacheOnOwners from cache_owners where cacheid = @gcnum;";
-		$CacheHasOwnerCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::varchar, 8);
+		$CacheHasOwnerCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::varchar, 8)|Out-Null;
 		$CacheHasOwnerCmd.Prepare();
 	
 		$CacheOwnerUpdateCmd = $SQLConnection.CreateCommand();
@@ -138,9 +126,9 @@ param (
 	[Parameter(Mandatory=$true)]
 	[int]$TBId,
 	[Parameter(Mandatory=$true)]
-	[ValidationScript({$_.Length -le 8})]
+#	[ValidationScript({$_.Length -le 8})]
 	[string]$TBPublicId,
-	[ValidationScript({$_.Length -le 50})]
+#	[ValidationScript({$_.Length -le 50})]
 	[string]$TBName
 )
 	begin {
@@ -176,10 +164,10 @@ function Move-TravelBugToCache {
 [cmdletbinding()]
 param (
 	[Parameter(Mandatory=$true)]
-	[ValidationScript({$_.Length -le 8})]
+#	[ValidationScript({$_.Length -le 8})]
 	[string]$GCNum,
 	[Parameter(Mandatory=$true)]
-	[ValidationScript({$_.Length -le 8})]
+#	[ValidationScript({$_.Length -le 8})]
 	[string]$TBPublicId
 )
 	begin {
@@ -214,25 +202,22 @@ function Update-TravelBug {
 [cmdletbinding()]
 param (
 	[Parameter(Mandatory=$true)]
-	[object]$AllTBs,
-	[ValidationScript({$_.Length -le 8})]
-	[string]$GCNum
+	[string]$GCNum,
+	[Parameter(Mandatory=$true)]
+	[string]$TBPublicId,
+	[Parameter(Mandatory=$true)]
+	[int]$TBInternalId,
+	[Parameter(Mandatory=$true)]
+	[string]$TBName
 )
 	begin {
 	}
 	process{
-		$AllTBs | foreach-object {
-			New-TravelBug -TBId $_.id -TBPublicId $_.ref -TBName $_.name;
-			Move-TravelBugToCache -GCNum $GCNum -TBPublicId $_.ref;
-		}
+		New-TravelBug -TBId $TBInternalId -TBPublicId $TBPublicId -TBName $TBName;
+		Move-TravelBugToCache -GCNum $GCNum -TBPublicId $TBPublicId;
 	}
 	end {
 	}
-}
-function Update-TravelBug {
-[cmdletbinding()]
-param (
-)
 }
 function Update-Geocache {
 [cmdletbinding()]
@@ -378,11 +363,15 @@ param (
 
 		#TODO: Make this pipeline aware with $cachedata.gpx.wpt.cache.travelbugs.travelbug|update-travelbugs
 		$tbs = $CacheWaypoint | select-object -expandproperty travelbugs|foreach-object{$_.travelbug};
-		Update-TravelBugs -AllTBs $tbs -GCNum $GCNum;
-
-		$logs = $CacheWaypoint | select-object -expandproperty logs | select-object expandproperty log;
+		ForEach ($tb in $tbs) {
+			Update-TravelBug -GCNum $GCNum -TBPublicId $tb.ref -TBName $tb.name -TBInternalId $tb.id;
+		}
+		$logs = $CacheWaypoint | select-object -expandproperty logs | select-object -expandproperty log;
 # TODO: Make this pipeline aware with $logs.finder |Update-Cacher
-		$logs|ForEach-Object{Update-Cacher -Cacher $_.finder};
+		#$CacheWaypoint|select -ExpandProperty logs|select -expandproperty log|select -ExpandProperty finder|foreach-object{Update-Cacher -Cacher $_}
+		$logs | select -ExpandProperty finder|foreach-object{Update-Cacher -Cacher $_}
+#TODO: Write/Update logs
+#$logs|select id,date,type,text
 	}
 	end {
 		$CacheLoadCmd.Dispose();
