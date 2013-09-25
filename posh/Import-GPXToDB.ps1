@@ -26,7 +26,7 @@ $SQLConnection.ConnectionString = $SQLConnectionString;
 $SQLConnection.Open();
 #endregion
 
-#region functions
+#region Functions
 function Get-DBTypeFromTrueFalse{
 [cmdletbinding()]
 param (
@@ -210,7 +210,7 @@ param (
 }
 
 # TODO: Make this pipeline-aware & pass in single TBs. Rename to Update-TravelBug
-function Update-TravelBugs {
+function Update-TravelBug {
 [cmdletbinding()]
 param (
 	[Parameter(Mandatory=$true)]
@@ -269,9 +269,14 @@ param (
 	}
 	process {
 	# TODO: Can't navigate XML element structure anymore, need to use ugliness like $CacheWaypoint|select -expandproperty cache|select -expandproperty name
-		$GCNum = $CacheWaypoint.name;
+		$GCNum = $CacheWaypoint | Select-Object -ExpandProperty name;
+		$PlacedDate = get-date ($CacheWaypoint | select-object -expandproperty time);
+		
+		$Latitude = $CacheWaypoint | Select-object -expandproperty lat;
+		$Longitude = $CacheWaypoint | Select-object -expandproperty lon;
 		$CacheExistsCmd.Parameters["@CacheId"].Value = $GCNum;
 		$CacheExists = $CacheExistsCmd.ExecuteScalar();
+		$CacheWaypoint = $CacheWaypoint | select-object -expandproperty cache;
 		# Load/Update cache table
 # TODO: Use GPX time for Last Updated. $cachedata.gpx.time
 		if (!$CacheExists){
@@ -340,39 +345,42 @@ param (
 "@;
 		}
 		$CacheLoadCmd.Parameters["@CacheId"].Value = $GCNum;
-		$CacheLoadCmd.Parameters["@gsid"].Value = $CacheWaypoint.cache.id;
-		$CacheLoadCmd.Parameters["@CacheName"].Value = $CacheWaypoint.cache.name;
-		$CacheLoadCmd.Parameters["@Lat"].Value = $CacheWaypoint.lat;
-		$CacheLoadCmd.Parameters["@Long"].Value = $CacheWaypoint.lon;
-		$CacheLoadCmd.Parameters["@Placed"].Value = get-date $CacheWaypoint.time;
-		$CacheLoadCmd.Parameters["@PlacedBy"].Value = $CacheWaypoint.cache.placed_by;
-		$CacheLoadCmd.Parameters["@TypeId"].Value = $PointTypeLookup|where-object{$_.typename -eq $CacheWaypoint.cache.type}|select -expandproperty typeid;
-		$CacheLoadCmd.Parameters["@SizeId"].Value = $CacheSizeLookup|where-object{$_.sizename -eq $CacheWaypoint.cache.container}|select -expandproperty sizeid;
-		$CacheLoadCmd.Parameters["@Diff"].Value = $CacheWaypoint.cache.difficulty;
-		$CacheLoadCmd.Parameters["@Terrain"].Value = $CacheWaypoint.cache.terrain;
-		$CacheLoadCmd.Parameters["@ShortDesc"].Value = $CacheWaypoint.cache.short_description.innertext;
-		$CacheLoadCmd.Parameters["@LongDesc"].Value = $CacheWaypoint.cache.long_description.innertext;
-		$CacheLoadCmd.Parameters["@Hint"].Value = $CacheWaypoint.cache.encoded_hints;
-		$CacheLoadCmd.Parameters["@Avail"].Value = Get-DBTypeFromTrueFalse $CacheWaypoint.cache.available;
-		$CacheLoadCmd.Parameters["@Archived"].Value = Get-DBTypeFromTrueFalse $CacheWaypoint.cache.archived;
+		$CacheLoadCmd.Parameters["@gsid"].Value = $CacheWaypoint | select-object -expandproperty id;
+		$CacheLoadCmd.Parameters["@CacheName"].Value = $CacheWaypoint | select-object -expandproperty name;
+		$CacheLoadCmd.Parameters["@Lat"].Value = $Latitude;
+		$CacheLoadCmd.Parameters["@Long"].Value = $Longitude;
+		$CacheLoadCmd.Parameters["@Placed"].Value = $PlacedDate;
+		$CacheLoadCmd.Parameters["@PlacedBy"].Value = $CacheWaypoint | select-object -expandproperty placed_by;
+		#TODO Fix
+		$CacheLoadCmd.Parameters["@TypeId"].Value = $PointTypeLookup|where-object{$_.typename -eq ($CacheWaypoint | select-object -expandproperty type)}|select -expandproperty typeid;
+		$CacheLoadCmd.Parameters["@SizeId"].Value = $CacheSizeLookup|where-object{$_.sizename -eq ($CacheWaypoint | select-object -expandproperty container)}|select -expandproperty sizeid;
+		$CacheLoadCmd.Parameters["@Diff"].Value = $CacheWaypoint | select-object -expandproperty difficulty;
+		$CacheLoadCmd.Parameters["@Terrain"].Value = $CacheWaypoint | select-object -expandproperty terrain;
+		#TODO Check
+		$CacheLoadCmd.Parameters["@ShortDesc"].Value = $CacheWaypoint | select-object -expandproperty short_description | select-object -expandproperty innertext;
+		$CacheLoadCmd.Parameters["@LongDesc"].Value = $CacheWaypoint | select-object -expandproperty long_description | select-object -expandproperty innertext;
+		$CacheLoadCmd.Parameters["@Hint"].Value = $CacheWaypoint | select-object -expandproperty encoded_hints;
+		$CacheLoadCmd.Parameters["@Avail"].Value = Get-DBTypeFromTrueFalse ($CacheWaypoint | select-object -expandproperty available);
+		$CacheLoadCmd.Parameters["@Archived"].Value = Get-DBTypeFromTrueFalse ($CacheWaypoint | select-object -expandproperty archived);
 		# TODO: Figure out where premium only comes from. Doesn't appear to be in the GPX
 		$CacheLoadCmd.Parameters["@PremOnly"].Value = 0; #Get-DBTypeFromTrueFalse $cachedata.gpx.wpt.
 		# Execute
 		$CacheLoadCmd.ExecuteNonQuery();
 
 		# Load cacher table if no record for current cache's owner, or update name
-		Update-Cacher -Cacher $CacheWaypoint.cache.owner;
+		Update-Cacher -Cacher ($CacheWaypoint | select-object -expandproperty owner);
 		Update-CacheOwner -GCNum $GCNum -OwnerId $OwnerId
 
 		# Insert attributes & TBs into respective tables
-		$CacheWaypoint.cache.attributes|foreach-object{$_.attribute|select id,"#text"}|New-Attribute;
+		$CacheWaypoint | select-object -expandproperty attributes|foreach-object{$_.attribute|Select-Object id,"#text"}|New-Attribute;
 		# TODO: Link attributes to cache
+		# Drop all attributes from cache, then re-link
 
 		#TODO: Make this pipeline aware with $cachedata.gpx.wpt.cache.travelbugs.travelbug|update-travelbugs
-		$tbs = $CacheWaypoint.cache.travelbugs|foreach-object{$_.travelbug};
+		$tbs = $CacheWaypoint | select-object -expandproperty travelbugs|foreach-object{$_.travelbug};
 		Update-TravelBugs -AllTBs $tbs -GCNum $GCNum;
 
-		$logs = $CacheWaypoint.cache.logs.log;
+		$logs = $CacheWaypoint | select-object -expandproperty logs | select-object expandproperty log;
 # TODO: Make this pipeline aware with $logs.finder |Update-Cacher
 		$logs|ForEach-Object{Update-Cacher -Cacher $_.finder};
 	}
@@ -414,11 +422,12 @@ param(
 		$CacheAttributeInsertCmd.Prepare();
 	}
 	process {
-		$CacheAttributeCheckCmd.Parameters["@attrid"].Value = $Attribute.id;
+		$AttrId = $Attribute | select-object -expandproperty id;
+		$AttrName = $Attribute|Select-Object -ExpandProperty "#text";
+		$CacheAttributeCheckCmd.Parameters["@attrid"].Value = $AttrId;
 		$AttrExists = $CacheAttributeCheckCmd.ExecuteScalar();
 	    if (!$AttrExists) {
-			$CacheAttributeInsertCmd.Parameters["@attrid"].Value = $Attribute.id;
-			$AttrName = $Attribute|Select-Object -ExpandProperty "#text";
+			$CacheAttributeInsertCmd.Parameters["@attrid"].Value = $AttrId;
 			$CacheAttributeInsertCmd.Parameters["@attrname"].Value = $AttrName;
 			$CacheAttributeInsertCmd.ExecuteNonQuery();
 	    }
@@ -441,7 +450,7 @@ $CacheSizeLookup = invoke-sqlcmd -server $SQLInstance -database $Database -query
 # If one exists, it's a cache
 # Otherwise, it's a waypoint
 $cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | Update-Geocache; #Process as geocache;
-$cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -ne "Geocache"} | Update-Waypoint; #Process as wyapoint;
+#$cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -ne "Geocache"} | Update-Waypoint; #Process as wyapoint;
 
 $SQLConnection.Close();
 remove-module sqlps;
