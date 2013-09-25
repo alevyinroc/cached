@@ -1,4 +1,4 @@
-if db_id(@DBID) is not null
+if db_id('Geocaches') is not null
 BEGIN
 	ALTER DATABASE Geocaches SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
 	DROP DATABASE geocaches;

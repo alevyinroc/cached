@@ -1,18 +1,15 @@
 #requires -version 2.0
-
+Push-Location;
+if ((Get-Module|where-object{$_.name -eq "sqlps"}|Measure-Object).count -lt 1){
+	Import-Module sqlps;
+}
 #region Globals
-$MyServer = 'Hobbes\sqlexpress';
-$SQLConnectionString = "Server=$MyServer;Trusted_Connection=True;";
-$SQLConnection = new-object System.Data.SqlClient.SqlConnection;
-$SQLConnection.ConnectionString = $SQLConnectionString;
-$SQLConnection.Open();
+$MyServer = "Hobbes\sqlexpress";
 #endregion
 
-$FilesToProcess = get-childitem -path "..\sql\DBSetup" -filter *.sql|sort-object -property BaseName;
-$DBSetupCmd = $SQLConnection.CreateCommand();
-$DBSetupCmd.Parameters.Add("@DBID", [System.Data.SqlDbType]::varchar, 20).Value = "Geocaches"|out-null;
+$FilesToProcess = get-childitem -path "C:\Users\andy\Documents\Code\cachedb\sql\DBSetup" -filter *.sql|sort-object -property BaseName;
 foreach ($file in $FilesToProcess) {
-	$DBSetupCmd.CommandText = Get-Content $file.FullName;
-	$DBSetupCmd.ExecuteNonQuery();	
+	Invoke-Sqlcmd -InputFile $file.FullName -ServerInstance $MyServer;
 }
-$SQLConnection.Close();
+Remove-Module sqlps;
+Pop-Location;
