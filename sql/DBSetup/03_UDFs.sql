@@ -1,5 +1,5 @@
 /****** Object:  UserDefinedFunction [dbo].[Bearing]    Script Date: 9/8/2013 12:12:04 PM ******/
-USE @DBID;
+USE Geocaches;
 SET ANSI_NULLS ON
 GO
 

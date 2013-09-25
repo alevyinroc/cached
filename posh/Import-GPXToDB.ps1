@@ -16,7 +16,9 @@ param (
 clear-host;
 $Error.Clear();
 Push-Location;
-import-module sqlps;
+if ((Get-Module|where-object{$_.name -eq "sqlps"}|Measure-Object).count -lt 1){
+	Import-Module sqlps;
+}
 Pop-Location;
 
 #region Globals
