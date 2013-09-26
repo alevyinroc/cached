@@ -381,6 +381,67 @@ param (
 	}
 }
 
+function Update-Log {
+param (
+	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
+	[int]$LogId,
+	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
+	[System.DateTime]$LogDate,
+	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
+	[string]$LogTypeName,
+	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
+	[object[]]$Finder,
+	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
+	[string]$LogText,
+	[Parameter(Mandatory=$true,ParameterSetName="LogObject")]
+	[object]$CacheLog
+)
+begin {
+		$LogExistsCmd = $SQLConnection.CreateCommand();
+		$LogExistsCmd.CommandText = "select count(1) from logs where logid = @LogId;"
+		$LogExistsCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt)|out-null;
+		$LogExistsCmd.Prepare();
+		$LogTableUpdateCmd = $SQLConnection.CreateCommand();
+		$LogTableUpdateCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::bigint)|Out-Null;
+		$LogTableUpdateCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::varchar, 50)|Out-Null;
+		$LogTableUpdateCmd.Parameters.Add("@LogDate", [System.Data.SqlDbType]::DateTime)|Out-Null;
+		$LogTableUpdateCmd.Parameters.Add("@LogType", [System.Data.SqlDbType]::Int)|Out-Null;
+		$LogTableUpdateCmd.Parameters.Add("@LogText", [System.Data.SqlDbType]::NVarChar, 4000)|Out-Null;
+		$LogTableUpdateCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::Float)|Out-Null;
+		$LogTableUpdateCmd.Parameters.Add("@Long", [System.Data.SqlDbType]::Float)|Out-Null;
+		$LogTypes = Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $Database -Query "select logtypeid,logtypedesc from log_types";
+	}
+	process{
+		switch ($PsCmdlet.ParameterSetName) {
+			"LogObject" {
+				$Finder = $CacheLog.finder.id;
+				$LogId = $CacheLog.id;
+				$LogDate = Get-Date $CacheLog.date;
+				$LogType = $LogTypes|Where-Object{$_.logtypedesc -eq $CacheLog.type};
+				$LogText = $CacheLog.text;
+				$Latitude = $CacheLog.lat;
+				$Longitude = $CacheLog.long;
+			}
+		}
+		
+		$LogExistsCmd.Parameters["@CacherId"].Value = $CacherId;
+		$CacherExists = $LogExistsCmd.ExecuteScalar();
+		if ($CacherExists){
+		# Update cacher name if it's changed
+			$LogTableUpdateCmd.CommandText = "update logs set logdate=@LogDate, logtypeid=@LogType, cacherid = @CacherId, logtext = @LogText, latitude = @Lat, longitude = @Long where logid = @LogId;";
+		} else {
+		    $LogTableUpdateCmd.CommandText = "insert into logs (logid,logdate, logtypeid, cacherid,logtext,latitude,longitude) values (@LogId,@LogDate,@LogType, @CacherId,@LogText,@Lat,@Long);";
+		}
+		$LogTableUpdateCmd.Parameters["@CacherId"].Value = $CacherId;
+		$LogTableUpdateCmd.Parameters["@CacherName"].Value = $CacherName;
+		$LogTableUpdateCmd.ExecuteNonQuery();
+	}
+	end {
+		$LogExistsCmd.Dispose();
+		$CacherTableUpdateCmd.Dispose();
+	}
+}
+
 function Update-Waypoint {
 [cmdletbinding()]
 param (
