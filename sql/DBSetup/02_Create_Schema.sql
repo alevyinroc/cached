@@ -88,10 +88,10 @@ alter table waypoints
 add latlong
 as geography::Point(latitude, longitude, 4326) persisted;
 
-
+CREATE sequence logtypeid as int start with 1 increment by 1;
 create table log_types (
-	logtypeid int not null constraint pk_log_types primary key,
-	logtypedesc varchar(20) not null
+	logtypeid int not null constraint pk_log_types primary key  DEFAULT (NEXT VALUE FOR logtypeid),
+	logtypedesc varchar(30) not null
 );
 
 create table logs (
@@ -101,11 +101,15 @@ create table logs (
 	cacherid int not null,
 	logtext nvarchar(4000),
 	latitude float null,
-	longitude float null,
-	latlong geography null,
+	longitude float null
 	constraint fk_logtype foreign key (logtypeid) references log_types (logtypeid),
 	constraint fk_cacher foreign key (cacherid) references cachers (cacherid)
 );
+
+alter table logs
+add latlong
+as geography::Point(latitude, longitude, 4326) persisted;
+
 create table cache_logs (
 	cacheid varchar(8) not null,
 	logid bigint not null,
@@ -1648,3 +1652,19 @@ INSERT INTO CenterPoints
 	VALUES ('Lockport', geography ::STGeomFromText('POINT(-78.689767 43.17485)', 4326));
 INSERT INTO CenterPoints
 	VALUES ('Seattle', geography ::STGeomFromText('POINT(-122.33365 47.612033)', 4326));
+	
+insert into log_types (logtypedesc) values ('Archived');
+insert into log_types (logtypedesc) values ('Didn''t find it');
+insert into log_types (logtypedesc) values ('Enable Listing');
+insert into log_types (logtypedesc) values ('Found it');
+insert into log_types (logtypedesc) values ('Needs Archived');
+insert into log_types (logtypedesc) values ('Needs Maintenance');
+insert into log_types (logtypedesc) values ('Owner Maintenance');
+insert into log_types (logtypedesc) values ('Post Reviewer Note');
+insert into log_types (logtypedesc) values ('Publish Listing');
+insert into log_types (logtypedesc) values ('Retract Listing');
+insert into log_types (logtypedesc) values ('Temporarily Disable Listing');
+insert into log_types (logtypedesc) values ('Unarchive');
+insert into log_types (logtypedesc) values ('Update Coordinates');
+insert into log_types (logtypedesc) values ('Webcam Photo Taken');
+insert into log_types (logtypedesc) values ('Write note');
