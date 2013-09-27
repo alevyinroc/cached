@@ -372,6 +372,7 @@ param (
 # TODO: Make this pipeline aware with $logs.finder |Update-Cacher
 		#$CacheWaypoint|select -ExpandProperty logs|select -expandproperty log|select -ExpandProperty finder|foreach-object{Update-Cacher -Cacher $_}
 		$logs | select -ExpandProperty finder|foreach-object{Update-Cacher -Cacher $_}
+		$logs | foreach-object {Update-Log -LogId $_.id -LogDate $_.date -LogTypeName $_.type -Finder $_.finder.id -LogText $($_.text|Select-Object -ExpandProperty "#text")};
 #TODO: Write/Update logs
 #$logs|select id,date,type,text
 	}
@@ -390,11 +391,15 @@ param (
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
 	[string]$LogTypeName,
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
-	[object[]]$Finder,
+	[int]$Finder,
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
 	[string]$LogText,
+	[Parameter(Mandatory=$false,ParameterSetName="ExplicitLogDetails")]
+	[float]$Latitude,
+	[Parameter(Mandatory=$false,ParameterSetName="ExplicitLogDetails")]
+	[float]$Longitude,
 	[Parameter(Mandatory=$true,ParameterSetName="LogObject")]
-	[object]$CacheLog
+	[System.Xml.XmlElement]$CacheLog
 )
 begin {
 		$LogExistsCmd = $SQLConnection.CreateCommand();
@@ -420,25 +425,33 @@ begin {
 				$LogType = $LogTypes|Where-Object{$_.logtypedesc -eq $CacheLog.type};
 				$LogText = $CacheLog.text;
 				$Latitude = $CacheLog.lat;
-				$Longitude = $CacheLog.long;
+				$Longitude = $CacheLog.lon;
+			}
+			"ExplicitLogDetails" {
+				$LogType = $LogTypes|Where-Object{$_.logtypedesc -eq $LogTypeName}|Select-Object -ExpandProperty logtypeid;
 			}
 		}
 		
-		$LogExistsCmd.Parameters["@CacherId"].Value = $CacherId;
-		$CacherExists = $LogExistsCmd.ExecuteScalar();
-		if ($CacherExists){
+		$LogExistsCmd.Parameters["@LogId"].Value = $LogId;
+		$LogExists = $LogExistsCmd.ExecuteScalar();
+		if ($LogExists){
 		# Update cacher name if it's changed
 			$LogTableUpdateCmd.CommandText = "update logs set logdate=@LogDate, logtypeid=@LogType, cacherid = @CacherId, logtext = @LogText, latitude = @Lat, longitude = @Long where logid = @LogId;";
 		} else {
 		    $LogTableUpdateCmd.CommandText = "insert into logs (logid,logdate, logtypeid, cacherid,logtext,latitude,longitude) values (@LogId,@LogDate,@LogType, @CacherId,@LogText,@Lat,@Long);";
 		}
-		$LogTableUpdateCmd.Parameters["@CacherId"].Value = $CacherId;
-		$LogTableUpdateCmd.Parameters["@CacherName"].Value = $CacherName;
+		$LogTableUpdateCmd.Parameters["@CacherId"].Value = $Finder;
+		$LogTableUpdateCmd.Parameters["@LogId"].Value = $LogId;
+		$LogTableUpdateCmd.Parameters["@LogDate"].Value = $LogDate;
+		$LogTableUpdateCmd.Parameters["@LogType"].Value = $LogType;
+		$LogTableUpdateCmd.Parameters["@LogText"].Value = $LogText;
+		$LogTableUpdateCmd.Parameters["@Lat"].Value = $Latitude;
+		$LogTableUpdateCmd.Parameters["@Long"].Value = $Longitude;
 		$LogTableUpdateCmd.ExecuteNonQuery();
 	}
 	end {
 		$LogExistsCmd.Dispose();
-		$CacherTableUpdateCmd.Dispose();
+		$LogTableUpdateCmd.Dispose();
 	}
 }
 
