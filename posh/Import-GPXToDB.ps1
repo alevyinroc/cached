@@ -354,27 +354,7 @@ param (
 		# Execute
 		$CacheLoadCmd.ExecuteNonQuery();
 
-		# Load cacher table if no record for current cache's owner, or update name
-		Update-Cacher -Cacher ($CacheWaypoint | select-object -expandproperty owner);
 		Update-CacheOwner -GCNum $GCNum -OwnerId $OwnerId
-
-		# Insert attributes & TBs into respective tables
-		$CacheWaypoint | select-object -expandproperty attributes|foreach-object{$_.attribute|Select-Object id,"#text"}|New-Attribute;
-		# TODO: Link attributes to cache
-		# Drop all attributes from cache, then re-link
-
-		#TODO: Make this pipeline aware with $cachedata.gpx.wpt.cache.travelbugs.travelbug|update-travelbugs
-		$tbs = $CacheWaypoint | select-object -expandproperty travelbugs|foreach-object{$_.travelbug};
-		ForEach ($tb in $tbs) {
-			Update-TravelBug -GCNum $GCNum -TBPublicId $tb.ref -TBName $tb.name -TBInternalId $tb.id;
-		}
-		$logs = $CacheWaypoint | select-object -expandproperty logs | select-object -expandproperty log;
-# TODO: Make this pipeline aware with $logs.finder |Update-Cacher
-		#$CacheWaypoint|select -ExpandProperty logs|select -expandproperty log|select -ExpandProperty finder|foreach-object{Update-Cacher -Cacher $_}
-		$logs | select -ExpandProperty finder|foreach-object{Update-Cacher -Cacher $_}
-		$logs | foreach-object {Update-Log -LogId $_.id -LogDate $_.date -LogTypeName $_.type -Finder $_.finder.id -LogText $($_.text|Select-Object -ExpandProperty "#text")};
-#TODO: Write/Update logs
-#$logs|select id,date,type,text
 	}
 	end {
 		$CacheLoadCmd.Dispose();
@@ -514,7 +494,26 @@ $CacheSizeLookup = invoke-sqlcmd -server $SQLInstance -database $Database -query
 # Check for a cache child element
 # If one exists, it's a cache
 # Otherwise, it's a waypoint
-$cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | Update-Geocache; #Process as geocache;
+$cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | ForEach-Object{
+	Update-Geocache $_; #Process as geocache
+# Load cacher table if no record for current cache's owner, or update name
+	Update-Cacher -Cacher $_.cache.owner;
+# Insert attributes & TBs into respective tables
+	$_.cache.attributes | foreach-object{$_.attribute|Select-Object id,"#text"}|New-Attribute;
+# TODO: Link attributes to cache
+# Drop all attributes from cache, then re-link
+
+#TODO: Make this pipeline aware with $cachedata.gpx.wpt.cache.travelbugs.travelbug|update-travelbugs
+	$GCNum = $_.cache.name;
+	$tbs = $_.cache.travelbugs | select-object -expandproperty travelbug;
+	ForEach ($tb in $tbs) {
+		Update-TravelBug -GCNum $GCNum -TBPublicId $tb.ref -TBName $tb.name -TBInternalId $tb.id;
+	}
+	$logs = $_.cache.logs|Select-Object -ExpandProperty log;
+# TODO: Make this pipeline aware with $logs.finder |Update-Cacher
+	$logs | select -ExpandProperty finder|foreach-object{Update-Cacher -Cacher $_}
+	$logs | foreach-object {Update-Log -LogId $_.id -LogDate $_.date -LogTypeName $_.type -Finder $_.finder.id -LogText $($_.text|Select-Object -ExpandProperty "#text")};
+	}
 #$cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -ne "Geocache"} | Update-Waypoint; #Process as wyapoint;
 
 $SQLConnection.Close();
