@@ -367,6 +367,8 @@ param (
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
 	[int]$LogId,
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
+	[string]$CacheId,
+	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
 	[System.DateTime]$LogDate,
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
 	[string]$LogTypeName,
@@ -395,6 +397,15 @@ begin {
 		$LogTableUpdateCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::Float)|Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@Long", [System.Data.SqlDbType]::Float)|Out-Null;
 		$LogTypes = Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $Database -Query "select logtypeid,logtypedesc from log_types";
+		$LogLinkToCacheCmd = $SQLConnection.CreateCommand();
+		$LogLinkToCacheCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::bigint)|Out-Null;
+		$LogLinkToCacheCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::varchar, 8)|Out-Null;
+		$LogLinkToCacheCmd.CommandText = "insert into cache_logs (cacheid,logid) values (@CacheId, @LogId)";
+		$LogLinkToCacheCmd.Prepare();
+		$LogLinkedCmd = $SQLConnection.CreateCommand();
+		$LogLinkedCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::bigint)|Out-Null;
+		$LogLinkedCmd.CommandText = "select count(1) from cache_logs where logid = @LogId";
+		$LogLinkedCmd.Prepare();
 	}
 	process{
 		switch ($PsCmdlet.ParameterSetName) {
@@ -428,6 +439,14 @@ begin {
 		$LogTableUpdateCmd.Parameters["@Lat"].Value = $Latitude;
 		$LogTableUpdateCmd.Parameters["@Long"].Value = $Longitude;
 		$LogTableUpdateCmd.ExecuteNonQuery();
+		
+		$LogLinkedCmd.Parameters["@LogId"].Value = $LogId;
+		$LogLinked = $LogLinkedCmd.ExecuteScalar();
+		if (!$LogLinked) {
+			$LogLinkToCacheCmd.Parameters["@LogId"].Value = $LogId;
+			$LogLinkToCacheCmd.Parameters["@CacheId"].Value = $CacheId;
+			$LogLinkToCacheCmd.ExecuteNonQuery();
+		}
 	}
 	end {
 		$LogExistsCmd.Dispose();
@@ -504,15 +523,17 @@ $cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | ForEach-
 # Drop all attributes from cache, then re-link
 
 #TODO: Make this pipeline aware with $cachedata.gpx.wpt.cache.travelbugs.travelbug|update-travelbugs
-	$GCNum = $_.cache.name;
-	$tbs = $_.cache.travelbugs | select-object -expandproperty travelbug;
-	ForEach ($tb in $tbs) {
-		Update-TravelBug -GCNum $GCNum -TBPublicId $tb.ref -TBName $tb.name -TBInternalId $tb.id;
+	$GCNum = $_.name;
+	if ($_.cache.travelbugs.length -gt 0) {
+		$tbs = $_.cache.travelbugs | select-object -expandproperty travelbug;
+		ForEach ($tb in $tbs) {
+			Update-TravelBug -GCNum $GCNum -TBPublicId $tb.ref -TBName $tb.name -TBInternalId $tb.id;
+		}
 	}
 	$logs = $_.cache.logs|Select-Object -ExpandProperty log;
 # TODO: Make this pipeline aware with $logs.finder |Update-Cacher
 	$logs | select -ExpandProperty finder|foreach-object{Update-Cacher -Cacher $_}
-	$logs | foreach-object {Update-Log -LogId $_.id -LogDate $_.date -LogTypeName $_.type -Finder $_.finder.id -LogText $($_.text|Select-Object -ExpandProperty "#text")};
+	$logs | foreach-object {Update-Log -LogId $_.id -CacheId $GCNum -LogDate $_.date -LogTypeName $_.type -Finder $_.finder.id -LogText $($_.text|Select-Object -ExpandProperty "#text")};
 	}
 #$cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -ne "Geocache"} | Update-Waypoint; #Process as wyapoint;
 

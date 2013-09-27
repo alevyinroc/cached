@@ -150,6 +150,8 @@ INSERT INTO cache_sizes (sizeid, sizename)
 	VALUES (4, 'Large');
 INSERT INTO cache_sizes (sizeid, sizename)
 	VALUES (6, 'Other');
+INSERT INTO cache_sizes (sizeid, sizename)
+	VALUES (5, 'Virtual');
 
 INSERT INTO point_types (typeid, typename)
 	VALUES (1, 'Traditional Cache');
@@ -1652,19 +1654,34 @@ INSERT INTO CenterPoints
 	VALUES ('Lockport', geography ::STGeomFromText('POINT(-78.689767 43.17485)', 4326));
 INSERT INTO CenterPoints
 	VALUES ('Seattle', geography ::STGeomFromText('POINT(-122.33365 47.612033)', 4326));
-	
-insert into log_types (logtypedesc) values ('Archived');
-insert into log_types (logtypedesc) values ('Didn''t find it');
-insert into log_types (logtypedesc) values ('Enable Listing');
-insert into log_types (logtypedesc) values ('Found it');
-insert into log_types (logtypedesc) values ('Needs Archived');
-insert into log_types (logtypedesc) values ('Needs Maintenance');
-insert into log_types (logtypedesc) values ('Owner Maintenance');
-insert into log_types (logtypedesc) values ('Post Reviewer Note');
-insert into log_types (logtypedesc) values ('Publish Listing');
-insert into log_types (logtypedesc) values ('Retract Listing');
-insert into log_types (logtypedesc) values ('Temporarily Disable Listing');
-insert into log_types (logtypedesc) values ('Unarchive');
-insert into log_types (logtypedesc) values ('Update Coordinates');
-insert into log_types (logtypedesc) values ('Webcam Photo Taken');
-insert into log_types (logtypedesc) values ('Write note');
+
+INSERT INTO log_types (logtypedesc)
+	VALUES ('Archived');
+INSERT INTO log_types (logtypedesc)
+	VALUES ('Didn''t find it');
+INSERT INTO log_types (logtypedesc)
+	VALUES ('Enable Listing');
+INSERT INTO log_types (logtypedesc)
+	VALUES ('Found it');
+INSERT INTO log_types (logtypedesc)
+	VALUES ('Needs Archived');
+INSERT INTO log_types (logtypedesc)
+	VALUES ('Needs Maintenance');
+INSERT INTO log_types (logtypedesc)
+	VALUES ('Owner Maintenance');
+INSERT INTO log_types (logtypedesc)
+	VALUES ('Post Reviewer Note');
+INSERT INTO log_types (logtypedesc)
+	VALUES ('Publish Listing');
+INSERT INTO log_types (logtypedesc)
+	VALUES ('Retract Listing');
+INSERT INTO log_types (logtypedesc)
+	VALUES ('Temporarily Disable Listing');
+INSERT INTO log_types (logtypedesc)
+	VALUES ('Unarchive');
+INSERT INTO log_types (logtypedesc)
+	VALUES ('Update Coordinates');
+INSERT INTO log_types (logtypedesc)
+	VALUES ('Webcam Photo Taken');
+INSERT INTO log_types (logtypedesc)
+	VALUES ('Write note');
