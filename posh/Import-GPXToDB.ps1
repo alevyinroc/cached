@@ -76,7 +76,7 @@ param(
 		}
 		$CacherTableUpdateCmd.Parameters["@CacherId"].Value = $CacherId;
 		$CacherTableUpdateCmd.Parameters["@CacherName"].Value = $CacherName;
-		$CacherTableUpdateCmd.ExecuteNonQuery();
+		$CacherTableUpdateCmd.ExecuteNonQuery()|Out-Null;
 	}
 	end {
 		$CacherExistsCmd.Dispose();
@@ -114,7 +114,7 @@ param(
 		}
 		$CacheOwnerUpdateCmd.Parameters["@ownerid"].Value = $ownerid;
 		$CacheOwnerUpdateCmd.Parameters["@gcnum"].Value = $gcnum;
-		$CacheOwnerUpdateCmd.ExecuteNonQuery();
+		$CacheOwnerUpdateCmd.ExecuteNonQuery()|Out-Null;
 	}
 	end {
 		$CacheOwnerUpdateCmd.Dispose();
@@ -153,7 +153,7 @@ param (
 			$TBInsertCmd.Parameters["@tbid"].Value = $TBId;
 			$TBInsertCmd.Parameters["@tbname"].Value = $TBName;
 			$TBInsertCmd.Parameters["@tbpublicid"].Value = $TBPublicId;
-			$TBInsertCmd.ExecuteNonQuery();
+			$TBInsertCmd.ExecuteNonQuery() | Out-Null;
 		}
 	}
 	end {
@@ -187,11 +187,11 @@ param (
 	process {
 		$TBRemoveFromCacheInventoryCmd.Parameters["@cacheid"].Value = $GCNum;
 		$TBRemoveFromCacheInventoryCmd.Parameters["@tbpublicid"].Value = $TBPublicId;
-		$TBWasInOtherCache = $TBRemoveFromCacheInventoryCmd.ExecuteNonQuery();
+		$TBWasInOtherCache = $TBRemoveFromCacheInventoryCmd.ExecuteNonQuery() | Out-Null;
 		if ($TBWasInOtherCache) {
 			$TBAddToCacheCmd.Parameters["@cacheid"].Value = $GCNum;
 			$TBAddToCacheCmd.Parameters["@tbpublicid"].Value = $TBPublicId;
-			$TBAddToCacheCmd.ExecuteNonQuery();
+			$TBAddToCacheCmd.ExecuteNonQuery() | Out-Null;
 		}
 	}
 	end {
@@ -352,7 +352,7 @@ param (
 		# TODO: Figure out where premium only comes from. Doesn't appear to be in the GPX
 		$CacheLoadCmd.Parameters["@PremOnly"].Value = 0; #Get-DBTypeFromTrueFalse $cachedata.gpx.wpt.
 		# Execute
-		$CacheLoadCmd.ExecuteNonQuery();
+		$CacheLoadCmd.ExecuteNonQuery()|Out-Null;
 
 		Update-CacheOwner -GCNum $GCNum -OwnerId $OwnerId
 	}
@@ -438,14 +438,14 @@ begin {
 		$LogTableUpdateCmd.Parameters["@LogText"].Value = $LogText;
 		$LogTableUpdateCmd.Parameters["@Lat"].Value = $Latitude;
 		$LogTableUpdateCmd.Parameters["@Long"].Value = $Longitude;
-		$LogTableUpdateCmd.ExecuteNonQuery();
+		$LogTableUpdateCmd.ExecuteNonQuery()|Out-Null;
 		
 		$LogLinkedCmd.Parameters["@LogId"].Value = $LogId;
 		$LogLinked = $LogLinkedCmd.ExecuteScalar();
 		if (!$LogLinked) {
 			$LogLinkToCacheCmd.Parameters["@LogId"].Value = $LogId;
 			$LogLinkToCacheCmd.Parameters["@CacheId"].Value = $CacheId;
-			$LogLinkToCacheCmd.ExecuteNonQuery();
+			$LogLinkToCacheCmd.ExecuteNonQuery()|Out-null;
 		}
 	}
 	end {
@@ -493,7 +493,7 @@ param(
 	    if (!$AttrExists) {
 			$CacheAttributeInsertCmd.Parameters["@attrid"].Value = $AttrId;
 			$CacheAttributeInsertCmd.Parameters["@attrname"].Value = $AttrName;
-			$CacheAttributeInsertCmd.ExecuteNonQuery();
+			$CacheAttributeInsertCmd.ExecuteNonQuery()|Out-Null;
 	    }
 	}
 	end {
@@ -533,7 +533,21 @@ $cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | ForEach-
 	$logs = $_.cache.logs|Select-Object -ExpandProperty log;
 # TODO: Make this pipeline aware with $logs.finder |Update-Cacher
 	$logs | select -ExpandProperty finder|foreach-object{Update-Cacher -Cacher $_}
-	$logs | foreach-object {Update-Log -LogId $_.id -CacheId $GCNum -LogDate $_.date -LogTypeName $_.type -Finder $_.finder.id -LogText $($_.text|Select-Object -ExpandProperty "#text")};
+	$logs | foreach-object {
+		$UpdateLogVars = @{
+			'LogId' = $_.id;
+			'CacheId' = $GCNum;
+			'LogDate' = $_.date;
+			'LogTypeName' = $_.type;
+			'Finder' = $_.finder.id;
+			'LogText' = $_.text|Select-Object -ExpandProperty "#text";
+		};
+		if ($_.log_wpt) {
+			$UpdateLogVars.Add('Latitude',$_.log_wpt.lat);
+			$UpdateLogVars.Add('Longitude',$_.log_wpt.lon);
+		}
+		Update-Log @UpdateLogVars;
+	};
 	}
 #$cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -ne "Geocache"} | Update-Waypoint; #Process as wyapoint;
 
