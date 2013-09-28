@@ -9,7 +9,19 @@ SELECT * from tbinventory;
 SELECT * from travelbugs;
 SELECT * from cache_sizes;
 
-SELECT c2.cachename, c2.cacheid, logdate, logtext, c.cachername as finder, lt.logtypedesc as LogType from caches c2 join cache_logs cl on c2.cacheid = cl.cacheid join logs l on l.logid = cl.logid JOIN log_types lt on l.logtypeid = lt.logtypeid JOIN cachers c on l.cacherid = c.cacherid ORDER BY l.logdate desc;
+SELECT
+	c2.cachename, c2.cacheid,l.latitude,l.longitude, l.latlong,logdate, logtext, c.cachername as finder, lt.logtypedesc as LogType
+from
+	caches c2
+	join cache_logs cl on c2.cacheid = cl.cacheid
+	join logs l on l.logid = cl.logid
+	JOIN log_types lt on l.logtypeid = lt.logtypeid
+	JOIN cachers c on l.cacherid = c.cacherid
+where
+	c2.cacheid = 'GC23XVW'
+ORDER BY
+	l.logdate desc;
+
 /*DELETE from tbinventory;
 delete from logs;
 DELETE from cache_owners;

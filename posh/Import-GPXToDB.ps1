@@ -338,12 +338,10 @@ param (
 		$CacheLoadCmd.Parameters["@Long"].Value = $Longitude;
 		$CacheLoadCmd.Parameters["@Placed"].Value = $PlacedDate;
 		$CacheLoadCmd.Parameters["@PlacedBy"].Value = $CacheWaypoint | select-object -expandproperty placed_by;
-		#TODO Fix
-		$CacheLoadCmd.Parameters["@TypeId"].Value = $PointTypeLookup|where-object{$_.typename -eq ($CacheWaypoint | select-object -expandproperty type)}|select -expandproperty typeid;
-		$CacheLoadCmd.Parameters["@SizeId"].Value = $CacheSizeLookup|where-object{$_.sizename -eq ($CacheWaypoint | select-object -expandproperty container)}|select -expandproperty sizeid;
+		$CacheLoadCmd.Parameters["@TypeId"].Value = $PointTypeLookup|where-object{$_.typename -eq ($CacheWaypoint | select-object -expandproperty type)} | Select-Object -expandproperty typeid;
+		$CacheLoadCmd.Parameters["@SizeId"].Value = $CacheSizeLookup|where-object{$_.sizename -eq ($CacheWaypoint | select-object -expandproperty container)} | Select-Object -expandproperty sizeid;
 		$CacheLoadCmd.Parameters["@Diff"].Value = $CacheWaypoint | select-object -expandproperty difficulty;
 		$CacheLoadCmd.Parameters["@Terrain"].Value = $CacheWaypoint | select-object -expandproperty terrain;
-		#TODO Check
 		$CacheLoadCmd.Parameters["@ShortDesc"].Value = $CacheWaypoint | select-object -expandproperty short_description | select-object -expandproperty innertext;
 		$CacheLoadCmd.Parameters["@LongDesc"].Value = $CacheWaypoint | select-object -expandproperty long_description | select-object -expandproperty innertext;
 		$CacheLoadCmd.Parameters["@Hint"].Value = $CacheWaypoint | select-object -expandproperty encoded_hints;
@@ -354,7 +352,7 @@ param (
 		# Execute
 		$CacheLoadCmd.ExecuteNonQuery()|Out-Null;
 
-		Update-CacheOwner -GCNum $GCNum -OwnerId $OwnerId
+		Update-CacheOwner -GCNum $GCNum -OwnerId $($CacheWaypoint|Select-Object -ExpandProperty owner|Select-Object -ExpandProperty id);
 	}
 	end {
 		$CacheLoadCmd.Dispose();
@@ -518,7 +516,7 @@ $cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | ForEach-
 # Load cacher table if no record for current cache's owner, or update name
 	Update-Cacher -Cacher $_.cache.owner;
 # Insert attributes & TBs into respective tables
-	$_.cache.attributes | foreach-object{$_.attribute|Select-Object id,"#text"}|New-Attribute;
+	$_.cache.attributes | foreach-object{$_.attribute | Select-Object id,"#text"} | New-Attribute;
 # TODO: Link attributes to cache
 # Drop all attributes from cache, then re-link
 
@@ -532,7 +530,7 @@ $cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | ForEach-
 	}
 	$logs = $_.cache.logs|Select-Object -ExpandProperty log;
 # TODO: Make this pipeline aware with $logs.finder |Update-Cacher
-	$logs | select -ExpandProperty finder|foreach-object{Update-Cacher -Cacher $_}
+	$logs | Select-Object -ExpandProperty finder|foreach-object{Update-Cacher -Cacher $_}
 	$logs | foreach-object {
 		$UpdateLogVars = @{
 			'LogId' = $_.id;
