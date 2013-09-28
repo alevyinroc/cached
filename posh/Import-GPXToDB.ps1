@@ -372,8 +372,8 @@ param (
 	[string]$LogTypeName,
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
 	[int]$Finder,
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
-	[string]$LogText,
+	[Parameter(Mandatory=$false,ParameterSetName="ExplicitLogDetails")]
+	[string]$LogText="",
 	[Parameter(Mandatory=$false,ParameterSetName="ExplicitLogDetails")]
 	[float]$Latitude,
 	[Parameter(Mandatory=$false,ParameterSetName="ExplicitLogDetails")]
@@ -538,8 +538,14 @@ $cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | ForEach-
 			'LogDate' = $_.date;
 			'LogTypeName' = $_.type;
 			'Finder' = $_.finder.id;
-			'LogText' = $_.text|Select-Object -ExpandProperty "#text";
+# TODO: Fix when log text is empty
+#			'LogText' = $_.text|Select-Object -ExpandProperty "#text";
 		};
+		if (($_.text|select -ExpandProperty "#text" -ErrorAction SilentlyContinue) -eq $null) {
+			$UpdateLogVars.Add('LogText', '');
+		} else {
+			$UpdateLogVars.Add('LogText', $($_.text|Select-Object -ExpandProperty "#text"));
+		}
 		if ($_.log_wpt) {
 			$UpdateLogVars.Add('Latitude',$_.log_wpt.lat);
 			$UpdateLogVars.Add('Longitude',$_.log_wpt.lon);

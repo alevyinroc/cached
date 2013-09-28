@@ -18,7 +18,7 @@ from
 	JOIN log_types lt on l.logtypeid = lt.logtypeid
 	JOIN cachers c on l.cacherid = c.cacherid
 where
-	c2.cacheid = 'GC23XVW'
+	c2.cacheid = 'GC38VEC'
 ORDER BY
 	l.logdate desc;
 

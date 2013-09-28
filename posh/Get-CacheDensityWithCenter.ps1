@@ -4,7 +4,11 @@
 [cmdletbinding()]
 param (
 	[Parameter(Mandatory=$true)]
+	[int]$DensityRadius,
+	[Parameter(Mandatory=$true)]
 	[int]$SearchRadius,
+	[Parameter(Mandatory=$true)]
+	[string]$SearchCenter,
 	[Parameter(Mandatory=$false)]
 	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
 	[string]$SQLInstance = 'Hobbes\sqlexpress',
@@ -18,12 +22,13 @@ if ((Get-Module|where-object{$_.name -eq "sqlps"}|Measure-Object).count -lt 1){
 	Import-Module sqlps;
 }
 Pop-Location;
-$AllCaches = invoke-sqlcmd "select cacheid from caches;" -ServerInstance $SQLInstance -Database $Database | Select-Object -ExpandProperty cacheid;
+
+$AllCaches = invoke-sqlcmd "exec CachesNearCache '$SearchCenter', $SearchRadius" -ServerInstance $SQLInstance -Database $Database | Select-Object -ExpandProperty cacheid;
 $CacheListing = @();
 foreach ($cache in $AllCaches) {
 	$Record = New-Object PSObject;
 	$Record | Add-Member -Name "CacheId" -MemberType NoteProperty -Value $cache;
-	$CacheCount = Invoke-sqlcmd -server hobbes\sqlexpress -database geocaches -query "EXEC CacheDensity '$cache', $SearchRadius;" | Select-Object -ExpandProperty CacheCount;
+	$CacheCount = Invoke-sqlcmd -server hobbes\sqlexpress -database geocaches -query "EXEC CacheDensity '$cache', $DensityRadius;" | Select-Object -ExpandProperty CacheCount;
 	$Record | Add-Member -Name "CountNearby" -MemberType NoteProperty -Value $CacheCount;
 	$CacheListing += $Record;
 }
