@@ -1,9 +1,4 @@
 SELECT * FROM caches;
-
-declare @p1 geography
-SELECT @p1 = Locationgeo from centerpoints where locationname='Home';
-SELECT cacheid, cachename,@p1.STDistance(latlong)/1000 as [Distance from home], dbo.Bearing(@p1,latlong) as Bearing from caches order by [Distance from home];
-
 SELECT * FROM cachers;
 SELECT * from cache_attributes;
 SELECT * from cache_owners;
