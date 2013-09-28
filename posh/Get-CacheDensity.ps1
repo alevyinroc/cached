@@ -14,7 +14,7 @@ $CacheListing = @();
 foreach ($cache in $AllCaches) {
 	$Record = New-Object PSObject;
 	$Record | Add-Member -Name "CacheId" -MemberType NoteProperty -Value $cache;
-	$CacheCount = Invoke-sqlcmd -server hobbes\sqlexpress -database geocaches -query "EXEC CacheDensity '$cache', 5;" | Select-Object -ExpandProperty CacheCount;
+	$CacheCount = Invoke-sqlcmd -server hobbes\sqlexpress -database geocaches -query "EXEC CacheDensity '$cache', 2;" | Select-Object -ExpandProperty CacheCount;
 	$Record | Add-Member -Name "CountNearby" -MemberType NoteProperty -Value $CacheCount;
 	$CacheListing += $Record;
 }
