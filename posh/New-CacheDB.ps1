@@ -1,6 +1,7 @@
 #requires -version 2.0
+Clear-Host;
 Push-Location;
-if ((Get-Module|where-object{$_.name -eq "sqlps"}|Measure-Object).count -lt 1){
+if ((Get-Module|Where-Object{$_.name -eq "sqlps"}|Measure-Object).count -lt 1){
 	Import-Module sqlps;
 }
 #region Globals

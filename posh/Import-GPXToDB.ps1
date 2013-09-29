@@ -13,10 +13,10 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
-clear-host;
+Clear-Host;
 $Error.Clear();
 Push-Location;
-if ((Get-Module|where-object{$_.name -eq "sqlps"}|Measure-Object).count -lt 1){
+if ((Get-Module|Where-Object{$_.name -eq "sqlps"}|Measure-Object).count -lt 1){
 	Import-Module sqlps;
 }
 Pop-Location;
@@ -553,7 +553,7 @@ $cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | ForEach-
 		Update-Log @UpdateLogVars;
 	};
 	}
-#$cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -ne "Geocache"} | Update-Waypoint; #Process as wyapoint;
+#$cachedata.gpx.wpt|Where-Object{$_.type.split("|")[0] -ne "Geocache"} | Update-Waypoint; #Process as wyapoint;
 
 $SQLConnection.Close();
-remove-module sqlps;
+Remove-Module sqlps;
