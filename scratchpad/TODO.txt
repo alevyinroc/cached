@@ -1,3 +1,4 @@
 Link attributes to caches
+Blank & recreate DB to get statuses
 Update & link cache statuses -  <groundspeak:cache id="447208" available="False" archived="False" xmlns:groundspeak="http://www.groundspeak.com/cache/1/0/1">
 Attempt to insert waypoint or cache. If type doesn't exist, first create the type.
