@@ -8,6 +8,7 @@ begin
 	SELECT @p1 = latlong from caches where cacheid = @cacheid;
 	SELECT count(cacheid) as CacheCount from caches where @p1.STDistance(latlong)/1000 <= @distance and cacheid <> @cacheid;
 end;
+go
 
 IF NOT EXISTS (SELECT * FROM sys.objects WHERE type = 'P' AND name = 'CachesNearCache')
    exec('CREATE PROCEDURE [dbo].[CachesNearCache] AS BEGIN SET NOCOUNT ON; END')
@@ -26,3 +27,4 @@ SELECT
 FROM caches
 WHERE @p1.STDistance(latlong) / 1000 < @searchradius;
 end;
+go

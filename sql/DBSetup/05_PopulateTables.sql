@@ -1,4 +1,5 @@
-﻿/* IDs & names taken from geocaching.com new listing form */
+﻿use geocaches;
+/* IDs & names taken from geocaching.com new listing form */
 INSERT INTO cache_sizes (sizeid, sizename)
 	VALUES (1, 'Not Listed');
 INSERT INTO cache_sizes (sizeid, sizename)
@@ -13,6 +14,8 @@ INSERT INTO cache_sizes (sizeid, sizename)
 	VALUES (6, 'Other');
 INSERT INTO cache_sizes (sizeid, sizename)
 	VALUES (5, 'Virtual');
+INSERT INTO cache_sizes (sizeid, sizename)
+	VALUES (7, 'Not Chosen');
 
 INSERT INTO point_types (typeid, typename)
 	VALUES (1, 'Traditional Cache');
