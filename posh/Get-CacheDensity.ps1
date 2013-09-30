@@ -5,11 +5,11 @@
 param (
 	[Parameter(Mandatory=$true)]
 	[int]$DensityRadius,
-	[Parameter(Mandatory=$true),ParameterSetName="CenteredSearch")]
+	[Parameter(Mandatory=$false,ParameterSetName="CenteredSearch")]
 	[int]$SearchRadius,
-	[Parameter(Mandatory=$true),ParameterSetName="CenteredSearch")]
+	[Parameter(Mandatory=$false,ParameterSetName="CenteredSearch")]
 	[string]$SearchCenter,
-	[Parameter(Mandatory=$false),ParameterSetName="GlobalSearch")]
+	[Parameter(Mandatory=$false)]
 	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
 	[string]$SQLInstance = 'Hobbes\sqlexpress',
 	[Parameter(Mandatory=$false)]
