@@ -44,7 +44,7 @@ INSERT INTO point_types (typeid, typename)
 INSERT INTO point_types (typeid, typename)
 	VALUES (221, 'Trailhead');
 INSERT INTO point_types (typeid, typename)
-	VALUES (4,'Virtual Cache');
+	VALUES (4, 'Virtual Cache');
 
 INSERT INTO countries (countryid, name)
 	VALUES (12, 'Afghanistan');
@@ -1548,3 +1548,10 @@ INSERT INTO log_types (logtypedesc)
 	VALUES ('Webcam Photo Taken');
 INSERT INTO log_types (logtypedesc)
 	VALUES ('Write note');
+
+INSERT INTO statuses (statusname)
+	VALUES ('Available');
+INSERT INTO statuses (statusname)
+	VALUES ('Disabled');
+INSERT INTO statuses (statusname)
+	VALUES ('Archived');
