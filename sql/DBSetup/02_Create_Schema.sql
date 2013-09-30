@@ -19,10 +19,12 @@ create table states (
 	stateid int not null constraint pk_states primary key,
 	name nvarchar(50)
 );
+
 create table statuses (
-	statusid int not null constraint pk_statuses primary key,
+	statusid int not null constraint pk_statuses primary key default next value FOR statusid,
 	statusname varchar(12) not null
 );
+CREATE sequence statusid as int start with 1 increment by 1;
 create table caches (
 	cacheid varchar(8) not null constraint pk_caches primary key,
 	gsid int not null,
@@ -41,9 +43,11 @@ create table caches (
 	hint nvarchar(1000) NULL,
 	available bit not null default 1,
 	archived bit not null default 0,
-	premiumonly bit not null default 0
+	premiumonly bit not null default 0,
+	cachestatus int not null default 1
 	constraint fk_cache_type foreign key (typeid) references point_types (typeid),
 	constraint fk_cache_size foreign key (sizeid) references cache_sizes (sizeid),
+	constraint fk_cache_status foreign key (cachestatus) references statuses (statusid)
 );
 alter table caches
 add latlong
@@ -69,7 +73,7 @@ create table cache_owners (
 	cacheid varchar(8) constraint pk_cache_owners primary key,
 	cacherid int
 	constraint fk_owner_cacheid foreign key (cacheid) references caches (cacheid),
-	constraint fk_owner_cacher foreign key (cacheid) references caches (cacheid)
+	constraint fk_owner_cacher foreign key (cacherid) references cachers (cacherid)
 );
 create table waypoints (
 	waypointid varchar(8) not null constraint pk_waypoints primary key,
