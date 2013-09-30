@@ -252,6 +252,7 @@ param (
 		$CacheLoadCmd.Parameters.Add("@Avail", [System.Data.SqlDbType]::bit)|out-null;
 		$CacheLoadCmd.Parameters.Add("@Archived", [System.Data.SqlDbType]::bit)|out-null;
 		$CacheLoadCmd.Parameters.Add("@PremOnly", [System.Data.SqlDbType]::bit)|out-null;
+		$CacheLoadCmd.Parameters.Add("@CacheStatus",[System.Data.SqlDbType]::Int)|Out-Null;
 		#$CacheLoadCmd.Prepare();
 	}
 	process {
@@ -286,7 +287,8 @@ param (
 		           ,[hint]
 		           ,[available]
 		           ,[archived]
-		           ,[premiumonly])
+		           ,[premiumonly]
+				   ,[cachestatus])
 		     VALUES
 		           (@CacheId
 		           ,@GSID
@@ -306,6 +308,7 @@ param (
 		           ,@Avail
 		           ,@Archived
 		           ,@PremOnly
+				   ,@CacheStatus
 		           );
 "@;
 		} else {
@@ -328,6 +331,7 @@ param (
 		      ,[available] = @Avail
 		      ,[archived] = @Archived
 		      ,[premiumonly] = @PremOnly
+			  ,[cachestatus] = @CacheStatus
 		 WHERE CacheId = @CacheId;
 "@;
 		}
@@ -347,6 +351,16 @@ param (
 		$CacheLoadCmd.Parameters["@Hint"].Value = $CacheWaypoint | select-object -expandproperty encoded_hints;
 		$CacheLoadCmd.Parameters["@Avail"].Value = Get-DBTypeFromTrueFalse ($CacheWaypoint | select-object -expandproperty available);
 		$CacheLoadCmd.Parameters["@Archived"].Value = Get-DBTypeFromTrueFalse ($CacheWaypoint | select-object -expandproperty archived);
+		if (($CacheWaypoint|Select-Object -expandproperty archived)  -eq "true") {
+			$UnifiedStatus = $CacheStatusLookup |Where-Object{$_.statusname -eq "archived"}|Select-Object -ExpandProperty statusid;
+		} else{
+			if (($CacheWaypoint|Select-Object -expandproperty available) -eq "true") {
+				$UnifiedStatus = $CacheStatusLookup |Where-Object{$_.statusname -eq "available"}|Select-Object -ExpandProperty statusid;
+			} else {
+				$UnifiedStatus = $CacheStatusLookup |Where-Object{$_.statusname -eq "disabled"}|Select-Object -ExpandProperty statusid;
+			}
+		}
+		$CacheLoadCmd.Parameters["@CacheStatus"].Value = $UnifiedStatus;
 		# TODO: Figure out where premium only comes from. Doesn't appear to be in the GPX
 		$CacheLoadCmd.Parameters["@PremOnly"].Value = 0; #Get-DBTypeFromTrueFalse $cachedata.gpx.wpt.
 		# Execute
@@ -443,7 +457,7 @@ begin {
 		if (!$LogLinked) {
 			$LogLinkToCacheCmd.Parameters["@LogId"].Value = $LogId;
 			$LogLinkToCacheCmd.Parameters["@CacheId"].Value = $CacheId;
-			$LogLinkToCacheCmd.ExecuteNonQuery()|Out-null;
+			$LogLinkToCacheCmd.ExecuteNonQuery()|Out-Null;
 		}
 	}
 	end {
@@ -504,6 +518,7 @@ param(
 # Get Type & Size lookup tables
 $PointTypeLookup = invoke-sqlcmd -server $SQLInstance -database $Database -query "select typeid, typename from point_types;";
 $CacheSizeLookup = invoke-sqlcmd -server $SQLInstance -database $Database -query "select sizeid, sizename from cache_sizes;";
+$CacheStatusLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select statusid, statusname from statuses;";
 
 [xml]$cachedata = get-content $FileToImport;
 
@@ -511,7 +526,7 @@ $CacheSizeLookup = invoke-sqlcmd -server $SQLInstance -database $Database -query
 # Check for a cache child element
 # If one exists, it's a cache
 # Otherwise, it's a waypoint
-$cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | ForEach-Object{
+$cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | sort-object -property name | ForEach-Object{
 	Update-Geocache $_; #Process as geocache
 # Load cacher table if no record for current cache's owner, or update name
 	Update-Cacher -Cacher $_.cache.owner;

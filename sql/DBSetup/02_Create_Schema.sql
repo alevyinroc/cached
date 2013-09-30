@@ -20,11 +20,12 @@ create table states (
 	name nvarchar(50)
 );
 
+CREATE sequence statusid as int start with 1 increment by 1;
 create table statuses (
 	statusid int not null constraint pk_statuses primary key default next value FOR statusid,
 	statusname varchar(12) not null
 );
-CREATE sequence statusid as int start with 1 increment by 1;
+
 create table caches (
 	cacheid varchar(8) not null constraint pk_caches primary key,
 	gsid int not null,

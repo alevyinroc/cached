@@ -1,4 +1,4 @@
-SELECT * FROM caches;
+SELECT * FROM caches order by lastupdated desc;
 SELECT * FROM cachers;
 SELECT * from cache_attributes;
 SELECT * from cache_owners;
