@@ -13,6 +13,7 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
+$ErrorActionPreference = "Stop";
 Clear-Host;
 $Error.Clear();
 Push-Location;
@@ -76,7 +77,7 @@ param(
 		}
 		$CacherTableUpdateCmd.Parameters["@CacherId"].Value = $CacherId;
 		$CacherTableUpdateCmd.Parameters["@CacherName"].Value = $CacherName;
-		$CacherTableUpdateCmd.ExecuteNonQuery()|Out-Null;
+		$CacherTableUpdateCmd.ExecuteNonQuery() | Out-Null;
 	}
 	end {
 		$CacherExistsCmd.Dispose();
@@ -90,7 +91,9 @@ param(
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacheOwnerDetails")]
 	[string]$GCNum,
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacheOwnerDetails")]
-	[int]$OwnerId
+	[int]$OwnerId,
+	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacheOwnerDetails")]
+	[string]$PlacedByName
 )
 	begin {
 		$CacheHasOwnerCmd = $SQLConnection.CreateCommand();
@@ -103,6 +106,7 @@ param(
 		$CacheOwnerUpdateCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::varchar, 8)|Out-Null;
 	}
 	process {
+		Update-Cacher -Cachername $PlacedByName -CacherId $OwnerId;
 		# Check to see if cache is already on the owner table. If owner has changed, update with new value. If cache isn't on the table, add it
 		$CacheHasOwnerCmd.Parameters["@gcnum"].Value = $GCNum;
 		$CacheHasOwner = $CacheHasOwnerCmd.ExecuteScalar();
@@ -114,7 +118,7 @@ param(
 		}
 		$CacheOwnerUpdateCmd.Parameters["@ownerid"].Value = $ownerid;
 		$CacheOwnerUpdateCmd.Parameters["@gcnum"].Value = $gcnum;
-		$CacheOwnerUpdateCmd.ExecuteNonQuery()|Out-Null;
+		$CacheOwnerUpdateCmd.ExecuteNonQuery() | Out-Null;
 	}
 	end {
 		$CacheOwnerUpdateCmd.Dispose();
@@ -258,6 +262,7 @@ param (
 	process {
 	# TODO: Can't navigate XML element structure anymore, need to use ugliness like $CacheWaypoint|select -expandproperty cache|select -expandproperty name
 		$GCNum = $CacheWaypoint | Select-Object -ExpandProperty name;
+		$GCNum;
 		$PlacedDate = get-date ($CacheWaypoint | select-object -expandproperty time);
 		
 		$Latitude = $CacheWaypoint | Select-object -expandproperty lat;
@@ -364,9 +369,9 @@ param (
 		# TODO: Figure out where premium only comes from. Doesn't appear to be in the GPX
 		$CacheLoadCmd.Parameters["@PremOnly"].Value = 0; #Get-DBTypeFromTrueFalse $cachedata.gpx.wpt.
 		# Execute
-		$CacheLoadCmd.ExecuteNonQuery()|Out-Null;
+		$CacheLoadCmd.ExecuteNonQuery() | Out-Null;
 
-		Update-CacheOwner -GCNum $GCNum -OwnerId $($CacheWaypoint|Select-Object -ExpandProperty owner|Select-Object -ExpandProperty id);
+		Update-CacheOwner -GCNum $GCNum -OwnerId $($CacheWaypoint|Select-Object -ExpandProperty owner|Select-Object -ExpandProperty id) -PlacedByName $($CacheWaypoint | select-object -expandproperty placed_by);
 	}
 	end {
 		$CacheLoadCmd.Dispose();
@@ -450,14 +455,14 @@ begin {
 		$LogTableUpdateCmd.Parameters["@LogText"].Value = $LogText;
 		$LogTableUpdateCmd.Parameters["@Lat"].Value = $Latitude;
 		$LogTableUpdateCmd.Parameters["@Long"].Value = $Longitude;
-		$LogTableUpdateCmd.ExecuteNonQuery()|Out-Null;
+		$LogTableUpdateCmd.ExecuteNonQuery() | Out-Null;
 		
 		$LogLinkedCmd.Parameters["@LogId"].Value = $LogId;
 		$LogLinked = $LogLinkedCmd.ExecuteScalar();
 		if (!$LogLinked) {
 			$LogLinkToCacheCmd.Parameters["@LogId"].Value = $LogId;
 			$LogLinkToCacheCmd.Parameters["@CacheId"].Value = $CacheId;
-			$LogLinkToCacheCmd.ExecuteNonQuery()|Out-Null;
+			$LogLinkToCacheCmd.ExecuteNonQuery() | Out-Null;
 		}
 	}
 	end {
@@ -505,7 +510,7 @@ param(
 	    if (!$AttrExists) {
 			$CacheAttributeInsertCmd.Parameters["@attrid"].Value = $AttrId;
 			$CacheAttributeInsertCmd.Parameters["@attrname"].Value = $AttrName;
-			$CacheAttributeInsertCmd.ExecuteNonQuery()|Out-Null;
+			$CacheAttributeInsertCmd.ExecuteNonQuery() | Out-Null;
 	    }
 	}
 	end {
@@ -526,7 +531,7 @@ $CacheStatusLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -que
 # Check for a cache child element
 # If one exists, it's a cache
 # Otherwise, it's a waypoint
-$cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | sort-object -property name | ForEach-Object{
+$cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | ForEach-Object{
 	Update-Geocache $_; #Process as geocache
 # Load cacher table if no record for current cache's owner, or update name
 	Update-Cacher -Cacher $_.cache.owner;
