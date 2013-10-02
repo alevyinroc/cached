@@ -203,7 +203,7 @@ param (
 	}
 }
 
-# TODO: Make this pipeline-aware & pass in single TBs. Rename to Update-TravelBug
+# TODO: Make this pipeline-aware & pass in single TBs.
 function Update-TravelBug {
 [cmdletbinding()]
 param (
@@ -558,8 +558,6 @@ $cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | ForEach-
 			'LogDate' = $_.date;
 			'LogTypeName' = $_.type;
 			'Finder' = $_.finder.id;
-# TODO: Fix when log text is empty
-#			'LogText' = $_.text|Select-Object -ExpandProperty "#text";
 		};
 		if (($_.text|select -ExpandProperty "#text" -ErrorAction SilentlyContinue) -eq $null) {
 			$UpdateLogVars.Add('LogText', '');
