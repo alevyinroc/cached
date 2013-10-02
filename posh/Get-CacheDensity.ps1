@@ -26,13 +26,15 @@ switch ($PsCmdlet.ParameterSetName) {
 	"CenteredSearch" {
 		$AllCaches = Invoke-sqlcmd "exec CachesNearCache '$SearchCenter', $SearchRadius" -ServerInstance $SQLInstance -Database $Database | Select-Object -ExpandProperty cacheid;
 	}
+	default {
+		$AllCaches = Invoke-sqlcmd "select cacheid from caches;" -ServerInstance $SQLInstance -Database $Database | Select-Object -ExpandProperty cacheid;
+	}
 }
-$AllCaches = Invoke-sqlcmd "select cacheid from caches;" -ServerInstance $SQLInstance -Database $Database | Select-Object -ExpandProperty cacheid;
 $CacheListing = @();
 foreach ($cache in $AllCaches) {
 	$Record = New-Object PSObject;
 	$Record | Add-Member -Name "CacheId" -MemberType NoteProperty -Value $cache;
-	$CacheCount = Invoke-sqlcmd -server hobbes\sqlexpress -database geocaches -query "EXEC CacheDensity '$cache', $DensityRadius;" | Select-Object -ExpandProperty CacheCount;
+	$CacheCount = Invoke-sqlcmd -server $SQLInstance -database geocaches -query "EXEC CacheDensity '$cache', $DensityRadius;" | Select-Object -ExpandProperty CacheCount;
 	$Record | Add-Member -Name "CountNearby" -MemberType NoteProperty -Value $CacheCount;
 	$CacheListing += $Record;
 }
