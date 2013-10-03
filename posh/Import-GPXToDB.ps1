@@ -293,7 +293,8 @@ param (
 		           ,[available]
 		           ,[archived]
 		           ,[premiumonly]
-				   ,[cachestatus])
+				   ,[cachestatus]
+				   ,[created])
 		     VALUES
 		           (@CacheId
 		           ,@GSID
@@ -314,6 +315,7 @@ param (
 		           ,@Archived
 		           ,@PremOnly
 				   ,@CacheStatus
+				   ,getdate()
 		           );
 "@;
 		} else {
