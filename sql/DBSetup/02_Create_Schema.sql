@@ -45,7 +45,8 @@ create table caches (
 	available bit not null default 1,
 	archived bit not null default 0,
 	premiumonly bit not null default 0,
-	cachestatus int not null default 1
+	cachestatus int not null default 1,
+	created datetime not null default getdate()
 	constraint fk_cache_type foreign key (typeid) references point_types (typeid),
 	constraint fk_cache_size foreign key (sizeid) references cache_sizes (sizeid),
 	constraint fk_cache_status foreign key (cachestatus) references statuses (statusid)
