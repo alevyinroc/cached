@@ -257,6 +257,7 @@ param (
 		$CacheLoadCmd.Parameters.Add("@Archived", [System.Data.SqlDbType]::bit)|out-null;
 		$CacheLoadCmd.Parameters.Add("@PremOnly", [System.Data.SqlDbType]::bit)|out-null;
 		$CacheLoadCmd.Parameters.Add("@CacheStatus",[System.Data.SqlDbType]::Int)|Out-Null;
+		$CacheLoadCmd.Parameters.Add("@CacheUpdated", [System.Data.SqlDbType]::DateTime) | Out-Null;
 		#$CacheLoadCmd.Prepare();
 	}
 	process {
@@ -325,7 +326,7 @@ param (
 		      ,[cachename] = @CacheName
 		      ,[latitude] = @Lat
 		      ,[longitude] = @Long
-		      ,[lastupdated] = getdate()
+		      ,[lastupdated] = @CacheUpdated
 		      ,[placed] = @Placed
 		      ,[placedby] = @PlacedBy
 		      ,[typeid] = @TypeId
@@ -358,6 +359,7 @@ param (
 		$CacheLoadCmd.Parameters["@Hint"].Value = $CacheWaypoint | select-object -expandproperty encoded_hints;
 		$CacheLoadCmd.Parameters["@Avail"].Value = Get-DBTypeFromTrueFalse ($CacheWaypoint | select-object -expandproperty available);
 		$CacheLoadCmd.Parameters["@Archived"].Value = Get-DBTypeFromTrueFalse ($CacheWaypoint | select-object -expandproperty archived);
+		$CacheLoadCmd.Parameters["@CacheUpdated"].Value = $GPXDate;
 		if (($CacheWaypoint|Select-Object -expandproperty archived)  -eq "true") {
 			$UnifiedStatus = $CacheStatusLookup |Where-Object{$_.statusname -eq "archived"}|Select-Object -ExpandProperty statusid;
 		} else{
@@ -528,7 +530,7 @@ $CacheSizeLookup = invoke-sqlcmd -server $SQLInstance -database $Database -query
 $CacheStatusLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select statusid, statusname from statuses;";
 
 [xml]$cachedata = get-content $FileToImport;
-
+$GPXDate = get-date $cachedata.gpx.time;
 # For each $cachedata.gpx.wpt
 # Check for a cache child element
 # If one exists, it's a cache
