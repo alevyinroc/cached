@@ -86,10 +86,12 @@ create table waypoints (
 	[name] varchar(50) not null,
 	description varchar(2000) not null,
 	url varchar(2038) not null,
+	urldesc nvarchar(200),
 	lookupcode nvarchar(6)
 	constraint fk_waypoint_cacheid foreign key (parentcache) references caches (cacheid),
 	constraint fk_waypoint_type foreign key (typeid) references point_types (typeid)
 );
+
 alter table waypoints
 add latlong
 as geography::Point(latitude, longitude, 4326) persisted;
