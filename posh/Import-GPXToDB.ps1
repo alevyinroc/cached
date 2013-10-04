@@ -507,8 +507,8 @@ param(
 		$CacheAttributeInsertCmd.Prepare();
 	}
 	process {
-		$AttrId = $Attribute | select-object -expandproperty id;
-		$AttrName = $Attribute|Select-Object -ExpandProperty "#text";
+		$AttrId = $Attribute | select-object -expandproperty AttrId;
+		$AttrName = $Attribute | select-object -expandproperty AttrName;
 		$CacheAttributeCheckCmd.Parameters["@attrid"].Value = $AttrId;
 		$AttrExists = $CacheAttributeCheckCmd.ExecuteScalar();
 	    if (!$AttrExists) {
@@ -520,6 +520,51 @@ param(
 	end {
 		$CacheAttributeCheckCmd.Dispose();
 		$CacheAttributeInsertCmd.Dispose();
+	}
+}
+
+function Drop-Attributes {
+[cmdletbinding()]
+param(
+	[Parameter(Position=0,Mandatory=$true)]
+    [string]$CacheId
+)
+	begin {
+		$DropCacheAttributesCmd = $SQLConnection.CreateCommand();
+		$DropCacheAttributesCmd.CommandText = "delete from cache_attributes where cacheid = @cacheid;";
+		$DropCacheAttributesCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
+		$DropCacheAttributesCmd.Prepare();
+	}
+	process {
+		$DropCacheAttributesCmd.Parameters["@cacheid"].Value = $CacheId;
+		$DropCacheAttributesCmd.ExecuteNonQuery() | Out-Null;
+	}
+	end {
+		$DropCacheAttributesCmd.Dispose();
+	}
+}
+function Register-AttributeToCache {
+[cmdletbinding()]
+param(
+	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+    [Object[]]$Attribute
+)
+	begin {
+		$RegisterAttributeToCacheCmd = $SQLConnection.CreateCommand();
+		$RegisterAttributeToCacheCmd.CommandText = "insert into cache_attributes (cacheid,attributeid,attribute_applies) values (@cacheid,@attrid,@attrapplies);";
+		$RegisterAttributeToCacheCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
+		$RegisterAttributeToCacheCmd.Parameters.Add("@attrid", [System.Data.SqlDbType]::Int) | Out-Null;
+		$RegisterAttributeToCacheCmd.Parameters.Add("@attrapplies", [System.Data.SqlDbType]::Bit) | Out-Null;
+		$RegisterAttributeToCacheCmd.Prepare();
+	}
+	process {
+		$RegisterAttributeToCacheCmd.Parameters["@cacheid"].Value = $Attribute | Select-Object -ExpandProperty ParentCache;
+		$RegisterAttributeToCacheCmd.Parameters["@attrid"].Value = $Attribute | Select-Object -ExpandProperty AttrId;
+		$RegisterAttributeToCacheCmd.Parameters["@attrapplies"].Value = [bool]($Attribute | Select-Object -ExpandProperty AttrInc);
+		$RegisterAttributeToCacheCmd.ExecuteNonQuery() | Out-Null;
+	}
+	end {
+		$RegisterAttributeToCacheCmd.Dispose();
 	}
 }
 #endregion
@@ -535,17 +580,28 @@ $GPXDate = get-date $cachedata.gpx.time;
 # Check for a cache child element
 # If one exists, it's a cache
 # Otherwise, it's a waypoint
-$cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | ForEach-Object{
+$cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | ForEach-Object {
+	$GCNum = $_.name;
 	Update-Geocache $_; #Process as geocache
 # Load cacher table if no record for current cache's owner, or update name
 	Update-Cacher -Cacher $_.cache.owner;
 # Insert attributes & TBs into respective tables
-	$_.cache.attributes | foreach-object{$_.attribute | Select-Object id,"#text"} | New-Attribute;
-# TODO: Link attributes to cache
-# Drop all attributes from cache, then re-link
-
+	$AllAttributes = New-Object -TypeName System.Collections.Generic.List[PSObject];
+	$_.cache.attributes.attribute | ForEach-Object {
+		$CacheAttribute = New-Object -TypeName PSObject -Property @{
+			AttrId = $_.id
+			AttrInc = $_.inc
+			AttrName = $_."#text"
+			ParentCache = $GCNum
+		};
+		$AllAttributes.Add($CacheAttribute);
+	};
+	
+	$AllAttributes | New-Attribute;
+	Drop-Attributes -CacheID $GCNum;
+	$AllAttributes| Register-AttributeToCache;
 #TODO: Make this pipeline aware with $cachedata.gpx.wpt.cache.travelbugs.travelbug|update-travelbugs
-	$GCNum = $_.name;
+	
 	if ($_.cache.travelbugs.length -gt 0) {
 		$tbs = $_.cache.travelbugs | select-object -expandproperty travelbug;
 		ForEach ($tb in $tbs) {
