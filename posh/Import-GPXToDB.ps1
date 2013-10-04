@@ -478,12 +478,25 @@ begin {
 function Update-Waypoint {
 [cmdletbinding()]
 param (
-	[Parameter(Mandatory=$true)]
-	[Object]$Waypoint
+	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+	[Object[]]$Waypoint
 )
 	begin {
 	}
 	process {
+		$Latitude = $Waypoint | select-object -expandproperty Lat;
+		$Longitude =  = $Waypoint | select-object -expandproperty Long;
+		$WptDate =  = get-date ($Waypoint | select-object -expandproperty  DateTime);
+		$Id = $Waypoint | select-object -expandproperty Id;
+		$Name = $Waypoint | select-object -expandproperty Name;
+		$Description = $Waypoint | select-object -expandproperty Description;
+		$Url = $Waypoint | select-object -expandproperty Url;
+		$UrlDesc = $Waypoint | select-object -expandproperty UrlDesc;
+		$Symbol = $Waypoint | select-object -expandproperty Symbol;
+		$PointType = $Waypoint | select-object -expandproperty PointType;
+# Check for point type. If it doesn't exist, create it
+# Get parent cache id. Same as waypoint ID but first 2 chars are GC
+		$ParentCache = "GC" + $Id.Substring(2,$Id.Length - 2);
 	}
 	end {
 	}
@@ -630,8 +643,25 @@ $cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | ForEach-
 		}
 		Update-Log @UpdateLogVars;
 	};
-	}
-#$cachedata.gpx.wpt|Where-Object{$_.type.split("|")[0] -ne "Geocache"} | Update-Waypoint; #Process as wyapoint;
+};
+$ChildWaypoints = New-Object -TypeName System.Collections.Generic.List[PSObject];
+$cachedata.gpx.wpt|Where-Object{$_.type.split("|")[0] -ne "Geocache"} | ForEach-Object{
+	$Waypoint = New-Object -TypeName PSObject -Property @{
+			Lat = $_.lat
+			Long = $_.lon
+			DateTime = $_.time
+			Id = $_.name
+			Name = $_.cmt
+			Description = $_.desc
+			Url = $_.url
+			UrlDesc = $_.urlname
+			Symbol = $_.sym
+			PointType = $_.type.split("|")[1];
+		};
+		$ChildWaypoints.Add($Waypoint);
+};
+
+$ChildWaypoints | Update-Waypoint;
 
 $SQLConnection.Close();
 Remove-Module sqlps;
