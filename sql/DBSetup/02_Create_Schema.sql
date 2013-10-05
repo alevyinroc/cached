@@ -78,7 +78,7 @@ create table cache_owners (
 	constraint fk_owner_cacher foreign key (cacherid) references cachers (cacherid)
 );
 create table waypoints (
-	waypointid varchar(8) not null constraint pk_waypoints primary key,
+	waypointid varchar(10) not null constraint pk_waypoints primary key,
 	parentcache varchar(8) not null,
 	latitude float not null,
 	longitude float not null,
