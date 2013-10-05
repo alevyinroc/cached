@@ -1,4 +1,5 @@
 <#
+Copyright Andy Levy andy@levyclan.us 2013
 #>
 
 #requires -version 2.0
@@ -479,13 +480,29 @@ function Update-Waypoint {
 [cmdletbinding()]
 param (
 	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
-	[Object[]]$Waypoint
+	[PSObject[]]$Waypoint
 )
 	begin {
+		$WptExistsCmd = $SQLConnection.CreateCommand();
+		$WptExistsCmd.CommandText = "select count(1) from waypoints where waypointid = @wptid and parentcache = @cacheid;";
+		$WptExistsCmd.Parameters.Add("@wptid", [System.Data.SqlDbType]::VarChar,10);
+		$WptExistsCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar,8);
+		$WptUpsertCmd = $SQLConnection.CreateCommand();
+		$WptExistsCmd.Prepare();
+		$WptUpsertCmd.Parameters.Add("@wptid", [System.Data.SqlDbType]::VarChar,10);
+		$WptUpsertCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar,8);
+		$WptUpsertCmd.Parameters.Add("@lat",[System.Data.SqlDbType]::Float);
+		$WptUpsertCmd.Parameters.Add("@long",[System.Data.SqlDbType]::Float);
+		$WptUpsertCmd.Parameters.Add("@name",[System.Data.SqlDbType]::VarChar,50);
+		$WptUpsertCmd.Parameters.Add("@desc",[System.Data.SqlDbType]::VarChar, 2000);
+		$WptUpsertCmd.Parameters.Add("@url",[System.Data.SqlDbType]::varchar,2038);
+		$WptUpsertCmd.Parameters.Add("@urldesc",[System.Data.SqlDbType]::nvarchar, 200);
+		$WptUpsertCmd.Parameters.Add("@pointtype", [System.Data.SqlDbType]::int);
+		
 	}
 	process {
-		$Latitude = $Waypoint | select-object -expandproperty Lat;
-		$Longitude =  = $Waypoint | select-object -expandproperty Long;
+		$Latitude = [float]($Waypoint | select-object -expandproperty Lat);
+		$Longitude =  = [float]($Waypoint | select-object -expandproperty Long);
 		$WptDate =  = get-date ($Waypoint | select-object -expandproperty  DateTime);
 		$Id = $Waypoint | select-object -expandproperty Id;
 		$Name = $Waypoint | select-object -expandproperty Name;
@@ -497,6 +514,29 @@ param (
 # Check for point type. If it doesn't exist, create it
 # Get parent cache id. Same as waypoint ID but first 2 chars are GC
 		$ParentCache = "GC" + $Id.Substring(2,$Id.Length - 2);
+		$WptExistsCmd.Parameters["@wptid"].Value = $Id;
+		$WptExistsCmd.Parameters["@cacheid"].Value = $ParentCache;
+		$WaypointExists = $WptExistsCmd.ExecuteScalar();
+		if ($WaypointExists) {
+			$WptUpsertCmd.CommandText = @"
+update waypoints set
+	latitude = @lat,
+	longitude = @long,
+	name = @name,
+	description = @desc,
+	url = @url,
+	urldesc = @urldesc,
+	typeid = @pointtype
+where
+	waypointid = @wptid
+	and parentcache = @cacheid;
+"@;
+		} else {
+			$WptUpsertCmd.CommandText = @"
+insert into waypoints (waypointid,parentcache,latitude,longitude,name,description,url,urldesc,typeid) values (
+@wptid, @cacheid,@lat,@long,@name,@desc,@url,@urldesc,@typeid);
+"@;
+		}
 	}
 	end {
 	}
@@ -505,7 +545,7 @@ function New-Attribute {
 [cmdletbinding()]
 param(
 	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
-    [Object[]]$Attribute
+    [PSObject[]]$Attribute
 )
 	begin {
 		$CacheAttributeCheckCmd = $SQLConnection.CreateCommand();
@@ -520,7 +560,7 @@ param(
 		$CacheAttributeInsertCmd.Prepare();
 	}
 	process {
-		$AttrId = $Attribute | select-object -expandproperty AttrId;
+		$AttrId = [int]($Attribute | select-object -expandproperty AttrId);
 		$AttrName = $Attribute | select-object -expandproperty AttrName;
 		$CacheAttributeCheckCmd.Parameters["@attrid"].Value = $AttrId;
 		$AttrExists = $CacheAttributeCheckCmd.ExecuteScalar();
