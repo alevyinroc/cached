@@ -1,5 +1,5 @@
 USE Geocaches;
-
+create sequence pointtypeid as int start with 1 increment by 1;
 create table point_types (
 	typeid int not null constraint pk_point_types primary key,
 	typename varchar(30) not null
@@ -87,7 +87,7 @@ create table waypoints (
 	description varchar(2000) not null,
 	url varchar(2038) not null,
 	urldesc nvarchar(200),
-	lookupcode nvarchar(6)
+	lookupcode nvarchar(6),
 	constraint fk_waypoint_cacheid foreign key (parentcache) references caches (cacheid),
 	constraint fk_waypoint_type foreign key (typeid) references point_types (typeid)
 );
