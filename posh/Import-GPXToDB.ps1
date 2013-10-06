@@ -485,25 +485,24 @@ param (
 	begin {
 		$WptExistsCmd = $SQLConnection.CreateCommand();
 		$WptExistsCmd.CommandText = "select count(1) from waypoints where waypointid = @wptid and parentcache = @cacheid;";
-		$WptExistsCmd.Parameters.Add("@wptid", [System.Data.SqlDbType]::VarChar,10);
-		$WptExistsCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar,8);
+		$WptExistsCmd.Parameters.Add("@wptid", [System.Data.SqlDbType]::VarChar,10) | Out-Null;
+		$WptExistsCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar,8) | Out-Null;
 		$WptUpsertCmd = $SQLConnection.CreateCommand();
 		$WptExistsCmd.Prepare();
-		$WptUpsertCmd.Parameters.Add("@wptid", [System.Data.SqlDbType]::VarChar,10);
-		$WptUpsertCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar,8);
-		$WptUpsertCmd.Parameters.Add("@lat",[System.Data.SqlDbType]::Float);
-		$WptUpsertCmd.Parameters.Add("@long",[System.Data.SqlDbType]::Float);
-		$WptUpsertCmd.Parameters.Add("@name",[System.Data.SqlDbType]::VarChar,50);
-		$WptUpsertCmd.Parameters.Add("@desc",[System.Data.SqlDbType]::VarChar, 2000);
-		$WptUpsertCmd.Parameters.Add("@url",[System.Data.SqlDbType]::varchar,2038);
-		$WptUpsertCmd.Parameters.Add("@urldesc",[System.Data.SqlDbType]::nvarchar, 200);
-		$WptUpsertCmd.Parameters.Add("@pointtype", [System.Data.SqlDbType]::int);
-		
+		$WptUpsertCmd.Parameters.Add("@wptid", [System.Data.SqlDbType]::VarChar,10) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar,8) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@lat",[System.Data.SqlDbType]::Float) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@long",[System.Data.SqlDbType]::Float) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@name",[System.Data.SqlDbType]::VarChar,50) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@desc",[System.Data.SqlDbType]::VarChar, 2000) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@url",[System.Data.SqlDbType]::varchar,2038) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@urldesc",[System.Data.SqlDbType]::nvarchar, 200) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@pointtype", [System.Data.SqlDbType]::int) | Out-Null;
 	}
 	process {
 		$Latitude = [float]($Waypoint | select-object -expandproperty Lat);
-		$Longitude =  = [float]($Waypoint | select-object -expandproperty Long);
-		$WptDate =  = get-date ($Waypoint | select-object -expandproperty  DateTime);
+		$Longitude = [float]($Waypoint | select-object -expandproperty Long);
+		$WptDate = get-date ($Waypoint | select-object -expandproperty  DateTime);
 		$Id = $Waypoint | select-object -expandproperty Id;
 		$Name = $Waypoint | select-object -expandproperty Name;
 		$Description = $Waypoint | select-object -expandproperty Description;
@@ -511,9 +510,12 @@ param (
 		$UrlDesc = $Waypoint | select-object -expandproperty UrlDesc;
 		$Symbol = $Waypoint | select-object -expandproperty Symbol;
 		$PointType = $Waypoint | select-object -expandproperty PointType;
+		$PointTypeId = Get-PointTypeId -PointTypeName $PointType;
+		
 # Check for point type. If it doesn't exist, create it
 # Get parent cache id. Same as waypoint ID but first 2 chars are GC
 		$ParentCache = "GC" + $Id.Substring(2,$Id.Length - 2);
+		
 		$WptExistsCmd.Parameters["@wptid"].Value = $Id;
 		$WptExistsCmd.Parameters["@cacheid"].Value = $ParentCache;
 		$WaypointExists = $WptExistsCmd.ExecuteScalar();
@@ -534,11 +536,56 @@ where
 		} else {
 			$WptUpsertCmd.CommandText = @"
 insert into waypoints (waypointid,parentcache,latitude,longitude,name,description,url,urldesc,typeid) values (
-@wptid, @cacheid,@lat,@long,@name,@desc,@url,@urldesc,@typeid);
+@wptid, @cacheid,@lat,@long,@name,@desc,@url,@urldesc,@pointtype);
 "@;
 		}
+		$WptUpsertCmd.Parameters["@wptid"].Value = $Id;
+		$WptUpsertCmd.Parameters["@cacheid"].Value = $ParentCache;
+		$WptUpsertCmd.Parameters["@lat"].Value = $Latitude;
+		$WptUpsertCmd.Parameters["@long"].Value = $Longitude;
+		$WptUpsertCmd.Parameters["@name"].Value = $Name;
+		$WptUpsertCmd.Parameters["@desc"].Value = $Description;
+		$WptUpsertCmd.Parameters["@url"].Value = $Url;
+		$WptUpsertCmd.Parameters["@urldesc"].Value = $UrlDesc;
+		$WptUpsertCmd.Parameters["@pointtype"].Value = $PointTypeId;
+		$WptUpsertCmd.ExecuteNonQuery() | Out-Null;
 	}
 	end {
+		$WptExistsCmd.Dispose();
+		$WptUpsertCmd.Dispose();
+		
+	}
+}
+
+function Get-PointTypeId {
+[cmdletbinding()]
+param(
+	[Parameter(Mandatory=$true)]
+	[string]$PointTypeName
+)
+	begin{
+		$PointTypeLookupCmd = $SQLConnection.CreateCommand();
+		$PointTypeInsertCmd = $SQLConnection.CreateCommand();
+		$PointTypeLookupCmd.Parameters.Add("@typename",[System.Data.SqlDbType]::VarChar, 30) | Out-Null;
+		$PointTypeInsertCmd.Parameters.Add("@typename",[System.Data.SqlDbType]::VarChar, 30) | Out-Null;
+		$PointTypeLookupCmd.CommandText = "select typeid from point_types where typename = @typename";
+		$PointTypeInsertCmd.CommandText = "insert into point_types (typename) values (@typename);";
+		$PointTypeLookupCmd.Prepare();
+		$PointTypeInsertCmd.Prepare();
+	}
+	process{
+		$PointTypeLookupCmd.Parameters["@typename"].Value = $PointTypeName;
+		$PointTypeId = $PointTypeLookupCmd.ExecuteScalar();
+		if (-not ($PointTypeId -ge 1)) {
+			$PointTypeInsertCmd.Parameters["@typename"].Value = $PointTypeName;
+			$PointTypeInsertCmd.ExecuteNonQuery() |Out-Null;
+			$PointTypeId = $PointTypeLookupCmd.ExecuteScalar();
+		}
+		[int]$PointTypeId;
+	}
+	end{
+		$PointTypeInsertCmd.Dispose();
+		$PointTypeLookupCmd.Dispose();
 	}
 }
 function New-Attribute {
@@ -639,20 +686,22 @@ $cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | ForEach-
 # Load cacher table if no record for current cache's owner, or update name
 	Update-Cacher -Cacher $_.cache.owner;
 # Insert attributes & TBs into respective tables
-	$AllAttributes = New-Object -TypeName System.Collections.Generic.List[PSObject];
-	$_.cache.attributes.attribute | ForEach-Object {
-		$CacheAttribute = New-Object -TypeName PSObject -Property @{
-			AttrId = $_.id
-			AttrInc = $_.inc
-			AttrName = $_."#text"
-			ParentCache = $GCNum
+	if ($_.cache.attributes.length -gt 0) {
+		$AllAttributes = New-Object -TypeName System.Collections.Generic.List[PSObject];
+		$_.cache.attributes.attribute | ForEach-Object {
+			$CacheAttribute = New-Object -TypeName PSObject -Property @{
+				AttrId = $_.id
+				AttrInc = $_.inc
+				AttrName = $_."#text"
+				ParentCache = $GCNum
+			};
+			$AllAttributes.Add($CacheAttribute);
 		};
-		$AllAttributes.Add($CacheAttribute);
-	};
-	
-	$AllAttributes | New-Attribute;
-	Drop-Attributes -CacheID $GCNum;
-	$AllAttributes| Register-AttributeToCache;
+		
+		$AllAttributes | New-Attribute;
+		Drop-Attributes -CacheID $GCNum;
+		$AllAttributes| Register-AttributeToCache;
+	}
 #TODO: Make this pipeline aware with $cachedata.gpx.wpt.cache.travelbugs.travelbug|update-travelbugs
 	
 	if ($_.cache.travelbugs.length -gt 0) {
