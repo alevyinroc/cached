@@ -670,7 +670,7 @@ function Register-AttributeToCache {
 [cmdletbinding()]
 param(
 	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
-    [Object[]]$Attribute
+    [PSObject[]]$Attribute
 )
 	begin {
 		$RegisterAttributeToCacheCmd = $SQLConnection.CreateCommand();
