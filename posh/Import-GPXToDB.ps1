@@ -515,6 +515,7 @@ param (
 # Check for point type. If it doesn't exist, create it
 # Get parent cache id. Same as waypoint ID but first 2 chars are GC
 		$ParentCache = "GC" + $Id.Substring(2,$Id.Length - 2);
+		$ParentCache = Find-ParentCacheId -CacheId $ParentCache;
 		
 		$WptExistsCmd.Parameters["@wptid"].Value = $Id;
 		$WptExistsCmd.Parameters["@cacheid"].Value = $ParentCache;
@@ -555,6 +556,28 @@ insert into waypoints (waypointid,parentcache,latitude,longitude,name,descriptio
 		$WptUpsertCmd.Dispose();
 		
 	}
+}
+
+function Find-ParentCacheId {
+[cmdletbinding()]
+param (
+	[Parameter(Mandatory=$true)]
+	[string]$CacheId
+)
+	$CacheFindCmd = $SQLConnection.CreateCommand();
+	$CacheFindCmd.CommandText = "select count(1) from caches where cacheid like @cacheid";
+	$CacheFindCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar, 20) | Out-Null;
+	$CacheFindCmd.Prepare();
+	#$CacheId = "GC" + $WptId.Substring(2,$WptId.Length - 2);
+	$CacheFindCmd.Parameters["@cacheid"].Value = $CacheId + "%";
+	$FoundCache = $CacheFindCmd.ExecuteScalar();
+	$CacheFindCmd.Dispose();
+	if ($FoundCache) {
+		$CacheId;
+	} else {
+		Find-ParentCacheId -CacheId $CacheId.Substring(0,$CacheId.Length - 1);
+	}
+	
 }
 
 function Get-PointTypeId {
@@ -686,7 +709,7 @@ $cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | ForEach-
 # Load cacher table if no record for current cache's owner, or update name
 	Update-Cacher -Cacher $_.cache.owner;
 # Insert attributes & TBs into respective tables
-	if ($_.cache.attributes.length -gt 0) {
+	if ($_.cache.attributes.attribute.count -gt 0) {
 		$AllAttributes = New-Object -TypeName System.Collections.Generic.List[PSObject];
 		$_.cache.attributes.attribute | ForEach-Object {
 			$CacheAttribute = New-Object -TypeName PSObject -Property @{
