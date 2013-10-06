@@ -683,7 +683,7 @@ param(
 	process {
 		$RegisterAttributeToCacheCmd.Parameters["@cacheid"].Value = $Attribute | Select-Object -ExpandProperty ParentCache;
 		$RegisterAttributeToCacheCmd.Parameters["@attrid"].Value = $Attribute | Select-Object -ExpandProperty AttrId;
-		$RegisterAttributeToCacheCmd.Parameters["@attrapplies"].Value = [bool]($Attribute | Select-Object -ExpandProperty AttrInc);
+		$RegisterAttributeToCacheCmd.Parameters["@attrapplies"].Value = [int]($Attribute | Select-Object -ExpandProperty AttrInc);
 		$RegisterAttributeToCacheCmd.ExecuteNonQuery() | Out-Null;
 	}
 	end {
