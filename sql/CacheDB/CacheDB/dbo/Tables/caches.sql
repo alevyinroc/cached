@@ -20,6 +20,8 @@
     [cachestatus] INT             DEFAULT ((1)) NOT NULL,
     [latlong]     AS              ([geography]::Point([latitude],[longitude],(4326))) PERSISTED,
     [created]     DATETIME        DEFAULT (getdate()) NOT NULL,
+    [url] NVARCHAR(2038) NULL, 
+    [urldesc] NVARCHAR(200) NULL, 
     CONSTRAINT [pk_caches] PRIMARY KEY CLUSTERED ([cacheid] ASC),
     CONSTRAINT [fk_cache_size] FOREIGN KEY ([sizeid]) REFERENCES [dbo].[cache_sizes] ([sizeid]),
     CONSTRAINT [fk_cache_status] FOREIGN KEY ([cachestatus]) REFERENCES [dbo].[statuses] ([statusid]),

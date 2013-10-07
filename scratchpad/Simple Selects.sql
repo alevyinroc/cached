@@ -13,6 +13,11 @@ SELECT * from point_types;
 SELECT * FROM waypoints;
 select * from attributes;
 
+select * from travelbugs tb JOIN tbinventory tbi on tb.tbpublicid = tbi.tbpublicid WHERE tbi.cacheid= 'GC103Q1';
+--SELECT * from attributes a JOIN cache_attributes ca ON a.attributeid = ca.attributeid where ca.cacheid = 'GC103Q1';
+select * from travelbugs;
+
+
 SELECT
 	c2.cachename, c2.cacheid,l.latitude,l.longitude, l.latlong,logdate, logtext, c.cachername as finder, lt.logtypedesc as LogType
 from
