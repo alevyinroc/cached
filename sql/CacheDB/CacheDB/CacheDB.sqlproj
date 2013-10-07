@@ -45,8 +45,8 @@
     <ServiceBrokerOption>EnableBroker</ServiceBrokerOption>
     <DateCorrelationOptimizationOn>False</DateCorrelationOptimizationOn>
     <Parameterization>SIMPLE</Parameterization>
-    <AllowSnapshotIsolation>False</AllowSnapshotIsolation>
-    <ReadCommittedSnapshot>False</ReadCommittedSnapshot>
+    <AllowSnapshotIsolation>True</AllowSnapshotIsolation>
+    <ReadCommittedSnapshot>True</ReadCommittedSnapshot>
     <VardecimalStorageFormatOn>True</VardecimalStorageFormatOn>
     <SupplementalLoggingOn>False</SupplementalLoggingOn>
     <CompatibilityMode>110</CompatibilityMode>
@@ -108,6 +108,7 @@
     <Folder Include="dbo\Tables\" />
     <Folder Include="dbo\Functions\" />
     <Folder Include="dbo\Sequences\" />
+    <Folder Include="dbo\Stored Procedures" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\point_types.sql">
@@ -185,5 +186,7 @@
     <Build Include="dbo\Sequences\statusid.sql" />
     <Build Include="dbo\Sequences\logtypeid.sql" />
     <Build Include="dbo\Sequences\pointtypeid.sql" />
+    <Build Include="dbo\Stored Procedures\CachesNearCache.sql" />
+    <Build Include="dbo\Stored Procedures\CacheDensity_1.sql" />
   </ItemGroup>
 </Project>
