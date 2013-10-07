@@ -1,4 +1,4 @@
-﻿use geocaches;
+﻿USE geocaches;
 /* IDs & names taken from geocaching.com new listing form */
 INSERT INTO cache_sizes (sizeid, sizename)
 	VALUES (1, 'Not Listed');
@@ -1486,40 +1486,40 @@ INSERT INTO states (stateid, name)
 INSERT INTO states (stateid, name)
 	VALUES (390, 'Zuid-Holland');
 /* Point takes longitude, then latitude. Out of bounds CenterPoints throw an error */
-INSERT INTO CenterPoints
-	VALUES ('Home Old', geography ::STGeomFromText('POINT(-77.23315 43.06525)', 4326));
-INSERT INTO CenterPoints
-	VALUES ('Home', geography ::STGeomFromText('POINT(-77.306933 42.885983)', 4326));
-INSERT INTO CenterPoints
-	VALUES ('Mom&Dad', geography ::STGeomFromText('POINT(-73.809733 42.853833)', 4326));
-INSERT INTO CenterPoints
-	VALUES ('Geneva', geography ::STGeomFromText('POINT(-76.993056 42.878889)', 4326));
-INSERT INTO CenterPoints
-	VALUES ('DML', geography ::STGeomFromText('POINT(-79.1105 42.5074)', 4326));
-INSERT INTO CenterPoints
-	VALUES ('Watkins Glen', geography ::STGeomFromText('POINT(-76.8853 42.3386)', 4326));
-INSERT INTO CenterPoints
-	VALUES ('Syracuse', geography ::STGeomFromText('POINT(-76.144167 43.046944)', 4326));
-INSERT INTO CenterPoints
-	VALUES ('Auburn', geography ::STGeomFromText('POINT(-76.56477 42.93166)', 4326));
-INSERT INTO CenterPoints
-	VALUES ('Niagara Falls', geography ::STGeomFromText('POINT(-79.017222 43.094167)', 4326));
-INSERT INTO CenterPoints
-	VALUES ('Silver Creek', geography ::STGeomFromText('POINT(-79.167222 42.544167)', 4326));
-INSERT INTO CenterPoints
-	VALUES ('Mendon Ponds', geography ::STGeomFromText('POINT(-77.564267 43.0293)', 4326));
-INSERT INTO CenterPoints
-	VALUES ('Saratoga', geography ::STGeomFromText('POINT(-73.7825 43.075278)', 4326));
-INSERT INTO CenterPoints
-	VALUES ('Sea Isle', geography ::STGeomFromText('POINT(-74.691917 39.147633)', 4326));
-INSERT INTO CenterPoints
-	VALUES ('zSpun Around Center', geography ::STGeomFromText('POINT(-77.48055 43.09305)', 4326));
-INSERT INTO CenterPoints
-	VALUES ('Dansville', geography ::STGeomFromText('POINT(-77.697433 42.560417)', 4326));
-INSERT INTO CenterPoints
-	VALUES ('Lockport', geography ::STGeomFromText('POINT(-78.689767 43.17485)', 4326));
-INSERT INTO CenterPoints
-	VALUES ('Seattle', geography ::STGeomFromText('POINT(-122.33365 47.612033)', 4326));
+INSERT INTO CenterPoints (locationname, longitude, latitude)
+	VALUES ('Home Old', -77.23315, 43.06525);
+INSERT INTO CenterPoints (locationname, longitude, latitude)
+	VALUES ('Home', -77.306933, 42.885983);
+INSERT INTO CenterPoints (locationname, longitude, latitude)
+	VALUES ('Mom&Dad', -73.809733, 42.853833);
+INSERT INTO CenterPoints (locationname, longitude, latitude)
+	VALUES ('Geneva', -76.993056, 42.878889);
+INSERT INTO CenterPoints (locationname, longitude, latitude)
+	VALUES ('DML', -79.1105, 42.5074);
+INSERT INTO CenterPoints (locationname, longitude, latitude)
+	VALUES ('Watkins Glen', -76.8853, 42.3386);
+INSERT INTO CenterPoints (locationname, longitude, latitude)
+	VALUES ('Syracuse', -76.144167, 43.046944);
+INSERT INTO CenterPoints (locationname, longitude, latitude)
+	VALUES ('Auburn', -76.56477, 42.93166);
+INSERT INTO CenterPoints (locationname, longitude, latitude)
+	VALUES ('Niagara Falls', -79.017222, 43.094167);
+INSERT INTO CenterPoints (locationname, longitude, latitude)
+	VALUES ('Silver Creek', -79.167222, 42.544167);
+INSERT INTO CenterPoints (locationname, longitude, latitude)
+	VALUES ('Mendon Ponds', -77.564267, 43.0293);
+INSERT INTO CenterPoints (locationname, longitude, latitude)
+	VALUES ('Saratoga', -73.7825, 43.075278);
+INSERT INTO CenterPoints (locationname, longitude, latitude)
+	VALUES ('Sea Isle', -74.691917, 39.147633);
+INSERT INTO CenterPoints (locationname, longitude, latitude)
+	VALUES ('zSpun Around Center', -77.48055, 43.09305);
+INSERT INTO CenterPoints (locationname, longitude, latitude)
+	VALUES ('Dansville', -77.697433, 42.560417);
+INSERT INTO CenterPoints (locationname, longitude, latitude)
+	VALUES ('Lockport', -78.689767, 43.17485);
+INSERT INTO CenterPoints (locationname, longitude, latitude)
+	VALUES ('Seattle', -122.33365, 47.612033);
 
 INSERT INTO log_types (logtypedesc)
 	VALUES ('Archived');
