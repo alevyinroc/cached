@@ -1,0 +1,28 @@
+﻿CREATE TABLE [dbo].[caches] (
+    [cacheid]     VARCHAR (8)     NOT NULL,
+    [gsid]        INT             NOT NULL,
+    [cachename]   NVARCHAR (50)   NOT NULL,
+    [latitude]    FLOAT (53)      NOT NULL,
+    [longitude]   FLOAT (53)      NOT NULL,
+    [lastupdated] DATETIME        DEFAULT (getdate()) NOT NULL,
+    [placed]      DATE            NOT NULL,
+    [placedby]    NVARCHAR (50)   NOT NULL,
+    [typeid]      INT             NOT NULL,
+    [sizeid]      INT             NOT NULL,
+    [difficulty]  FLOAT (53)      NOT NULL,
+    [terrain]     FLOAT (53)      NOT NULL,
+    [shortdesc]   NVARCHAR (500)  NOT NULL,
+    [longdesc]    NTEXT           NOT NULL,
+    [hint]        NVARCHAR (1000) NULL,
+    [available]   BIT             DEFAULT ((1)) NOT NULL,
+    [archived]    BIT             DEFAULT ((0)) NOT NULL,
+    [premiumonly] BIT             DEFAULT ((0)) NOT NULL,
+    [cachestatus] INT             DEFAULT ((1)) NOT NULL,
+    [latlong]     AS              ([geography]::Point([latitude],[longitude],(4326))) PERSISTED,
+    [created]     DATETIME        DEFAULT (getdate()) NOT NULL,
+    CONSTRAINT [pk_caches] PRIMARY KEY CLUSTERED ([cacheid] ASC),
+    CONSTRAINT [fk_cache_size] FOREIGN KEY ([sizeid]) REFERENCES [dbo].[cache_sizes] ([sizeid]),
+    CONSTRAINT [fk_cache_status] FOREIGN KEY ([cachestatus]) REFERENCES [dbo].[statuses] ([statusid]),
+    CONSTRAINT [fk_cache_type] FOREIGN KEY ([typeid]) REFERENCES [dbo].[point_types] ([typeid])
+);
+

@@ -1,6 +1,7 @@
 SELECT * FROM caches order by lastupdated desc;
+SELECT * from caches where cacheid = 'GC4FM6X';
 SELECT * FROM cachers;
-SELECT * from cache_attributes;
+SELECT * from cache_attributes where cacheid = 'GC49CX9';
 SELECT * from cache_owners;
 SELECT * from logs;
 SELECT * from log_types;
@@ -8,6 +9,9 @@ SELECT * from cache_logs;
 SELECT * from tbinventory;
 SELECT * from travelbugs;
 SELECT * from cache_sizes;
+SELECT * from point_types;
+SELECT * FROM waypoints;
+select * from attributes;
 
 SELECT
 	c2.cachename, c2.cacheid,l.latitude,l.longitude, l.latlong,logdate, logtext, c.cachername as finder, lt.logtypedesc as LogType
