@@ -12,10 +12,12 @@ SELECT * from cache_sizes;
 SELECT * from point_types;
 SELECT * FROM waypoints;
 select * from attributes;
-
+EXEC sys.sp_spaceused;
+EXEC sp_blitzindex;
 select * from travelbugs tb JOIN tbinventory tbi on tb.tbpublicid = tbi.tbpublicid WHERE tbi.cacheid= 'GC103Q1';
 --SELECT * from attributes a JOIN cache_attributes ca ON a.attributeid = ca.attributeid where ca.cacheid = 'GC103Q1';
 select * from travelbugs;
+SELECT cacheid, count(tbpublicid) from tbinventory group BY cacheid ORDER by COUNT(tbpublicid) desc;
 
 
 SELECT
@@ -30,14 +32,3 @@ where
 	c2.cacheid = 'GC38VEC'
 ORDER BY
 	l.logdate desc;
-
-/*DELETE from tbinventory;
-delete from logs;
-DELETE from cache_owners;
-delete from caches;
-DELETE FROM cachers;
-delete from cache_attributes;
-delete from attributes;
-
-alter database geocaches set single_user;
-alter database geocaches set multi_user;*/
