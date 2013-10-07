@@ -178,29 +178,33 @@ param (
 	[string]$TBPublicId
 )
 	begin {
-		$TBAddToCacheCmd = $SQLConnection.CreateCommand();
-		$TBAddToCacheCmd.CommandText = "insert into tbinventory (cacheid, tbpublicid) values (@cacheid,@tbpublicid)";
-		$TBAddToCacheCmd.Parameters.Add("@tbpublicid", [System.Data.SqlDbType]::VarChar, 50)|Out-Null;
-		$TBAddToCacheCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar, 8)|Out-Null;
-		$TBAddToCacheCmd.Prepare();
-		$TBRemoveFromCacheInventoryCmd = $SQLConnection.CreateCommand();
-		$TBRemoveFromCacheInventoryCmd.CommandText = "delete from tbinventory where cacheid <> @cacheid and tbpublicid = @tbpublicid";
-		$TBRemoveFromCacheInventoryCmd.Parameters.Add("@tbpublicid", [System.Data.SqlDbType]::VarChar, 50)|Out-Null;
-		$TBRemoveFromCacheInventoryCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar, 8)|Out-Null;
-		$TBRemoveFromCacheInventoryCmd.Prepare();
+		$RegisterTBToCacheCmd = $SQLConnection.CreateCommand();
+		
+		$RegisterTBToCacheCmd.Parameters.Add("@tbpublicid", [System.Data.SqlDbType]::VarChar, 50)|Out-Null;
+		$RegisterTBToCacheCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar, 8)|Out-Null;
+		
+		$TBInOtherCacheCmd = $SQLConnection.CreateCommand();
+		$TBInOtherCacheCmd.CommandText = "select count(1) from tbinventory where tbpublicid = @tbpublicid;";
+		$TBInOtherCacheCmd.Parameters.Add("@tbpublicid", [System.Data.SqlDbType]::VarChar, 50)|Out-Null;
+		$TBInOtherCacheCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar, 8)|Out-Null;
+		$TBInOtherCacheCmd.Prepare();
 	}
 	process {
-		$TBRemoveFromCacheInventoryCmd.Parameters["@cacheid"].Value = $GCNum;
-		$TBRemoveFromCacheInventoryCmd.Parameters["@tbpublicid"].Value = $TBPublicId;
-		$TBWasInOtherCache = $TBRemoveFromCacheInventoryCmd.ExecuteNonQuery() | Out-Null;
-		if ($TBWasInOtherCache) {
-			$TBAddToCacheCmd.Parameters["@cacheid"].Value = $GCNum;
-			$TBAddToCacheCmd.Parameters["@tbpublicid"].Value = $TBPublicId;
-			$TBAddToCacheCmd.ExecuteNonQuery() | Out-Null;
+		$TBInOtherCacheCmd.Parameters["@cacheid"].Value = $GCNum;
+		$TBInOtherCacheCmd.Parameters["@tbpublicid"].Value = $TBPublicId;
+		$TBWasInOtherCache = $TBInOtherCacheCmd.ExecuteScalar();
+		if (!$TBWasInOtherCache) {
+			$RegisterTBToCacheCmd.CommandText = "insert into tbinventory (cacheid, tbpublicid) values (@cacheid,@tbpublicid)";
+		} else {
+			$RegisterTBToCacheCmd.CommandText = "update tbinventory set cacheid = @cacheid where tbpublicid = @tbpublicid";		
 		}
+		$RegisterTBToCacheCmd.Parameters["@cacheid"].Value = $GCNum;
+		$RegisterTBToCacheCmd.Parameters["@tbpublicid"].Value = $TBPublicId;
+		$RegisterTBToCacheCmd.ExecuteNonQuery() | Out-Null;
 	}
 	end {
-		$TBAddToCacheCmd.Dispose();
+		$TBInOtherCacheCmd.Dispose();
+		$RegisterTBToCacheCmd.Dispose();
 	}
 }
 
@@ -727,10 +731,9 @@ $cachedata.gpx.wpt|where-object{$_.type.split("|")[0] -eq "Geocache"} | ForEach-
 	}
 #TODO: Make this pipeline aware with $cachedata.gpx.wpt.cache.travelbugs.travelbug|update-travelbugs
 	
-	if ($_.cache.travelbugs.length -gt 0) {
-		$tbs = $_.cache.travelbugs | select-object -expandproperty travelbug;
-		ForEach ($tb in $tbs) {
-			Update-TravelBug -GCNum $GCNum -TBPublicId $tb.ref -TBName $tb.name -TBInternalId $tb.id;
+	if ($_.cache.travelbugs.travelbug.count -gt 0) {
+		$_.cache.travelbugs.travelbug | ForEach-Object {
+			Update-TravelBug -GCNum $GCNum -TBPublicId $_.ref -TBName $_.name -TBInternalId $_.id;
 		}
 	}
 	$logs = $_.cache.logs|Select-Object -ExpandProperty log;
