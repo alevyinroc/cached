@@ -1,9 +1,22 @@
 <#
-Copyright Andy Levy andy@levyclan.us 2013
+.SYNOPSIS
+	Loads the contents of a geocaching-related GPX file into a database.
+.DESCRIPTION
+	Using the contents of a GPX file with Groundspeak extensions, loads the data into the specified database. Items that do not previously exist are created, and existing items are updated.
+	Copyright Andy Levy andy@levyclan.us 2013
+.PARAMETER FileToImport
+	GPX file to be loaded into the database
+.PARAMETER SQLInstance
+	SQL Server instance to connect to for loading data
+.PARAMETER Database
+	Database on the SQLInstance to store the data in
+.EXAMPLE
+ .\Import-GPXtoDB.ps1 -sqlinstance hobbes\sqlexpress -Database geocaches -FileToImport C:\Users\andy\Documents\Code\cachedb\scratchpad\100CP.gpx
 #>
 
 #requires -version 2.0
 [cmdletbinding()]
+Set-StrictMode -Version 2.0
 param (
 	[Parameter(Mandatory=$true)]
 	[ValidateScript({Test-Path -path $_ -PathType Leaf})]
@@ -32,6 +45,12 @@ $SQLConnection.Open();
 
 #region Functions
 function Get-DBTypeFromTrueFalse{
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETER computername
+.EXAMPLE
+#>
 [cmdletbinding()]
 param (
 	[Parameter(Mandatory=$true)]
@@ -45,6 +64,12 @@ param (
 }
 
 function Update-Cacher {
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETER computername
+.EXAMPLE
+#>
 [cmdletbinding()]
 param(
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacherDetails")]
@@ -87,6 +112,12 @@ param(
 }
 
 function Update-CacheOwner {
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETER computername
+.EXAMPLE
+#>
 [cmdletbinding()]
 param(
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacheOwnerDetails")]
@@ -128,6 +159,12 @@ param(
 }
 
 function New-TravelBug {
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETER computername
+.EXAMPLE
+#>
 [cmdletbinding()]
 param (
 	[Parameter(Mandatory=$true)]
@@ -168,6 +205,12 @@ param (
 }
 
 function Move-TravelBugToCache {
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETER computername
+.EXAMPLE
+#>
 [cmdletbinding()]
 param (
 	[Parameter(Mandatory=$true)]
@@ -210,6 +253,12 @@ param (
 
 # TODO: Make this pipeline-aware & pass in single TBs.
 function Update-TravelBug {
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETER computername
+.EXAMPLE
+#>
 [cmdletbinding()]
 param (
 	[Parameter(Mandatory=$true)]
@@ -231,6 +280,12 @@ param (
 	}
 }
 function Update-Geocache {
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETER computername
+.EXAMPLE
+#>
 [cmdletbinding()]
 param (
 	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
@@ -389,6 +444,12 @@ param (
 }
 
 function Update-Log {
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETER computername
+.EXAMPLE
+#>
 param (
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
 	[int]$LogId,
@@ -481,6 +542,12 @@ begin {
 }
 
 function Update-Waypoint {
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETER computername
+.EXAMPLE
+#>
 [cmdletbinding()]
 param (
 	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
@@ -585,6 +652,12 @@ param (
 }
 
 function Get-PointTypeId {
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETER computername
+.EXAMPLE
+#>
 [cmdletbinding()]
 param(
 	[Parameter(Mandatory=$true)]
@@ -616,6 +689,12 @@ param(
 	}
 }
 function New-Attribute {
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETER computername
+.EXAMPLE
+#>
 [cmdletbinding()]
 param(
 	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
@@ -651,6 +730,12 @@ param(
 }
 
 function Drop-Attributes {
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETER computername
+.EXAMPLE
+#>
 [cmdletbinding()]
 param(
 	[Parameter(Position=0,Mandatory=$true)]
@@ -671,6 +756,12 @@ param(
 	}
 }
 function Register-AttributeToCache {
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETER computername
+.EXAMPLE
+#>
 [cmdletbinding()]
 param(
 	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]

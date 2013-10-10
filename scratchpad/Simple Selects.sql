@@ -12,8 +12,7 @@ SELECT * from cache_sizes;
 SELECT * from point_types;
 SELECT * FROM waypoints;
 select * from attributes;
-EXEC sys.sp_spaceused;
-EXEC sp_blitzindex;
+
 select * from travelbugs tb JOIN tbinventory tbi on tb.tbpublicid = tbi.tbpublicid WHERE tbi.cacheid= 'GC103Q1';
 --SELECT * from attributes a JOIN cache_attributes ca ON a.attributeid = ca.attributeid where ca.cacheid = 'GC103Q1';
 select * from travelbugs;
