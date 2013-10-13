@@ -37,7 +37,7 @@ if ((Get-Module | Where-Object{$_.name -eq "SQLPS"} | Measure-Object).Count -lt 
 Pop-Location;
 
 #region Globals
-$SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;";
+$SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
 $SQLConnection = new-object System.Data.SqlClient.SqlConnection;
 $SQLConnection.ConnectionString = $SQLConnectionString;
 $SQLConnection.Open();
