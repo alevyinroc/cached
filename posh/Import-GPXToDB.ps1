@@ -15,8 +15,9 @@
 #>
 
 #requires -version 2.0
+#Set-StrictMode -Version 2.0
 [cmdletbinding()]
-Set-StrictMode -Version 2.0
+
 param (
 	[Parameter(Mandatory=$true)]
 	[ValidateScript({Test-Path -path $_ -PathType Leaf})]
@@ -27,6 +28,7 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
+
 $ErrorActionPreference = "Stop";
 Clear-Host;
 $Error.Clear();
@@ -62,7 +64,6 @@ param (
 		default { 0;}
 	}
 }
-
 function Update-Cacher {
 <#
 .SYNOPSIS
@@ -112,7 +113,6 @@ param(
 		$CacherTableUpdateCmd.Dispose();
 	}
 }
-
 function Update-CacheOwner {
 <#
 .SYNOPSIS
@@ -161,7 +161,6 @@ param(
 		$CacheOwnerUpdateCmd.Dispose();
 	}
 }
-
 function New-TravelBug {
 <#
 .SYNOPSIS
@@ -209,7 +208,6 @@ param (
 		$TBInsertCmd.Dispose();
 	}
 }
-
 function Move-TravelBugToCache {
 <#
 .SYNOPSIS
@@ -257,7 +255,6 @@ param (
 		$RegisterTBToCacheCmd.Dispose();
 	}
 }
-
 # TODO: Make this pipeline-aware & pass in single TBs.
 function Update-TravelBug {
 <#
@@ -333,7 +330,6 @@ param (
 	process {
 	# TODO: Can't navigate XML element structure anymore, need to use ugliness like $CacheWaypoint | Select-Object -ExpandProperty cache | Select-Object -ExpandProperty name
 		$GCNum = $CacheWaypoint | Select-Object -ExpandProperty name;
-		$GCNum;
 		$PlacedDate = get-date ($CacheWaypoint | Select-Object -ExpandProperty time);
 		
 		$Latitude = $CacheWaypoint | Select-Object -ExpandProperty lat;
@@ -452,7 +448,6 @@ param (
 		$CacheExistsCmd.Dispose();
 	}
 }
-
 function Update-Log {
 <#
 .SYNOPSIS
@@ -607,10 +602,10 @@ param (
 		$WptUpsertCmd.Parameters.Add("@pointtype", [System.Data.SqlDbType]::int) | Out-Null;
 	}
 	process {
+		$Id = $Waypoint | Select-Object -ExpandProperty Id;
 		$Latitude = [float]($Waypoint | Select-Object -ExpandProperty Lat);
 		$Longitude = [float]($Waypoint | Select-Object -ExpandProperty Long);
 		$WptDate = get-date ($Waypoint | Select-Object -ExpandProperty DateTime);
-		$Id = $Waypoint | Select-Object -ExpandProperty Id;
 		$Name = $Waypoint | Select-Object -ExpandProperty Name;
 		$Description = $Waypoint | Select-Object -ExpandProperty Description;
 		$Url = $Waypoint | Select-Object -ExpandProperty Url;
@@ -657,6 +652,7 @@ insert into waypoints (waypointid,parentcache,latitude,longitude,name,descriptio
 		$WptUpsertCmd.Parameters["@urldesc"].Value = $UrlDesc;
 		$WptUpsertCmd.Parameters["@pointtype"].Value = $PointTypeId;
 		$WptUpsertCmd.ExecuteNonQuery() | Out-Null;
+		$WaypointsProcessed++;
 	}
 	end {
 		$WptExistsCmd.Dispose();
@@ -795,8 +791,8 @@ function Drop-Attributes {
 #>
 [cmdletbinding()]
 param(
-	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,ParameterSetName="SingleCache")]
-	[string[]]$CacheId
+	[Parameter(Position=0,Mandatory=$true,ParameterSetName="SingleCache")]
+	[string]$CacheId
 )
 	begin {
 		$DropCacheAttributesCmd = $SQLConnection.CreateCommand();
@@ -861,8 +857,12 @@ $GPXDate = get-date $cachedata.gpx.time;
 # Check for a cache child element
 # If one exists, it's a cache
 # Otherwise, it's a waypoint
-$cachedata.gpx.wpt | where-object{$_.type.split(" | ")[0] -eq "Geocache"} | ForEach-Object {
+$CachesProcessed = 0;
+$Geocaches = $cachedata.gpx.wpt | where-object{$_.type.split(" | ")[0] -eq "Geocache"};
+
+ $Geocaches | ForEach-Object {
 	$GCNum = $_.name;
+	Write-Progress -Activity "Loading Geocaches" -Status "Cache ID $GCNum" -Id 1 -PercentComplete $(($CachesProcessed/$Geocaches.Count)*100)
 	Update-Geocache $_; #Process as geocache
 # Load cacher table if no record for current cache's owner, or update name
 	Update-Cacher -Cacher $_.cache.owner;
@@ -912,6 +912,7 @@ $cachedata.gpx.wpt | where-object{$_.type.split(" | ")[0] -eq "Geocache"} | ForE
 		}
 		Update-Log @UpdateLogVars;
 	};
+	$CachesProcessed++;
 };
 $ChildWaypoints = New-Object -TypeName System.Collections.Generic.List[PSObject];
 $cachedata.gpx.wpt | Where-Object{$_.type.split(" | ")[0] -ne "Geocache"} | ForEach-Object{
