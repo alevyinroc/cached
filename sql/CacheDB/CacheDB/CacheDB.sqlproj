@@ -187,6 +187,6 @@
     <Build Include="dbo\Sequences\logtypeid.sql" />
     <Build Include="dbo\Sequences\pointtypeid.sql" />
     <Build Include="dbo\Stored Procedures\CachesNearCache.sql" />
-    <Build Include="dbo\Stored Procedures\CacheDensity_1.sql" />
+    <Build Include="dbo\Stored Procedures\CacheDensity.sql" />
   </ItemGroup>
 </Project>
