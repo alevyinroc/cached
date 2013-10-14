@@ -68,6 +68,8 @@ function Update-Cacher {
 .SYNOPSIS
 .DESCRIPTION
 .PARAMETER computername
+.PARAMETER computername
+.PARAMETER computername
 .EXAMPLE
 #>
 [cmdletbinding()]
@@ -86,7 +88,7 @@ param(
 		$CacherExistsCmd.Prepare();
 		$CacherTableUpdateCmd = $SQLConnection.CreateCommand();
 		$CacherTableUpdateCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::int) | Out-Null;
-		$CacherTableUpdateCmd.Parameters.Add("@CacherName", [System.Data.SqlDbType]::varchar, 50) | Out-Null;
+		$CacherTableUpdateCmd.Parameters.Add("@CacherName", [System.Data.SqlDbType]::VarChar, 50) | Out-Null;
 	}
 	process{
 		switch ($PsCmdlet.ParameterSetName) {
@@ -116,6 +118,8 @@ function Update-CacheOwner {
 .SYNOPSIS
 .DESCRIPTION
 .PARAMETER computername
+.PARAMETER computername
+.PARAMETER computername
 .EXAMPLE
 #>
 [cmdletbinding()]
@@ -130,12 +134,12 @@ param(
 	begin {
 		$CacheHasOwnerCmd = $SQLConnection.CreateCommand();
 		$CacheHasOwnerCmd.CommandText = "select count(1) as CacheOnOwners from cache_owners where cacheid = @gcnum;";
-		$CacheHasOwnerCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::varchar, 8) | Out-Null;
+		$CacheHasOwnerCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
 		$CacheHasOwnerCmd.Prepare();
 	
 		$CacheOwnerUpdateCmd = $SQLConnection.CreateCommand();
 		$CacheOwnerUpdateCmd.Parameters.Add("@ownerid", [System.Data.SqlDbType]::int) | Out-Null;
-		$CacheOwnerUpdateCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::varchar, 8) | Out-Null;
+		$CacheOwnerUpdateCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
 	}
 	process {
 		Update-Cacher -Cachername $PlacedByName -CacherId $OwnerId;
@@ -163,6 +167,8 @@ function New-TravelBug {
 .SYNOPSIS
 .DESCRIPTION
 .PARAMETER computername
+.PARAMETER computername
+.PARAMETER computername
 .EXAMPLE
 #>
 [cmdletbinding()]
@@ -184,8 +190,8 @@ param (
 		$TBInsertCmd = $SQLConnection.CreateCommand();
 		$TBInsertCmd.CommandText = "insert into travelbugs (tbinternalid, tbpublicid,tbname) values (@tbid, @tbpublicid, @tbname)";
 		$TBInsertCmd.Parameters.Add("@tbid", [System.Data.SqlDbType]::Int) | Out-Null;
-		$TBInsertCmd.Parameters.Add("@tbpublicid", [System.Data.SqlDbType]::varchar, 8) | Out-Null;
-		$TBInsertCmd.Parameters.Add("@tbname", [System.Data.SqlDbType]::varchar, 50) | Out-Null;
+		$TBInsertCmd.Parameters.Add("@tbpublicid", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
+		$TBInsertCmd.Parameters.Add("@tbname", [System.Data.SqlDbType]::VarChar, 50) | Out-Null;
 		$TBInsertCmd.Prepare();
 	}
 	process {
@@ -208,6 +214,7 @@ function Move-TravelBugToCache {
 <#
 .SYNOPSIS
 .DESCRIPTION
+.PARAMETER computername
 .PARAMETER computername
 .EXAMPLE
 #>
@@ -257,6 +264,9 @@ function Update-TravelBug {
 .SYNOPSIS
 .DESCRIPTION
 .PARAMETER computername
+.PARAMETER computername
+.PARAMETER computername
+.PARAMETER computername
 .EXAMPLE
 #>
 [cmdletbinding()]
@@ -295,24 +305,24 @@ param (
 		$CacheLoadCmd = $SQLConnection.CreateCommand();
 		$CacheExistsCmd = $SQLConnection.CreateCommand();
 		$CacheExistsCmd.CommandText = "select count(1) from caches where cacheid = @CacheId;";
-		$CacheExistsCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::varchar,8) | Out-Null;
+		$CacheExistsCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::VarChar,8) | Out-Null;
 		$CacheExistsCmd.Prepare();
-		$CacheLoadCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::varchar, 8) | Out-Null;
+		$CacheLoadCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@gsid", [System.Data.SqlDbType]::int) | Out-Null;
-		$CacheLoadCmd.Parameters.Add("@CacheName", [System.Data.SqlDbType]::nvarchar, 50) | Out-Null;
+		$CacheLoadCmd.Parameters.Add("@CacheName", [System.Data.SqlDbType]::nVarChar, 50) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::float) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@Long", [System.Data.SqlDbType]::float) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@Placed", [System.Data.SqlDbType]::datetime) | Out-Null;
-		$CacheLoadCmd.Parameters.Add("@PlacedBy", [System.Data.SqlDbType]::nvarchar) | Out-Null;
+		$CacheLoadCmd.Parameters.Add("@PlacedBy", [System.Data.SqlDbType]::nVarChar) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@TypeId", [System.Data.SqlDbType]::int) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@SizeId", [System.Data.SqlDbType]::int) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@Diff", [System.Data.SqlDbType]::float) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@Terrain", [System.Data.SqlDbType]::float) | Out-Null;
-		$CacheLoadCmd.Parameters.Add("@ShortDesc", [System.Data.SqlDbType]::nvarchar, 5000) | Out-Null;
+		$CacheLoadCmd.Parameters.Add("@ShortDesc", [System.Data.SqlDbType]::nVarChar, 5000) | Out-Null;
 		#See http://support.microsoft.com/kb/970519 for bug workaround
 		$CacheLoadCmd.Parameters["@ShortDesc"].Size = -1;
 		$CacheLoadCmd.Parameters.Add("@LongDesc", [System.Data.SqlDbType]::ntext) | Out-Null;
-		$CacheLoadCmd.Parameters.Add("@Hint", [System.Data.SqlDbType]::nvarchar, 1000) | Out-Null;
+		$CacheLoadCmd.Parameters.Add("@Hint", [System.Data.SqlDbType]::nVarChar, 1000) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@Avail", [System.Data.SqlDbType]::bit) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@Archived", [System.Data.SqlDbType]::bit) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@PremOnly", [System.Data.SqlDbType]::bit) | Out-Null;
@@ -321,16 +331,16 @@ param (
 		#$CacheLoadCmd.Prepare();
 	}
 	process {
-	# TODO: Can't navigate XML element structure anymore, need to use ugliness like $CacheWaypoint | Select-Object -expandproperty cache | Select-Object -expandproperty name
+	# TODO: Can't navigate XML element structure anymore, need to use ugliness like $CacheWaypoint | Select-Object -ExpandProperty cache | Select-Object -ExpandProperty name
 		$GCNum = $CacheWaypoint | Select-Object -ExpandProperty name;
 		$GCNum;
-		$PlacedDate = get-date ($CacheWaypoint | select-object -expandproperty time);
+		$PlacedDate = get-date ($CacheWaypoint | Select-Object -ExpandProperty time);
 		
-		$Latitude = $CacheWaypoint | Select-object -expandproperty lat;
-		$Longitude = $CacheWaypoint | Select-object -expandproperty lon;
+		$Latitude = $CacheWaypoint | Select-Object -ExpandProperty lat;
+		$Longitude = $CacheWaypoint | Select-Object -ExpandProperty lon;
 		$CacheExistsCmd.Parameters["@CacheId"].Value = $GCNum;
 		$CacheExists = $CacheExistsCmd.ExecuteScalar();
-		$CacheWaypoint = $CacheWaypoint | select-object -expandproperty cache;
+		$CacheWaypoint = $CacheWaypoint | Select-Object -ExpandProperty cache;
 		# Load/Update cache table
 # TODO: Use GPX time for Last Updated. $cachedata.gpx.time
 		if (!$CacheExists){
@@ -404,26 +414,26 @@ param (
 "@;
 		}
 		$CacheLoadCmd.Parameters["@CacheId"].Value = $GCNum;
-		$CacheLoadCmd.Parameters["@gsid"].Value = $CacheWaypoint | select-object -expandproperty id;
-		$CacheLoadCmd.Parameters["@CacheName"].Value = $CacheWaypoint | select-object -expandproperty name;
+		$CacheLoadCmd.Parameters["@gsid"].Value = $CacheWaypoint | Select-Object -ExpandProperty id;
+		$CacheLoadCmd.Parameters["@CacheName"].Value = $CacheWaypoint | Select-Object -ExpandProperty name;
 		$CacheLoadCmd.Parameters["@Lat"].Value = $Latitude;
 		$CacheLoadCmd.Parameters["@Long"].Value = $Longitude;
 		$CacheLoadCmd.Parameters["@Placed"].Value = $PlacedDate;
-		$CacheLoadCmd.Parameters["@PlacedBy"].Value = $CacheWaypoint | select-object -expandproperty placed_by;
-		$CacheLoadCmd.Parameters["@TypeId"].Value = $PointTypeLookup | where-object{$_.typename -eq ($CacheWaypoint | select-object -expandproperty type)} | Select-Object -expandproperty typeid;
-		$CacheLoadCmd.Parameters["@SizeId"].Value = $CacheSizeLookup | where-object{$_.sizename -eq ($CacheWaypoint | select-object -expandproperty container)} | Select-Object -expandproperty sizeid;
-		$CacheLoadCmd.Parameters["@Diff"].Value = $CacheWaypoint | select-object -expandproperty difficulty;
-		$CacheLoadCmd.Parameters["@Terrain"].Value = $CacheWaypoint | select-object -expandproperty terrain;
-		$CacheLoadCmd.Parameters["@ShortDesc"].Value = $CacheWaypoint | select-object -expandproperty short_description | select-object -expandproperty innertext;
-		$CacheLoadCmd.Parameters["@LongDesc"].Value = $CacheWaypoint | select-object -expandproperty long_description | select-object -expandproperty innertext;
-		$CacheLoadCmd.Parameters["@Hint"].Value = $CacheWaypoint | select-object -expandproperty encoded_hints;
-		$CacheLoadCmd.Parameters["@Avail"].Value = Get-DBTypeFromTrueFalse ($CacheWaypoint | select-object -expandproperty available);
-		$CacheLoadCmd.Parameters["@Archived"].Value = Get-DBTypeFromTrueFalse ($CacheWaypoint | select-object -expandproperty archived);
+		$CacheLoadCmd.Parameters["@PlacedBy"].Value = $CacheWaypoint | Select-Object -ExpandProperty placed_by;
+		$CacheLoadCmd.Parameters["@TypeId"].Value = $PointTypeLookup | where-object{$_.typename -eq ($CacheWaypoint | Select-Object -ExpandProperty type)} | Select-Object -ExpandProperty typeid;
+		$CacheLoadCmd.Parameters["@SizeId"].Value = $CacheSizeLookup | where-object{$_.sizename -eq ($CacheWaypoint | Select-Object -ExpandProperty container)} | Select-Object -ExpandProperty sizeid;
+		$CacheLoadCmd.Parameters["@Diff"].Value = $CacheWaypoint | Select-Object -ExpandProperty difficulty;
+		$CacheLoadCmd.Parameters["@Terrain"].Value = $CacheWaypoint | Select-Object -ExpandProperty terrain;
+		$CacheLoadCmd.Parameters["@ShortDesc"].Value = $CacheWaypoint | Select-Object -ExpandProperty short_description | Select-Object -ExpandProperty innertext;
+		$CacheLoadCmd.Parameters["@LongDesc"].Value = $CacheWaypoint | Select-Object -ExpandProperty long_description | Select-Object -ExpandProperty innertext;
+		$CacheLoadCmd.Parameters["@Hint"].Value = $CacheWaypoint | Select-Object -ExpandProperty encoded_hints;
+		$CacheLoadCmd.Parameters["@Avail"].Value = Get-DBTypeFromTrueFalse ($CacheWaypoint | Select-Object -ExpandProperty available);
+		$CacheLoadCmd.Parameters["@Archived"].Value = Get-DBTypeFromTrueFalse ($CacheWaypoint | Select-Object -ExpandProperty archived);
 		$CacheLoadCmd.Parameters["@CacheUpdated"].Value = $GPXDate;
-		if (($CacheWaypoint | Select-Object -expandproperty archived) -eq "true") {
+		if (($CacheWaypoint | Select-Object -ExpandProperty archived) -eq "true") {
 			$UnifiedStatus = $CacheStatusLookup | Where-Object{$_.statusname -eq "archived"} | Select-Object -ExpandProperty statusid;
 		} else{
-			if (($CacheWaypoint | Select-Object -expandproperty available) -eq "true") {
+			if (($CacheWaypoint | Select-Object -ExpandProperty available) -eq "true") {
 				$UnifiedStatus = $CacheStatusLookup | Where-Object{$_.statusname -eq "available"} | Select-Object -ExpandProperty statusid;
 			} else {
 				$UnifiedStatus = $CacheStatusLookup | Where-Object{$_.statusname -eq "disabled"} | Select-Object -ExpandProperty statusid;
@@ -435,7 +445,7 @@ param (
 		# Execute
 		$CacheLoadCmd.ExecuteNonQuery() | Out-Null;
 
-		Update-CacheOwner -GCNum $GCNum -OwnerId $($CacheWaypoint | Select-Object -ExpandProperty owner | Select-Object -ExpandProperty id) -PlacedByName $($CacheWaypoint | select-object -expandproperty placed_by);
+		Update-CacheOwner -GCNum $GCNum -OwnerId $($CacheWaypoint | Select-Object -ExpandProperty owner | Select-Object -ExpandProperty id) -PlacedByName $($CacheWaypoint | Select-Object -ExpandProperty placed_by);
 	}
 	end {
 		$CacheLoadCmd.Dispose();
@@ -446,9 +456,31 @@ param (
 function Update-Log {
 <#
 .SYNOPSIS
+	Creates or updates a geocache log
 .DESCRIPTION
-.PARAMETER computername
+	Creates or updates a geocache log, and links it to its parent cache.
+.PARAMETER LogId
+	Groundspeak unique ID for the log
+.PARAMETER CacheId
+	GC code for the cache the log is attached to
+.PARAMETER LogDate
+	Date of the log entry
+.PARAMETER LogTypeName
+	Log entry type - found, didn't find, etc.
+.PARAMETER Finder
+	Groundspeak internal ID of the finder of the 
+.PARAMETER LogText
+	Full text of the log entry
+.PARAMETER Latitude
+	Latitude of the waypoint attached to the log by the finder, if any
+.PARAMETER Longitude
+	Longitude of the waypoint attached to the log by the finder, if any
+.PARAMETER CacheLog
+	XMLElement from the GPX file which contains the full log details
 .EXAMPLE
+	Update-Log -LogId 12345 -CacheId GCABCD -LogDate "2013-09-01" -LogTypeName "Found It" -Finder "Bob" -LogText "I found the cache!" -Latitude 40.12345 -Longitude -80.87321
+.EXAMPLE
+	$CacheData.SelectNodes("//log") | foreach-Object {Update-Log -CacheLog $_}
 #>
 param (
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
@@ -476,8 +508,8 @@ begin {
 		$LogExistsCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt) | Out-Null;
 		$LogExistsCmd.Prepare();
 		$LogTableUpdateCmd = $SQLConnection.CreateCommand();
-		$LogTableUpdateCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::bigint) | Out-Null;
-		$LogTableUpdateCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::varchar, 50) | Out-Null;
+		$LogTableUpdateCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt) | Out-Null;
+		$LogTableUpdateCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::VarChar, 50) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@LogDate", [System.Data.SqlDbType]::DateTime) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@LogType", [System.Data.SqlDbType]::Int) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@LogText", [System.Data.SqlDbType]::NVarChar, 4000) | Out-Null;
@@ -485,12 +517,12 @@ begin {
 		$LogTableUpdateCmd.Parameters.Add("@Long", [System.Data.SqlDbType]::Float) | Out-Null;
 		$LogTypes = Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $Database -Query "select logtypeid,logtypedesc from log_types";
 		$LogLinkToCacheCmd = $SQLConnection.CreateCommand();
-		$LogLinkToCacheCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::bigint) | Out-Null;
-		$LogLinkToCacheCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::varchar, 8) | Out-Null;
+		$LogLinkToCacheCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt) | Out-Null;
+		$LogLinkToCacheCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
 		$LogLinkToCacheCmd.CommandText = "insert into cache_logs (cacheid,logid) values (@CacheId, @LogId)";
 		$LogLinkToCacheCmd.Prepare();
 		$LogLinkedCmd = $SQLConnection.CreateCommand();
-		$LogLinkedCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::bigint) | Out-Null;
+		$LogLinkedCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt) | Out-Null;
 		$LogLinkedCmd.CommandText = "select count(1) from cache_logs where logid = @LogId";
 		$LogLinkedCmd.Prepare();
 	}
@@ -513,7 +545,6 @@ begin {
 		$LogExistsCmd.Parameters["@LogId"].Value = $LogId;
 		$LogExists = $LogExistsCmd.ExecuteScalar();
 		if ($LogExists){
-		# Update cacher name if it's changed
 			$LogTableUpdateCmd.CommandText = "update logs set logdate=@LogDate, logtypeid=@LogType, cacherid = @CacherId, logtext = @LogText, latitude = @Lat, longitude = @Long where logid = @LogId;";
 		} else {
 			$LogTableUpdateCmd.CommandText = "insert into logs (logid,logdate, logtypeid, cacherid,logtext,latitude,longitude) values (@LogId,@LogDate,@LogType, @CacherId,@LogText,@Lat,@Long);";
@@ -540,13 +571,18 @@ begin {
 		$LogTableUpdateCmd.Dispose();
 	}
 }
-
 function Update-Waypoint {
 <#
 .SYNOPSIS
+	Creates or updates a non-geocache waypoint
 .DESCRIPTION
-.PARAMETER computername
+	Creates or updates a non-geocache waypoint. Locates the parent cache & associates the child with it.
+.PARAMETER Waypoint
+	Custom PSObject containing the data representing a single non-geocache waypoint
 .EXAMPLE
+	Update-Waypoint -Waypoint $WptData
+.EXAMPLE
+	$AllWaypoints | Update-Waypoint
 #>
 [cmdletbinding()]
 param (
@@ -566,21 +602,21 @@ param (
 		$WptUpsertCmd.Parameters.Add("@long",[System.Data.SqlDbType]::Float) | Out-Null;
 		$WptUpsertCmd.Parameters.Add("@name",[System.Data.SqlDbType]::VarChar,50) | Out-Null;
 		$WptUpsertCmd.Parameters.Add("@desc",[System.Data.SqlDbType]::VarChar, 2000) | Out-Null;
-		$WptUpsertCmd.Parameters.Add("@url",[System.Data.SqlDbType]::varchar,2038) | Out-Null;
-		$WptUpsertCmd.Parameters.Add("@urldesc",[System.Data.SqlDbType]::nvarchar, 200) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@url",[System.Data.SqlDbType]::VarChar,2038) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@urldesc",[System.Data.SqlDbType]::nVarChar, 200) | Out-Null;
 		$WptUpsertCmd.Parameters.Add("@pointtype", [System.Data.SqlDbType]::int) | Out-Null;
 	}
 	process {
-		$Latitude = [float]($Waypoint | select-object -expandproperty Lat);
-		$Longitude = [float]($Waypoint | select-object -expandproperty Long);
-		$WptDate = get-date ($Waypoint | select-object -expandproperty DateTime);
-		$Id = $Waypoint | select-object -expandproperty Id;
-		$Name = $Waypoint | select-object -expandproperty Name;
-		$Description = $Waypoint | select-object -expandproperty Description;
-		$Url = $Waypoint | select-object -expandproperty Url;
-		$UrlDesc = $Waypoint | select-object -expandproperty UrlDesc;
-		$Symbol = $Waypoint | select-object -expandproperty Symbol;
-		$PointType = $Waypoint | select-object -expandproperty PointType;
+		$Latitude = [float]($Waypoint | Select-Object -ExpandProperty Lat);
+		$Longitude = [float]($Waypoint | Select-Object -ExpandProperty Long);
+		$WptDate = get-date ($Waypoint | Select-Object -ExpandProperty DateTime);
+		$Id = $Waypoint | Select-Object -ExpandProperty Id;
+		$Name = $Waypoint | Select-Object -ExpandProperty Name;
+		$Description = $Waypoint | Select-Object -ExpandProperty Description;
+		$Url = $Waypoint | Select-Object -ExpandProperty Url;
+		$UrlDesc = $Waypoint | Select-Object -ExpandProperty UrlDesc;
+		$Symbol = $Waypoint | Select-Object -ExpandProperty Symbol;
+		$PointType = $Waypoint | Select-Object -ExpandProperty PointType;
 		$PointTypeId = Get-PointTypeId -PointTypeName $PointType;
 		
 # Check for point type. If it doesn't exist, create it
@@ -628,8 +664,17 @@ insert into waypoints (waypointid,parentcache,latitude,longitude,name,descriptio
 		
 	}
 }
-
 function Find-ParentCacheId {
+<#
+.SYNOPSIS
+	Finds the GC ID of a waypoint's parent cache
+.DESCRIPTION
+	Finds the GC ID of a waypoint's parent cache. This is currently tightly coupled to the calling function, Update-Waypoint because it assumes that a GC ID is being passed in. Assumes that the waypoint ID is XXYYYZZ where XX is any two characters, YYY is the GC ID of the parent cache less the preceding "GC", and ZZ is an optional suffix. This function recursively trims off any suffix until it locates the parent cache ID.
+.PARAMETER CacheId
+	ID of the parent cache to search for
+.EXAMPLE
+	Find-ParentCacheId -CacheId GC123401
+#>
 [cmdletbinding()]
 param (
 	[Parameter(Mandatory=$true)]
@@ -650,13 +695,16 @@ param (
 	}
 	
 }
-
 function Get-PointTypeId {
 <#
 .SYNOPSIS
+	Gets waypoint type ID from the text name.
 .DESCRIPTION
-.PARAMETER computername
+	Gets waypoint type ID from the text name. If no type ID exists for the name, a new one will be created on the point_types table.
+.PARAMETER PointTypeName
+	Name of the point type to look up. If no point type is found, a new one will be created with that name.
 .EXAMPLE
+	Get-PointTypeId -PointTypeName "Parking Area"
 #>
 [cmdletbinding()]
 param(
@@ -691,9 +739,15 @@ param(
 function New-Attribute {
 <#
 .SYNOPSIS
+	Creates a new cache attribute
 .DESCRIPTION
-.PARAMETER computername
+	Creates a new cache attribute with the properties contained in the passed-in object.
+.PARAMETER Attribute
+	A custom PSObject containing the properties of the attribute to create. This includes (minimally) the Groundspeak attribute ID, and the associated text. If the attribute already exists (when searched by ID), the text will be updated.
 .EXAMPLE
+	New-Attribute -Attribute $CacheAttribute;
+.EXAMPLE
+	$AllCacheAttributes | New-Attribute;;
 #>
 [cmdletbinding()]
 param(
@@ -709,12 +763,12 @@ param(
 		$CacheAttributeInsertCmd = $SQLConnection.CreateCommand();
 		$CacheAttributeInsertCmd.CommandText = "insert into attributes (attributeid,attributename) values (@attrid, @attrname)";
 		$CacheAttributeInsertCmd.Parameters.Add("@attrid", [System.Data.SqlDbType]::Int) | Out-Null;
-		$CacheAttributeInsertCmd.Parameters.Add("@attrname", [System.Data.SqlDbType]::varchar, 50) | Out-Null;
+		$CacheAttributeInsertCmd.Parameters.Add("@attrname", [System.Data.SqlDbType]::VarChar, 50) | Out-Null;
 		$CacheAttributeInsertCmd.Prepare();
 	}
 	process {
-		$AttrId = [int]($Attribute | select-object -expandproperty AttrId);
-		$AttrName = $Attribute | select-object -expandproperty AttrName;
+		$AttrId = [int]($Attribute | Select-Object -ExpandProperty AttrId);
+		$AttrName = $Attribute | Select-Object -ExpandProperty AttrName;
 		$CacheAttributeCheckCmd.Parameters["@attrid"].Value = $AttrId;
 		$AttrExists = $CacheAttributeCheckCmd.ExecuteScalar();
 		if (!$AttrExists) {
@@ -728,18 +782,21 @@ param(
 		$CacheAttributeInsertCmd.Dispose();
 	}
 }
-
 function Drop-Attributes {
 <#
 .SYNOPSIS
+	Disassociates all attributes from a geocache.
 .DESCRIPTION
-.PARAMETER computername
+	Disassociates all attributes from a geocache. Does not delete the attributes themselves
+.PARAMETER CacheId
+	GC ID of the cache to drop attributes from.
 .EXAMPLE
+	Drop-Attributes -CacheId GC1234
 #>
 [cmdletbinding()]
 param(
-	[Parameter(Position=0,Mandatory=$true)]
-	[string]$CacheId
+	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true,ParameterSetName="SingleCache")]
+	[string[]]$CacheId
 )
 	begin {
 		$DropCacheAttributesCmd = $SQLConnection.CreateCommand();
@@ -758,9 +815,15 @@ param(
 function Register-AttributeToCache {
 <#
 .SYNOPSIS
+	Connects an attribute to a geocache
 .DESCRIPTION
-.PARAMETER computername
+	Associates an attribute with a geocache including an indicator that the attribute is included or excluded.
+.PARAMETER Attribute
+	A custom PSObject containing the properties of the attribute to create.
 .EXAMPLE
+	Register-AttributeToCache -Attribute $CacheAttr
+.EXAMPLE
+	$AllCacheAttributes | Register-AttributeToCache
 #>
 [cmdletbinding()]
 param(
