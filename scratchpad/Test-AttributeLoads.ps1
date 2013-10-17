@@ -81,13 +81,14 @@ Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $Database -Query "delete fr
 # Old Way
 $OldMethodTime = Measure-Command{
 $Geocaches = $cachedata.gpx.wpt | where-object{$_.type.split(" | ")[0] -eq "Geocache"};
-
+$AttrCount = 0;
  $Geocaches | ForEach-Object {
 	$GCNum = $_.name;
 	if ($_.cache.attributes.attribute.Count -gt 0) {
 		$AllAttributes = New-Object -TypeName System.Collections.Generic.List[PSObject];
 		$_.cache.attributes.attribute | ForEach-Object {
-			$CacheAttribute = New-Object -TypeName PSObject -Property @{
+			$AttrCount++;
+            $CacheAttribute = New-Object -TypeName PSObject -Property @{
 				AttrId = $_.id
 				AttrName = $_."#text"
 				ParentCache = $GCNum
@@ -105,6 +106,7 @@ Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $Database -Query "delete fr
 $NewMethodTime = Measure-Command{
 $Geocaches = $cachedata.gpx.wpt | where-object{$_.type.split(" | ")[0] -eq "Geocache"};
 $AllAttribsColl = New-Object -TypeName System.Collections.Generic.List[PSObject];
+
  $Geocaches | ForEach-Object {
 	$GCNum = $_.name;
 	if ($_.cache.attributes.attribute.Count -gt 0) {
@@ -119,12 +121,18 @@ $AllAttribsColl = New-Object -TypeName System.Collections.Generic.List[PSObject]
 		};
 	}
 }
-$AllAttribsColl|Sort-Object -Unique | New-Attribute;
+$AllAttribsColl | Sort-Object attrid,attrname -Unique | New-Attribute
+}
+
+
+$NewMethod2Time = Measure-Command{
+	$cachedata.gpx.wpt.cache.attributes.attribute|Select-Object -Property id,"#text"|Sort-Object -property id,"#text" -unique| New-Attribute
 }
 
 "Old: " + $OldMethodTime.TotalSeconds;
 "New: " + $NewMethodTime.TotalSeconds;
+"New2: " + $NewMethod2Time.TotalSeconds;
 
-"Total Attributes: " + $($AllAttributes|sort -unique).Count;
-"Unique Attributes:" + $AllAttribsColl.Count;
+"Total Attributes: " + $AttrCount;
+"Unique Attributes:" + $($AllAttribsColl|Sort-Object attrid,attrname -Unique).Count;
 $SQLConnection.Close();
