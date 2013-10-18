@@ -77,9 +77,10 @@ param(
 [system.Xml.XmlNamespaceManager]$namespaces = New-Object -TypeName system.Xml.XmlNamespaceManager $cachedata.NameTable;
 $namespaces.AddNamespace("groundspeak", $cachedata.DocumentElement.NamespaceURI);
 Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $Database -Query "delete from attributes;";
-
+[System.GC]::Collect();
 # Old Way
 $OldMethodTime = Measure-Command{
+$MemBeforeOld = (get-process -pid $pid|select -expandproperty vm)/1MB;
 $Geocaches = $cachedata.gpx.wpt | where-object{$_.type.split(" | ")[0] -eq "Geocache"};
 $AttrCount = 0;
  $Geocaches | ForEach-Object {
@@ -99,11 +100,15 @@ $AttrCount = 0;
 		$AllAttributes | New-Attribute;
 	}
 }
+$MemAfterOld = (get-process -pid $pid|select -expandproperty vm)/1MB;
 }
-Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $Database -Query "delete from attributes;";
 
+Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $Database -Query "delete from attributes;";
+[System.GC]::Collect();
+Write-Verbose "First pass complete";
 # New Way
 $NewMethodTime = Measure-Command{
+$MemBeforeNew = (get-process -pid $pid|select -expandproperty vm)/1MB;
 $Geocaches = $cachedata.gpx.wpt | where-object{$_.type.split(" | ")[0] -eq "Geocache"};
 $AllAttribsColl = New-Object -TypeName System.Collections.Generic.List[PSObject];
 
@@ -122,12 +127,22 @@ $AllAttribsColl = New-Object -TypeName System.Collections.Generic.List[PSObject]
 	}
 }
 $AllAttribsColl | Sort-Object attrid,attrname -Unique | New-Attribute
+$MemAfterNew = (get-process -pid $pid|select -expandproperty vm)/1MB;
 }
+Write-Verbose "Second pass complete";
 
+#$NewMethod2Time = Measure-Command{
+#	$cachedata.gpx.wpt.cache.attributes.attribute|Select-Object -Property id,"#text"|Sort-Object -property id,"#text" -unique| New-Attribute
+#}
 
+#$gpx.gpx.wpt|?{$_.type.split(" | ")[0] -eq "Geocache"}|select -expandproperty cache|?{$_.attributes.attribute -ne $null}|select -expandproperty attributes|select -expandproperty attribute |select "#text",id|sort id,"#text" -Unique
+[System.GC]::Collect();
 $NewMethod2Time = Measure-Command{
-	$cachedata.gpx.wpt.cache.attributes.attribute|Select-Object -Property id,"#text"|Sort-Object -property id,"#text" -unique| New-Attribute
+$MemBeforeNew2 = (get-process -pid $pid|select -expandproperty vm)/1MB;
+	$Geocaches|Select-Object -expandproperty cache|where-object{$_.attributes.attribute -ne $null}|Select-Object -expandproperty attributes|Select-Object -expandproperty attribute |Select-Object @{Name="attrname";expression={$_."#text"}},@{Name="attrid";expression={$_.id}}|Sort-Object attrname,attrid -Unique | New-Attribute;
+$MemAfterNew2 = (get-process -pid $pid|select -expandproperty vm)/1MB;
 }
+
 
 "Old: " + $OldMethodTime.TotalSeconds;
 "New: " + $NewMethodTime.TotalSeconds;
@@ -135,4 +150,7 @@ $NewMethod2Time = Measure-Command{
 
 "Total Attributes: " + $AttrCount;
 "Unique Attributes:" + $($AllAttribsColl|Sort-Object attrid,attrname -Unique).Count;
+"Mem difference old: " + ($memAfterOld - $MemBeforeOld);
+"Mem difference new: " + ($memAfterNew - $MemBeforeNew);
+"Mem difference new2: " + ($memAfterNew2 - $MemBeforeNew2);
 $SQLConnection.Close();
