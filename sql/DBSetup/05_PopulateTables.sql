@@ -1522,7 +1522,7 @@ INSERT INTO CenterPoints (locationname, longitude, latitude)
 	VALUES ('Seattle', -122.33365, 47.612033);
 
 INSERT INTO log_types (logtypedesc)
-	VALUES ('Archived');
+	VALUES ('Archive');
 INSERT INTO log_types (logtypedesc)
 	VALUES ('Didn''t find it');
 INSERT INTO log_types (logtypedesc)
