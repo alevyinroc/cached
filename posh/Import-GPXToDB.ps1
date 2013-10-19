@@ -315,9 +315,9 @@ param (
 		$CacheLoadCmd.Parameters.Add("@SizeId", [System.Data.SqlDbType]::int) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@Diff", [System.Data.SqlDbType]::float) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@Terrain", [System.Data.SqlDbType]::float) | Out-Null;
-		$CacheLoadCmd.Parameters.Add("@ShortDesc", [System.Data.SqlDbType]::nVarChar, 5000) | Out-Null;
+		$CacheLoadCmd.Parameters.Add("@ShortDesc", [System.Data.SqlDbType]::VarChar, 2000) | Out-Null;
 		#See http://support.microsoft.com/kb/970519 for bug workaround
-		$CacheLoadCmd.Parameters["@ShortDesc"].Size = -1;
+		#$CacheLoadCmd.Parameters["@ShortDesc"].Size = -1;
 		$CacheLoadCmd.Parameters.Add("@LongDesc", [System.Data.SqlDbType]::ntext) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@Hint", [System.Data.SqlDbType]::nVarChar, 1000) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@Avail", [System.Data.SqlDbType]::bit) | Out-Null;
@@ -851,7 +851,7 @@ $PointTypeLookup = invoke-sqlcmd -server $SQLInstance -database $Database -query
 $CacheSizeLookup = invoke-sqlcmd -server $SQLInstance -database $Database -query "select sizeid, sizename from cache_sizes;";
 $CacheStatusLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select statusid, statusname from statuses;";
 
-[xml]$cachedata = get-content $FileToImport;
+[xml]$cachedata = get-content $FileToImport -Encoding UTF8;
 $GPXDate = get-date $cachedata.gpx.time;
 # For each $cachedata.gpx.wpt
 # Check for a cache child element
@@ -859,8 +859,14 @@ $GPXDate = get-date $cachedata.gpx.time;
 # Otherwise, it's a waypoint
 $CachesProcessed = 0;
 $Geocaches = $cachedata.gpx.wpt | where-object{$_.type.split(" | ")[0] -eq "Geocache"};
+# New method of loading attributes into database
 
- $Geocaches | ForEach-Object {
+$Geocaches | Select-Object -expandproperty cache | where-object{$_.attributes.attribute -ne $null} |
+	Select-Object -expandproperty attributes|Select-Object -expandproperty attribute |
+	Select-Object @{Name="attrname";expression={$_."#text"}},@{Name="attrid";expression={$_.id}} |
+	Sort-Object attrname,attrid -Unique | New-Attribute;
+
+$Geocaches | ForEach-Object {
 	$GCNum = $_.name;
 	Write-Progress -Activity "Loading Geocaches" -Status "Cache ID $GCNum" -Id 1 -PercentComplete $(($CachesProcessed/$Geocaches.Count)*100)
 	Update-Geocache $_; #Process as geocache
@@ -873,13 +879,10 @@ $Geocaches = $cachedata.gpx.wpt | where-object{$_.type.split(" | ")[0] -eq "Geoc
 			$CacheAttribute = New-Object -TypeName PSObject -Property @{
 				AttrId = $_.id
 				AttrInc = $_.inc
-				AttrName = $_."#text"
 				ParentCache = $GCNum
 			};
 			$AllAttributes.Add($CacheAttribute);
 		};
-		
-		$AllAttributes | New-Attribute;
 		Drop-Attributes -CacheID $GCNum;
 		$AllAttributes | Register-AttributeToCache;
 	}
