@@ -315,11 +315,11 @@ param (
 		$CacheLoadCmd.Parameters.Add("@SizeId", [System.Data.SqlDbType]::int) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@Diff", [System.Data.SqlDbType]::float) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@Terrain", [System.Data.SqlDbType]::float) | Out-Null;
-		$CacheLoadCmd.Parameters.Add("@ShortDesc", [System.Data.SqlDbType]::VarChar, 2000) | Out-Null;
+		$CacheLoadCmd.Parameters.Add("@ShortDesc", [System.Data.SqlDbType]::VarChar, 2048) | Out-Null;
 		#See http://support.microsoft.com/kb/970519 for bug workaround
 		#$CacheLoadCmd.Parameters["@ShortDesc"].Size = -1;
 		$CacheLoadCmd.Parameters.Add("@LongDesc", [System.Data.SqlDbType]::ntext) | Out-Null;
-		$CacheLoadCmd.Parameters.Add("@Hint", [System.Data.SqlDbType]::nVarChar, 1000) | Out-Null;
+		$CacheLoadCmd.Parameters.Add("@Hint", [System.Data.SqlDbType]::nVarChar, 1024) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@Avail", [System.Data.SqlDbType]::bit) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@Archived", [System.Data.SqlDbType]::bit) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@PremOnly", [System.Data.SqlDbType]::bit) | Out-Null;
