@@ -126,7 +126,7 @@ $AllAttribsColl = New-Object -TypeName System.Collections.Generic.List[PSObject]
 		};
 	}
 }
-$AllAttribsColl | Sort-Object attrid,attrname -Unique | New-Attribute
+$AllAttribsColl | select-Object attrid,attrname -Unique | New-Attribute
 $MemAfterNew = (get-process -pid $pid|select -expandproperty vm)/1MB;
 }
 Write-Verbose "Second pass complete";
