@@ -300,10 +300,11 @@ param (
 )
 	begin {
 		$CacheLoadCmd = $SQLConnection.CreateCommand();
-		$CacheExistsCmd = $SQLConnection.CreateCommand();
-		$CacheExistsCmd.CommandText = "select count(1) from caches where cacheid = @CacheId;";
-		$CacheExistsCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::VarChar,8) | Out-Null;
-		$CacheExistsCmd.Prepare();
+		$CacheLastUpdatedCmd = $SQLConnection.CreateCommand();
+		$CacheLastUpdatedCmd.CommandText = "select LastUpdated from caches where cacheid = @CacheId;";
+		$CacheLastUpdatedCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::VarChar,8) | Out-Null;
+		$CacheLastUpdatedCmd.Prepare();
+
 		$CacheLoadCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@gsid", [System.Data.SqlDbType]::int) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@CacheName", [System.Data.SqlDbType]::nVarChar, 50) | Out-Null;
@@ -330,16 +331,21 @@ param (
 	process {
 	# TODO: Can't navigate XML element structure anymore, need to use ugliness like $CacheWaypoint | Select-Object -ExpandProperty cache | Select-Object -ExpandProperty name
 		$GCNum = $CacheWaypoint | Select-Object -ExpandProperty name;
-		$PlacedDate = get-date ($CacheWaypoint | Select-Object -ExpandProperty time);
 		
+		$CacheLastUpdatedCmd.Parameters["@CacheId"].Value = $GCNum;
+		$CacheLastUpdated = $CacheLastUpdatedCmd.ExecuteScalar();
+# If the cache already exists and was updated more recently than the GPX was generated, do nothing
+		if ($CacheLastUpdated -and ($CacheLastUpdated -ge $GPXTime)) {
+			return;
+		}
+		
+		$PlacedDate = get-date ($CacheWaypoint | Select-Object -ExpandProperty time);
 		$Latitude = $CacheWaypoint | Select-Object -ExpandProperty lat;
 		$Longitude = $CacheWaypoint | Select-Object -ExpandProperty lon;
-		$CacheExistsCmd.Parameters["@CacheId"].Value = $GCNum;
-		$CacheExists = $CacheExistsCmd.ExecuteScalar();
 		$CacheWaypoint = $CacheWaypoint | Select-Object -ExpandProperty cache;
+		
 		# Load/Update cache table
-# TODO: Use GPX time for Last Updated. $cachedata.gpx.time
-		if (!$CacheExists){
+		if (!$CacheLastUpdated){
 			$CacheLoadCmd.CommandText = @"
 		INSERT INTO [dbo].[caches]
 				 ([cacheid]
@@ -368,7 +374,7 @@ param (
 				 ,@CacheName
 				 ,@Lat
 				 ,@Long
-				 ,getdate()
+				 ,@CacheUpdated
 				 ,@Placed
 				 ,@PlacedBy
 				 ,@TypeId
@@ -425,7 +431,9 @@ param (
 		$CacheLoadCmd.Parameters["@Hint"].Value = $CacheWaypoint | Select-Object -ExpandProperty encoded_hints;
 		$CacheLoadCmd.Parameters["@Avail"].Value = Get-DBTypeFromTrueFalse ($CacheWaypoint | Select-Object -ExpandProperty available);
 		$CacheLoadCmd.Parameters["@Archived"].Value = Get-DBTypeFromTrueFalse ($CacheWaypoint | Select-Object -ExpandProperty archived);
+
 		$CacheLoadCmd.Parameters["@CacheUpdated"].Value = $GPXDate;
+
 		if (($CacheWaypoint | Select-Object -ExpandProperty archived) -eq "true") {
 			$UnifiedStatus = $CacheStatusLookup | Where-Object{$_.statusname -eq "archived"} | Select-Object -ExpandProperty statusid;
 		} else{
@@ -445,7 +453,7 @@ param (
 	}
 	end {
 		$CacheLoadCmd.Dispose();
-		$CacheExistsCmd.Dispose();
+		$CacheLastUpdatedCmd.Dispose();
 	}
 }
 function Update-Log {
@@ -585,12 +593,12 @@ param (
 	[PSObject[]]$Waypoint
 )
 	begin {
-		$WptExistsCmd = $SQLConnection.CreateCommand();
-		$WptExistsCmd.CommandText = "select count(1) from waypoints where waypointid = @wptid and parentcache = @cacheid;";
-		$WptExistsCmd.Parameters.Add("@wptid", [System.Data.SqlDbType]::VarChar,10) | Out-Null;
-		$WptExistsCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar,8) | Out-Null;
+		$WptLastUpdatedCmd = $SQLConnection.CreateCommand();
+		$WptLastUpdatedCmd.CommandText = "select LastUpdated from waypoints where waypointid = @wptid and parentcache = @cacheid;";
+		$WptLastUpdatedCmd.Parameters.Add("@wptid", [System.Data.SqlDbType]::VarChar,10) | Out-Null;
+		$WptLastUpdatedCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar,8) | Out-Null;
 		$WptUpsertCmd = $SQLConnection.CreateCommand();
-		$WptExistsCmd.Prepare();
+		$WptLastUpdatedCmd.Prepare();
 		$WptUpsertCmd.Parameters.Add("@wptid", [System.Data.SqlDbType]::VarChar,10) | Out-Null;
 		$WptUpsertCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar,8) | Out-Null;
 		$WptUpsertCmd.Parameters.Add("@lat",[System.Data.SqlDbType]::Float) | Out-Null;
@@ -600,9 +608,22 @@ param (
 		$WptUpsertCmd.Parameters.Add("@url",[System.Data.SqlDbType]::VarChar,2038) | Out-Null;
 		$WptUpsertCmd.Parameters.Add("@urldesc",[System.Data.SqlDbType]::nVarChar, 200) | Out-Null;
 		$WptUpsertCmd.Parameters.Add("@pointtype", [System.Data.SqlDbType]::int) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@LastUpdated", [System.Data.SqlDbType]::DateTime) | Out-Null;
 	}
 	process {
 		$Id = $Waypoint | Select-Object -ExpandProperty Id;
+
+	# Get parent cache id. Same as waypoint ID but first 2 chars are GC
+		$ParentCache = "GC" + $Id.Substring(2,$Id.Length - 2);
+		$ParentCache = Find-ParentCacheId -CacheId $ParentCache;
+		
+		$WptLastUpdatedCmd.Parameters["@wptid"].Value = $Id;
+		$WptLastUpdatedCmd.Parameters["@cacheid"].Value = $ParentCache;
+		$WaypointExists = $WptLastUpdatedCmd.ExecuteScalar();
+		if ($WaypointExists -and ($WaypointExists -ge $GPXDate) {
+			return;
+		}
+
 		$Latitude = [float]($Waypoint | Select-Object -ExpandProperty Lat);
 		$Longitude = [float]($Waypoint | Select-Object -ExpandProperty Long);
 		$WptDate = get-date ($Waypoint | Select-Object -ExpandProperty DateTime);
@@ -615,13 +636,6 @@ param (
 		$PointTypeId = Get-PointTypeId -PointTypeName $PointType;
 		
 # Check for point type. If it doesn't exist, create it
-# Get parent cache id. Same as waypoint ID but first 2 chars are GC
-		$ParentCache = "GC" + $Id.Substring(2,$Id.Length - 2);
-		$ParentCache = Find-ParentCacheId -CacheId $ParentCache;
-		
-		$WptExistsCmd.Parameters["@wptid"].Value = $Id;
-		$WptExistsCmd.Parameters["@cacheid"].Value = $ParentCache;
-		$WaypointExists = $WptExistsCmd.ExecuteScalar();
 		if ($WaypointExists) {
 			$WptUpsertCmd.CommandText = @"
 update waypoints set
@@ -631,15 +645,16 @@ update waypoints set
 	description = @desc,
 	url = @url,
 	urldesc = @urldesc,
-	typeid = @pointtype
+	typeid = @pointtype,
+	LastUpdated = @LastUpdated
 where
 	waypointid = @wptid
 	and parentcache = @cacheid;
 "@;
 		} else {
 			$WptUpsertCmd.CommandText = @"
-insert into waypoints (waypointid,parentcache,latitude,longitude,name,description,url,urldesc,typeid) values (
-@wptid, @cacheid,@lat,@long,@name,@desc,@url,@urldesc,@pointtype);
+insert into waypoints (waypointid,parentcache,latitude,longitude,name,description,url,urldesc,typeid,LastUpdated) values (
+@wptid, @cacheid,@lat,@long,@name,@desc,@url,@urldesc,@pointtype,@LastUpdated);
 "@;
 		}
 		$WptUpsertCmd.Parameters["@wptid"].Value = $Id;
@@ -655,7 +670,7 @@ insert into waypoints (waypointid,parentcache,latitude,longitude,name,descriptio
 		$WaypointsProcessed++;
 	}
 	end {
-		$WptExistsCmd.Dispose();
+		$WptLastUpdatedCmd.Dispose();
 		$WptUpsertCmd.Dispose();
 		
 	}
