@@ -878,8 +878,7 @@ $Geocaches = $cachedata.gpx.wpt | where-object{$_.type.split(" | ")[0] -eq "Geoc
 
 $Geocaches | Select-Object -expandproperty cache | where-object{$_.attributes.attribute -ne $null} |
 	Select-Object -expandproperty attributes|Select-Object -expandproperty attribute |
-	Select-Object @{Name="attrname";expression={$_."#text"}},@{Name="attrid";expression={$_.id}} |
-	Sort-Object attrname,attrid -Unique | New-Attribute;
+	Select-Object @{Name="attrname";expression={$_."#text"}},@{Name="attrid";expression={$_.id}} -Unique | New-Attribute;
 
 $Geocaches | ForEach-Object {
 	$GCNum = $_.name;
