@@ -109,6 +109,7 @@
     <Folder Include="dbo\Functions\" />
     <Folder Include="dbo\Sequences\" />
     <Folder Include="dbo\Stored Procedures" />
+    <Folder Include="dbo\Views" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="dbo\Tables\point_types.sql">
