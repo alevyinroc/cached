@@ -34,9 +34,12 @@ Clear-Host;
 $Error.Clear();
 Push-Location;
 if ((Get-Module | Where-Object{$_.name -eq "SQLPS"} | Measure-Object).Count -lt 1){
-	Import-Module SQLPS;
+	Import-Module SQLPS -DisableNameChecking;
 }
 Pop-Location;
+if ((Get-Module | Where-Object{$_.name -eq "Geocaching"} | Measure-Object).Count -lt 1){
+	Import-Module C:\Users\andy\Documents\Code\cachedb\posh\Modules\Geocaching;
+}
 
 #region Globals
 $SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
@@ -326,6 +329,8 @@ param (
 		$CacheLoadCmd.Parameters.Add("@PremOnly", [System.Data.SqlDbType]::bit) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@CacheStatus",[System.Data.SqlDbType]::Int) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@CacheUpdated", [System.Data.SqlDbType]::DateTime) | Out-Null;
+		$CacheLoadCmd.Parameters.Add("@CountryId", [System.Data.SqlDbType]::Int) | Out-Null;
+		$CacheLoadCmd.Parameters.Add("@StateId", [System.Data.SqlDbType]::Int) | Out-Null;
 		#$CacheLoadCmd.Prepare();
 	}
 	process {
@@ -367,7 +372,9 @@ param (
 				 ,[archived]
 				 ,[premiumonly]
 				 ,[cachestatus]
-				 ,[created])
+				 ,[created]
+				 ,[StateId]
+				 ,[CountryId])
 			 VALUES
 				 (@CacheId
 				 ,@GSID
@@ -389,6 +396,8 @@ param (
 				 ,@PremOnly
 				 ,@CacheStatus
 				 ,getdate()
+				 ,@StateId
+				 ,@CountryId
 				 );
 "@;
 		} else {
@@ -412,6 +421,8 @@ param (
 			 ,[archived] = @Archived
 			 ,[premiumonly] = @PremOnly
 			 ,[cachestatus] = @CacheStatus
+			 ,[StateId] = @StateId
+			 ,[CountryId] = @CountryId
 		 WHERE CacheId = @CacheId;
 "@;
 		}
@@ -424,6 +435,24 @@ param (
 		$CacheLoadCmd.Parameters["@PlacedBy"].Value = $CacheWaypoint | Select-Object -ExpandProperty placed_by;
 		$CacheLoadCmd.Parameters["@TypeId"].Value = $PointTypeLookup | where-object{$_.typename -eq ($CacheWaypoint | Select-Object -ExpandProperty type)} | Select-Object -ExpandProperty typeid;
 		$CacheLoadCmd.Parameters["@SizeId"].Value = $CacheSizeLookup | where-object{$_.sizename -eq ($CacheWaypoint | Select-Object -ExpandProperty container)} | Select-Object -ExpandProperty sizeid;
+		
+		
+		$StateName = $CacheWaypoint | Select-Object -ExpandProperty state;
+		$StateId = $StateLookup | where-object{$_.Name -eq $StateName} | Select-Object -ExpandProperty StateId;
+		if ($StateId -eq $null) {
+			$StateId = New-StateCountryId -Name $StateName -SQLInstance $SQLInstance -Database $Database -Type State;
+			$StateLookup = Get-StateLookups;
+		}
+		$CountryName = $CacheWaypoint | Select-Object -ExpandProperty country;
+		$CountryId = $CountryLookup | where-object{$_.Name -eq $CountryName} | Select-Object -ExpandProperty CountryId;
+		if ($CountryId -eq $null) {
+			$CountryId = New-StateCountryId -Name $CountryName -SQLInstance $SQLInstance -Database $Database -Type Country;
+			$CountryLookup = Get-CountryLookups;
+		}
+		
+		$CacheLoadCmd.Parameters["@StateId"].Value = $StateId;
+		$CacheLoadCmd.Parameters["@CountryId"].Value = $CountryId;
+		
 		$CacheLoadCmd.Parameters["@Diff"].Value = $CacheWaypoint | Select-Object -ExpandProperty difficulty;
 		$CacheLoadCmd.Parameters["@Terrain"].Value = $CacheWaypoint | Select-Object -ExpandProperty terrain;
 		$CacheLoadCmd.Parameters["@ShortDesc"].Value = $CacheWaypoint | Select-Object -ExpandProperty short_description | Select-Object -ExpandProperty innertext;
@@ -620,7 +649,7 @@ param (
 		$WptLastUpdatedCmd.Parameters["@wptid"].Value = $Id;
 		$WptLastUpdatedCmd.Parameters["@cacheid"].Value = $ParentCache;
 		$WaypointExists = $WptLastUpdatedCmd.ExecuteScalar();
-		if ($WaypointExists -and ($WaypointExists -ge $GPXDate) {
+		if ($WaypointExists -and ($WaypointExists -ge $GPXDate)) {
 			return;
 		}
 
@@ -862,9 +891,11 @@ param(
 #endregion
 
 # Get Type & Size lookup tables
-$PointTypeLookup = invoke-sqlcmd -server $SQLInstance -database $Database -query "select typeid, typename from point_types;";
-$CacheSizeLookup = invoke-sqlcmd -server $SQLInstance -database $Database -query "select sizeid, sizename from cache_sizes;";
+$PointTypeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select typeid, typename from point_types;";
+$CacheSizeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select sizeid, sizename from cache_sizes;";
 $CacheStatusLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select statusid, statusname from statuses;";
+$StateLookup = Get-StateLookups;
+$CountryLookup = Get-CountryLookups;
 
 [xml]$cachedata = get-content $FileToImport -Encoding UTF8;
 $GPXDate = get-date $cachedata.gpx.time;
@@ -951,4 +982,5 @@ $cachedata.gpx.wpt | Where-Object{$_.type.split(" | ")[0] -ne "Geocache"} | ForE
 $ChildWaypoints | Update-Waypoint;
 
 $SQLConnection.Close();
+Remove-Module Geocaching;
 Remove-Module SQLPS;

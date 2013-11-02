@@ -76,4 +76,68 @@ param(
 	}
 }
 
-Export-ModuleMember Set-CorrectedCoordinates
+function New-StateCountryId {
+<#
+.SYNOPSIS
+	Adds a new state or country to the database
+.DESCRIPTION
+	Adds a new state or country to the database and returns its ID.
+.PARAMETER Name
+	Name of the new state or country to add
+.PARAMETER Type
+	Type of location to add
+.PARAMETER SQLInstance
+	SQL Server instance to hosting the database
+.PARAMETER Database
+	Database on the SQLInstance hosting the geocache database
+.EXAMPLE
+#>
+[cmdletbinding(SupportsShouldProcess=$False)]
+param(
+	[Parameter(Mandatory=$true)]
+	[string]$Name,
+	[Parameter(Mandatory=$true)]
+	[ValidateSet("State","Country")]
+	[string]$Type,
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance = 'Hobbes\sqlexpress',
+	[Parameter(Mandatory=$true)]
+	[string]$Database = 'Geocaches'
+)
+
+	$SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
+	$SQLConnection = new-object System.Data.SqlClient.SqlConnection;
+	$SQLConnection.ConnectionString = $SQLConnectionString;
+	$SQLConnection.Open();
+	$NewStateCountryCmd = $SQLConnection.CreateCommand();
+	$NewStateCountryCmd.Parameters.Add("@Name", [System.Data.SqlDbType]::NChar, 50) | Out-Null;
+	$GetIdCmd = $SQLConnection.CreateCommand();
+	$GetIdCmd.Parameters.Add("@Name", [System.Data.SqlDbType]::NChar, 50) | Out-Null;
+	switch ($Type) {
+		"State" {$NewStateCountryCmd.CommandText = "insert into States (Name) values (@Name);";$GetIdCmd.CommandText = "select StateId from States where Name = @Name;"}
+		"Country"{$NewStateCountryCmd.CommandText = "insert into Countries (Name) values (@Name);";$GetIdCmd.CommandText = "select CountryId from Countries where Name = @Name;"}
+	}
+	$NewStateCountryCmd.Prepare();
+	$GetIdCmd.Prepare();
+	$NewStateCountryCmd.Parameters["@Name"].Value = $Name;
+	$GetIdCmd.Parameters["@Name"].Value = $Name;
+	$NewStateCountryCmd.ExecuteNonQuery() | Out-Null;
+	$NewId = $GetIdCmd.ExecuteScalar();
+	$NewStateCountryCmd.Dispose();
+	$GetIdCmd.Dispose();
+	$SQLConnection.Close();
+	$SQLConnection.Dispose();
+	$NewId;
+}
+
+function Get-StateLookups {
+	$StateLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select StateId, Name from states order by StateId Desc;";
+	$StateLookup;
+}
+function Get-CountryLookups {
+	$CountryLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select CountryId, Name from Countries order by CountryId Desc;";
+	$CountryLookup;
+}
+
+Export-ModuleMember Set-CorrectedCoordinates,New-StateCountryId,Get-StateLookups,Get-CountryLookups
