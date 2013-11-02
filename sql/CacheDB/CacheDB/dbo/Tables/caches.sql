@@ -25,9 +25,13 @@
     [CorrectedLatitude] FLOAT NULL, 
     [CorrectedLongitude] FLOAT NULL, 
     [CorrectedLatLong] as ([geography]::Point([latitude],[longitude],(4326))) PERSISTED,
+    [CountryId] INT NULL, 
+    [StateId] INT NULL, 
     CONSTRAINT [pk_caches] PRIMARY KEY CLUSTERED ([cacheid] ASC),
     CONSTRAINT [fk_cache_size] FOREIGN KEY ([sizeid]) REFERENCES [dbo].[cache_sizes] ([sizeid]),
     CONSTRAINT [fk_cache_status] FOREIGN KEY ([cachestatus]) REFERENCES [dbo].[statuses] ([statusid]),
-    CONSTRAINT [fk_cache_type] FOREIGN KEY ([typeid]) REFERENCES [dbo].[point_types] ([typeid])
+    CONSTRAINT [fk_cache_type] FOREIGN KEY ([typeid]) REFERENCES [dbo].[point_types] ([typeid]), 
+    CONSTRAINT [FK_caches_Country] FOREIGN KEY ([CountryId]) REFERENCES [Countries]([CountryId]),
+	CONSTRAINT [FK_caches_State] FOREIGN KEY ([StateId]) REFERENCES [States]([StateId])
 );
 

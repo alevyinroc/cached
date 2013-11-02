@@ -189,5 +189,10 @@
     <Build Include="dbo\Sequences\pointtypeid.sql" />
     <Build Include="dbo\Stored Procedures\CachesNearCache.sql" />
     <Build Include="dbo\Stored Procedures\CacheDensity.sql" />
+    <Build Include="dbo\Sequences\StateId.sql" />
+    <Build Include="dbo\Sequences\CountryId.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <RefactorLog Include="CacheDB.refactorlog" />
   </ItemGroup>
 </Project>
