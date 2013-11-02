@@ -1,3 +1,4 @@
 syntax: glob
 sql/CacheDB/CacheDB/bin/*
 sql/CacheDB/CacheDB/obj/*
+*.suo
