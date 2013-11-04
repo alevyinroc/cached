@@ -340,7 +340,7 @@ param (
 		$CacheLastUpdatedCmd.Parameters["@CacheId"].Value = $GCNum;
 		$CacheLastUpdated = $CacheLastUpdatedCmd.ExecuteScalar();
 # If the cache already exists and was updated more recently than the GPX was generated, do nothing
-		if ($CacheLastUpdated -and ($CacheLastUpdated -ge $GPXTime)) {
+		if ($CacheLastUpdated -and ($CacheLastUpdated -ge $script:GPXDate)) {
 			return;
 		}
 		
@@ -433,21 +433,22 @@ param (
 		$CacheLoadCmd.Parameters["@Long"].Value = $Longitude;
 		$CacheLoadCmd.Parameters["@Placed"].Value = $PlacedDate;
 		$CacheLoadCmd.Parameters["@PlacedBy"].Value = $CacheWaypoint | Select-Object -ExpandProperty placed_by;
-		$CacheLoadCmd.Parameters["@TypeId"].Value = $PointTypeLookup | where-object{$_.typename -eq ($CacheWaypoint | Select-Object -ExpandProperty type)} | Select-Object -ExpandProperty typeid;
-		$CacheLoadCmd.Parameters["@SizeId"].Value = $CacheSizeLookup | where-object{$_.sizename -eq ($CacheWaypoint | Select-Object -ExpandProperty container)} | Select-Object -ExpandProperty sizeid;
+		$CacheLoadCmd.Parameters["@TypeId"].Value = $script:PointTypeLookup | where-object{$_.typename -eq ($CacheWaypoint | Select-Object -ExpandProperty type)} | Select-Object -ExpandProperty typeid;
+		$CacheLoadCmd.Parameters["@SizeId"].Value = $script:CacheSizeLookup | where-object{$_.sizename -eq ($CacheWaypoint | Select-Object -ExpandProperty container)} | Select-Object -ExpandProperty sizeid;
 		
 		
 		$StateName = $CacheWaypoint | Select-Object -ExpandProperty state;
-		$StateId = $StateLookup | where-object{$_.Name -eq $StateName} | Select-Object -ExpandProperty StateId;
+		$StateId = $script:StateLookup | where-object{$_.Name -eq $StateName} | Select-Object -ExpandProperty StateId;
+		$CountryName = $CacheWaypoint | Select-Object -ExpandProperty country;
+		$CountryId = $script:CountryLookup | where-object{$_.Name -eq $CountryName} | Select-Object -ExpandProperty CountryId;
+		
 		if ($StateId -eq $null) {
 			$StateId = New-StateCountryId -Name $StateName -SQLInstance $SQLInstance -Database $Database -Type State;
-			$StateLookup = Get-StateLookups;
+			$script:StateLookup = Get-StateLookups;
 		}
-		$CountryName = $CacheWaypoint | Select-Object -ExpandProperty country;
-		$CountryId = $CountryLookup | where-object{$_.Name -eq $CountryName} | Select-Object -ExpandProperty CountryId;
 		if ($CountryId -eq $null) {
 			$CountryId = New-StateCountryId -Name $CountryName -SQLInstance $SQLInstance -Database $Database -Type Country;
-			$CountryLookup = Get-CountryLookups;
+			$script:CountryLookup = Get-CountryLookups;
 		}
 		
 		$CacheLoadCmd.Parameters["@StateId"].Value = $StateId;
@@ -464,12 +465,12 @@ param (
 		$CacheLoadCmd.Parameters["@CacheUpdated"].Value = $GPXDate;
 
 		if (($CacheWaypoint | Select-Object -ExpandProperty archived) -eq "true") {
-			$UnifiedStatus = $CacheStatusLookup | Where-Object{$_.statusname -eq "archived"} | Select-Object -ExpandProperty statusid;
+			$UnifiedStatus = $script:CacheStatusLookup | Where-Object{$_.statusname -eq "archived"} | Select-Object -ExpandProperty statusid;
 		} else{
 			if (($CacheWaypoint | Select-Object -ExpandProperty available) -eq "true") {
-				$UnifiedStatus = $CacheStatusLookup | Where-Object{$_.statusname -eq "available"} | Select-Object -ExpandProperty statusid;
+				$UnifiedStatus = $script:CacheStatusLookup | Where-Object{$_.statusname -eq "available"} | Select-Object -ExpandProperty statusid;
 			} else {
-				$UnifiedStatus = $CacheStatusLookup | Where-Object{$_.statusname -eq "disabled"} | Select-Object -ExpandProperty statusid;
+				$UnifiedStatus = $script:CacheStatusLookup | Where-Object{$_.statusname -eq "disabled"} | Select-Object -ExpandProperty statusid;
 			}
 		}
 		$CacheLoadCmd.Parameters["@CacheStatus"].Value = $UnifiedStatus;
@@ -649,7 +650,7 @@ param (
 		$WptLastUpdatedCmd.Parameters["@wptid"].Value = $Id;
 		$WptLastUpdatedCmd.Parameters["@cacheid"].Value = $ParentCache;
 		$WaypointExists = $WptLastUpdatedCmd.ExecuteScalar();
-		if ($WaypointExists -and ($WaypointExists -ge $GPXDate)) {
+		if (($WaypointExists -ne $null) -and ($WaypointExists -ge $GPXDate)) {
 			return;
 		}
 
@@ -695,6 +696,7 @@ insert into waypoints (waypointid,parentcache,latitude,longitude,name,descriptio
 		$WptUpsertCmd.Parameters["@url"].Value = $Url;
 		$WptUpsertCmd.Parameters["@urldesc"].Value = $UrlDesc;
 		$WptUpsertCmd.Parameters["@pointtype"].Value = $PointTypeId;
+		$WptUpsertCmd.Parameters["@LastUpdated"].Value = $GPXDate;
 		$WptUpsertCmd.ExecuteNonQuery() | Out-Null;
 		$WaypointsProcessed++;
 	}
@@ -752,28 +754,28 @@ param(
 	[string]$PointTypeName
 )
 	begin{
-		$PointTypeLookupCmd = $SQLConnection.CreateCommand();
+		$script:PointTypeLookupCmd = $SQLConnection.CreateCommand();
 		$PointTypeInsertCmd = $SQLConnection.CreateCommand();
-		$PointTypeLookupCmd.Parameters.Add("@typename",[System.Data.SqlDbType]::VarChar, 30) | Out-Null;
+		$script:PointTypeLookupCmd.Parameters.Add("@typename",[System.Data.SqlDbType]::VarChar, 30) | Out-Null;
 		$PointTypeInsertCmd.Parameters.Add("@typename",[System.Data.SqlDbType]::VarChar, 30) | Out-Null;
-		$PointTypeLookupCmd.CommandText = "select typeid from point_types where typename = @typename";
+		$script:PointTypeLookupCmd.CommandText = "select typeid from point_types where typename = @typename";
 		$PointTypeInsertCmd.CommandText = "insert into point_types (typename) values (@typename);";
-		$PointTypeLookupCmd.Prepare();
+		$script:PointTypeLookupCmd.Prepare();
 		$PointTypeInsertCmd.Prepare();
 	}
 	process{
-		$PointTypeLookupCmd.Parameters["@typename"].Value = $PointTypeName;
-		$PointTypeId = $PointTypeLookupCmd.ExecuteScalar();
+		$script:PointTypeLookupCmd.Parameters["@typename"].Value = $PointTypeName;
+		$PointTypeId = $script:PointTypeLookupCmd.ExecuteScalar();
 		if (-not ($PointTypeId -ge 1)) {
 			$PointTypeInsertCmd.Parameters["@typename"].Value = $PointTypeName;
 			$PointTypeInsertCmd.ExecuteNonQuery() | Out-Null;
-			$PointTypeId = $PointTypeLookupCmd.ExecuteScalar();
+			$PointTypeId = $script:PointTypeLookupCmd.ExecuteScalar();
 		}
 		[int]$PointTypeId;
 	}
 	end{
 		$PointTypeInsertCmd.Dispose();
-		$PointTypeLookupCmd.Dispose();
+		$script:PointTypeLookupCmd.Dispose();
 	}
 }
 function New-Attribute {
@@ -891,14 +893,14 @@ param(
 #endregion
 
 # Get Type & Size lookup tables
-$PointTypeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select typeid, typename from point_types;";
-$CacheSizeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select sizeid, sizename from cache_sizes;";
-$CacheStatusLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select statusid, statusname from statuses;";
-$StateLookup = Get-StateLookups;
-$CountryLookup = Get-CountryLookups;
+$script:PointTypeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select typeid, typename from point_types;";
+$script:CacheSizeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select sizeid, sizename from cache_sizes;";
+$script:CacheStatusLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select statusid, statusname from statuses;";
+$script:StateLookup = Get-StateLookups -SQLInstance $SQLInstance -Database $Database;
+$script:CountryLookup = Get-CountryLookups -SQLInstance $SQLInstance -Database $Database;
 
 [xml]$cachedata = get-content $FileToImport -Encoding UTF8;
-$GPXDate = get-date $cachedata.gpx.time;
+$script:GPXDate = get-date $cachedata.gpx.time;
 # For each $cachedata.gpx.wpt
 # Check for a cache child element
 # If one exists, it's a cache
@@ -913,6 +915,7 @@ $Geocaches | Select-Object -expandproperty cache | where-object{$_.attributes.at
 
 $Geocaches | ForEach-Object {
 	$GCNum = $_.name;
+	$GCNum;
 	Write-Progress -Activity "Loading Geocaches" -Status "Cache ID $GCNum" -Id 1 -PercentComplete $(($CachesProcessed/$Geocaches.Count)*100)
 	Update-Geocache $_; #Process as geocache
 # Load cacher table if no record for current cache's owner, or update name

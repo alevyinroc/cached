@@ -132,12 +132,31 @@ param(
 }
 
 function Get-StateLookups {
-	$StateLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select StateId, Name from states order by StateId Desc;";
+[cmdletbinding(SupportsShouldProcess=$False)]
+param (
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance = 'Hobbes\sqlexpress',
+	[Parameter(Mandatory=$true)]
+	[string]$Database = 'Geocaches'
+)
+	$StateLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select StateId, rtrim(ltrim(Name)) as Name from states order by StateId Desc;";
 	$StateLookup;
 }
 function Get-CountryLookups {
-	$CountryLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select CountryId, Name from Countries order by CountryId Desc;";
+[cmdletbinding(SupportsShouldProcess=$False)]
+param (
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance = 'Hobbes\sqlexpress',
+	[Parameter(Mandatory=$true)]
+	[string]$Database = 'Geocaches'
+)
+	$CountryLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select CountryId, rtrim(ltrim(Name)) as Name from Countries order by CountryId Desc;";
 	$CountryLookup;
 }
 
-Export-ModuleMember Set-CorrectedCoordinates,New-StateCountryId,Get-StateLookups,Get-CountryLookups
+Export-ModuleMember Set-CorrectedCoordinates
+Export-ModuleMember New-StateCountryId
+Export-ModuleMember Get-StateLookups
+Export-ModuleMember Get-CountryLookups
