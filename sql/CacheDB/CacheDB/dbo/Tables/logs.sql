@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[logs] (
     [logid]     BIGINT          NOT NULL,
-    [logdate]   DATETIME        NOT NULL,
+    [logdate]   DATETIMEOFFSET        NOT NULL,
     [logtypeid] INT             NOT NULL,
     [cacherid]  INT             NOT NULL,
     [logtext]   NVARCHAR (4000) NULL,

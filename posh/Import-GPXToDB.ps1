@@ -328,7 +328,7 @@ param (
 		$CacheLoadCmd.Parameters.Add("@Archived", [System.Data.SqlDbType]::bit) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@PremOnly", [System.Data.SqlDbType]::bit) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@CacheStatus",[System.Data.SqlDbType]::Int) | Out-Null;
-		$CacheLoadCmd.Parameters.Add("@CacheUpdated", [System.Data.SqlDbType]::DateTime) | Out-Null;
+		$CacheLoadCmd.Parameters.Add("@CacheUpdated", [System.Data.SqlDbType]::DateTimeOffset) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@CountryId", [System.Data.SqlDbType]::Int) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@StateId", [System.Data.SqlDbType]::Int) | Out-Null;
 		#$CacheLoadCmd.Prepare();
@@ -462,7 +462,7 @@ param (
 		$CacheLoadCmd.Parameters["@Avail"].Value = Get-DBTypeFromTrueFalse ($CacheWaypoint | Select-Object -ExpandProperty available);
 		$CacheLoadCmd.Parameters["@Archived"].Value = Get-DBTypeFromTrueFalse ($CacheWaypoint | Select-Object -ExpandProperty archived);
 
-		$CacheLoadCmd.Parameters["@CacheUpdated"].Value = $GPXDate;
+		$CacheLoadCmd.Parameters["@CacheUpdated"].Value = $script:GPXDate;
 
 		if (($CacheWaypoint | Select-Object -ExpandProperty archived) -eq "true") {
 			$UnifiedStatus = $script:CacheStatusLookup | Where-Object{$_.statusname -eq "archived"} | Select-Object -ExpandProperty statusid;
@@ -521,7 +521,7 @@ param (
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
 	[string]$CacheId,
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
-	[System.DateTime]$LogDate,
+	[DateTimeOffset]$LogDate,
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
 	[string]$LogTypeName,
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
@@ -543,7 +543,7 @@ begin {
 		$LogTableUpdateCmd = $SQLConnection.CreateCommand();
 		$LogTableUpdateCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::VarChar, 50) | Out-Null;
-		$LogTableUpdateCmd.Parameters.Add("@LogDate", [System.Data.SqlDbType]::DateTime) | Out-Null;
+		$LogTableUpdateCmd.Parameters.Add("@LogDate", [System.Data.SqlDbType]::DateTimeOffset) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@LogType", [System.Data.SqlDbType]::Int) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@LogText", [System.Data.SqlDbType]::NVarChar, 4000) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::Float) | Out-Null;
@@ -564,7 +564,7 @@ begin {
 			"LogObject" {
 				$Finder = $CacheLog.finder.id;
 				$LogId = $CacheLog.id;
-				$LogDate = Get-Date $CacheLog.date;
+				[DateTimeOffset]$LogDate = Get-Date $CacheLog.date;
 				$LogType = $LogTypes | Where-Object{$_.logtypedesc -eq $CacheLog.type};
 				$LogText = $CacheLog.text;
 				$Latitude = $CacheLog.lat;
@@ -638,7 +638,7 @@ param (
 		$WptUpsertCmd.Parameters.Add("@url",[System.Data.SqlDbType]::VarChar,2038) | Out-Null;
 		$WptUpsertCmd.Parameters.Add("@urldesc",[System.Data.SqlDbType]::nVarChar, 200) | Out-Null;
 		$WptUpsertCmd.Parameters.Add("@pointtype", [System.Data.SqlDbType]::int) | Out-Null;
-		$WptUpsertCmd.Parameters.Add("@LastUpdated", [System.Data.SqlDbType]::DateTime) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@LastUpdated", [System.Data.SqlDbType]::DateTimeOffset) | Out-Null;
 	}
 	process {
 		$Id = $Waypoint | Select-Object -ExpandProperty Id;
@@ -650,7 +650,7 @@ param (
 		$WptLastUpdatedCmd.Parameters["@wptid"].Value = $Id;
 		$WptLastUpdatedCmd.Parameters["@cacheid"].Value = $ParentCache;
 		$WaypointExists = $WptLastUpdatedCmd.ExecuteScalar();
-		if (($WaypointExists -ne $null) -and ($WaypointExists -ge $GPXDate)) {
+		if (($WaypointExists -ne $null) -and ($WaypointExists -ge $script:GPXDate)) {
 			return;
 		}
 
@@ -900,7 +900,7 @@ $script:StateLookup = Get-StateLookups -SQLInstance $SQLInstance -Database $Data
 $script:CountryLookup = Get-CountryLookups -SQLInstance $SQLInstance -Database $Database;
 
 [xml]$cachedata = get-content $FileToImport -Encoding UTF8;
-$script:GPXDate = get-date $cachedata.gpx.time;
+[DateTimeOffset]$script:GPXDate = get-date $cachedata.gpx.time;
 # For each $cachedata.gpx.wpt
 # Check for a cache child element
 # If one exists, it's a cache

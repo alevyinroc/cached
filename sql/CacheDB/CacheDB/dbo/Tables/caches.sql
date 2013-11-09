@@ -4,7 +4,7 @@
     [cachename]   NVARCHAR (50)   NOT NULL,
     [latitude]    FLOAT (53)      NOT NULL,
     [longitude]   FLOAT (53)      NOT NULL,
-    [lastupdated] DATETIME        DEFAULT (getdate()) NOT NULL,
+    [lastupdated] DATETIMEOFFSET        DEFAULT (getdate()) NOT NULL,
     [placed]      DATE            NOT NULL,
     [placedby]    NVARCHAR (50)   NOT NULL,
     [typeid]      INT             NOT NULL,
