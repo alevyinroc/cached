@@ -52,9 +52,17 @@ $SQLConnection.Open();
 function Get-DBTypeFromTrueFalse{
 <#
 .SYNOPSIS
+	Translates XML true and false
 .DESCRIPTION
-.PARAMETER computername
+	Translates XML true and false into integers suitable for SQL Server bit fields. Case-insensitive
+.PARAMETER XmlValue
+	Value from XML to translate
 .EXAMPLE
+	PS> Get-DBTypeFromTrueFalse -XmlValue true
+	1
+.EXAMPLE
+	PS> Get-DBTypeFromTrueFalse -XmlValue FALSE
+	0
 #>
 [cmdletbinding()]
 param (
@@ -70,11 +78,19 @@ param (
 function Update-Cacher {
 <#
 .SYNOPSIS
+	Updates cacher name
 .DESCRIPTION
-.PARAMETER computername
-.PARAMETER computername
-.PARAMETER computername
+	Updates the name associated with a geocacher's account. Each account has a unique numerical ID which is used to track activity, and an arbitrary (but unique) text name. The name may be changed at any time without changing the ID.
+.PARAMETER CacherName
+	Displayed name for the cacher. This can change for any given account, but is unique across the site.
+.PARAMETER CacherId
+	Unique numerical ID for the cacher. This is unique to each cacher and cannot change without creating a new account.
+.PARAMETER Cacher
+	Object of some sort containing both the cacher's name and ID. Probably a cache owner XML node
 .EXAMPLE
+	PS> Update-Cacher -CacherName "SteveDave" -CacherId 8675309
+.EXAMPLE
+	PS> Update-Cacher -Cacher SOMETHING
 #>
 [cmdletbinding()]
 param(
@@ -119,11 +135,17 @@ param(
 function Update-CacheOwner {
 <#
 .SYNOPSIS
+	Updates the registered owner and displayed "placed by" name of a cache
 .DESCRIPTION
-.PARAMETER computername
-.PARAMETER computername
-.PARAMETER computername
+	Updates the registered owner and displayed "placed by" name of a cache. The "placed by" name is not unique and may be set to any arbitrary value by the cache owner. It is only used in displaying the cache listing, but some owners may use it to leave hints or slightly obscure their name.
+.PARAMETER GCNum
+	ID of the cache to be updated
+.PARAMETER OwnerId
+	Account ID of the cache owner. This can only be changed by putting the cache through the official adoption process on geocaching.com
+.PARAMETER PlacedByName
+	Name to display as the placer of the cache.
 .EXAMPLE
+	PS> Update-CacheOwner -GCNum GC001 -OwnerId 8675309 -PlacedByName TommyTutone
 #>
 [cmdletbinding()]
 param(
@@ -167,11 +189,17 @@ param(
 function New-TravelBug {
 <#
 .SYNOPSIS
+	Creates a new travel bug record
 .DESCRIPTION
-.PARAMETER computername
-.PARAMETER computername
-.PARAMETER computername
+	Creates a new travel bug record to be attached to geocaches through their travels
+.PARAMETER TBId
+	Internal ID of the travel bug
+.PARAMETER TBPublicId
+	Public ID of the travel bug. This is used on geocaching.com to refer to the travel bug
+.PARAMETER TBName
+	Name given to the travel bug by the owner.
 .EXAMPLE
+	PS> New-TravelBug -TBId 8675309 -TBPublicId TB001 -TBName "My First Travel Bug"
 #>
 [cmdletbinding()]
 param (
