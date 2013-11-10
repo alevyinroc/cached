@@ -242,10 +242,15 @@ param (
 function Move-TravelBugToCache {
 <#
 .SYNOPSIS
+	Logs a travel bug into a cache
 .DESCRIPTION
-.PARAMETER computername
-.PARAMETER computername
+	Logs a travel bug into a cache. If the bug is already in another cache, it's removed from the previous cache
+.PARAMETER GCNum
+	ID of the new cache the travel bug appears in
+.PARAMETER TBPublicId
+	Public ID of the bug to be placed in the cache
 .EXAMPLE
+	PS> Move-TravelBugToCache -GCNum GC001 -TBId TB001
 #>
 [cmdletbinding()]
 param (
@@ -290,11 +295,18 @@ param (
 function Update-TravelBug {
 <#
 .SYNOPSIS
+	Wrapper function to create or update a travel bug & log it into a cache
 .DESCRIPTION
-.PARAMETER computername
-.PARAMETER computername
-.PARAMETER computername
-.PARAMETER computername
+	Wrapper function to createor update a travel bug & log it into a cache.
+.PARAMETER GCNum
+	ID of the new cache the travel bug appears in
+.PARAMETER TBId
+	Internal ID of the travel bug
+.PARAMETER TBPublicId
+	Public ID of the travel bug. This is used on geocaching.com to refer to the travel bug
+.PARAMETER TBName
+	Name given to the travel bug by the owner.
+
 .EXAMPLE
 #>
 [cmdletbinding()]
