@@ -332,8 +332,11 @@ param (
 function Update-Geocache {
 <#
 .SYNOPSIS
+	Enters a new geocache into the database or updates an existing one
 .DESCRIPTION
-.PARAMETER computername
+	Enters a new geocache into the database or updates an existing one.
+.PARAMETER CacheWaypoint
+	A geocache XML node from a Groundspeak GPX file
 .EXAMPLE
 #>
 [cmdletbinding()]
@@ -526,6 +529,7 @@ param (
 		$CacheLastUpdatedCmd.Dispose();
 	}
 }
+#TODO: This probably doesn't work for the CacheLog parameter (all data in one)
 function Update-Log {
 <#
 .SYNOPSIS
@@ -555,6 +559,7 @@ function Update-Log {
 .EXAMPLE
 	$CacheData.SelectNodes("//log") | foreach-Object {Update-Log -CacheLog $_}
 #>
+[cmdletbinding()]
 param (
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
 	[int]$LogId,
