@@ -111,9 +111,9 @@ param(
 	$SQLConnection.ConnectionString = $SQLConnectionString;
 	$SQLConnection.Open();
 	$NewStateCountryCmd = $SQLConnection.CreateCommand();
-	$NewStateCountryCmd.Parameters.Add("@Name", [System.Data.SqlDbType]::NChar, 50) | Out-Null;
+	$NewStateCountryCmd.Parameters.Add("@Name", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
 	$GetIdCmd = $SQLConnection.CreateCommand();
-	$GetIdCmd.Parameters.Add("@Name", [System.Data.SqlDbType]::NChar, 50) | Out-Null;
+	$GetIdCmd.Parameters.Add("@Name", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
 	switch ($Type) {
 		"State" {$NewStateCountryCmd.CommandText = "insert into States (Name) values (@Name);";$GetIdCmd.CommandText = "select StateId from States where Name = @Name;"}
 		"Country"{$NewStateCountryCmd.CommandText = "insert into Countries (Name) values (@Name);";$GetIdCmd.CommandText = "select CountryId from Countries where Name = @Name;"}
@@ -251,6 +251,92 @@ param (
 	$CacheStatusLookup;
 }
 
+function Get-PointTypeId {
+<#
+.SYNOPSIS
+	Looks up a point type by name and gets its ID
+.DESCRIPTION
+	Looks up a point type by name and gets its ID. If the type name doesn't exist, a new one is created.
+.PARAMETER TypeName
+	Name of the point type to look up
+.PARAMETER SQLInstance
+	SQL Server instance to hosting the database
+.PARAMETER Database
+	Database on the SQLInstance hosting the geocache database
+.EXAMPLE
+#>
+[cmdletbinding()]
+param (
+	[Parameter(Mandatory=$true)]
+	[string]$PointTypeName,
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance = 'Hobbes\sqlexpress',
+	[Parameter(Mandatory=$true)]
+	[string]$Database = 'Geocaches'
+)
+	
+	if ($script:PointTypeLookup -eq $null) {
+		$script:PointTypeLookup = Get-PointTypeLookups -SQLInstance $SQLInstance -Database $Database;
+	}
+	
+	$PointTypeId = $script:PointTypeLookup | where-object{$_.typename -eq $PointTypeName} | Select-Object -ExpandProperty typeid;
+	if ($PointTypeId -eq $null) {
+		$PointType = New-PointType -TypeName $PointTypeName -SQLInstance $SQLInstance -Database $Database;
+	}
+	$PointTypeId;
+	
+}
+
+function New-PointType {
+<#
+.SYNOPSIS
+	Adds a new point type to the database
+.DESCRIPTION
+	Adds a new point type to the database and returns its ID.
+.PARAMETER TypeName
+	Name of the new point type
+.PARAMETER SQLInstance
+	SQL Server instance to hosting the database
+.PARAMETER Database
+	Database on the SQLInstance hosting the geocache database
+.EXAMPLE
+#>
+[cmdletbinding(SupportsShouldProcess=$False)]
+param(
+	[Parameter(Mandatory=$true)]
+	[string]$TypeName,
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance = 'Hobbes\sqlexpress',
+	[Parameter(Mandatory=$true)]
+	[string]$Database = 'Geocaches'
+)
+
+	$SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
+	$SQLConnection = new-object System.Data.SqlClient.SqlConnection;
+	$SQLConnection.ConnectionString = $SQLConnectionString;
+	$SQLConnection.Open();
+	$NewPointTypeCmd = $SQLConnection.CreateCommand();
+	$NewPointTypeCmd.Parameters.Add("@TypeName", [System.Data.SqlDbType]::NVarChar, 30) | Out-Null;
+	$GetIdCmd = $SQLConnection.CreateCommand();
+	$GetIdCmd.Parameters.Add("@TypeName", [System.Data.SqlDbType]::NVarChar, 30) | Out-Null;
+	
+	$NewPointTypeCmd.CommandText = "insert into point_types (typename) values (@TypeName);";
+	$GetIdCmd.CommandText = "select typeid from point_types where Name = @TypeName;"}
+	
+	$NewPointTypeCmd.Prepare();
+	$GetIdCmd.Prepare();
+	$NewPointTypeCmd.Parameters["@TypeName"].Value = $TypeName;
+	$GetIdCmd.Parameters["@TypeName"].Value = $TypeName;
+	$NewPointTypeCmd.ExecuteNonQuery() | Out-Null;
+	$NewId = $GetIdCmd.ExecuteScalar();
+	$NewPointTypeCmd.Dispose();
+	$GetIdCmd.Dispose();
+	$SQLConnection.Close();
+	$SQLConnection.Dispose();
+	$NewId;
+}
 
 Export-ModuleMember Set-CorrectedCoordinates;
 Export-ModuleMember New-StateCountryId;
@@ -259,3 +345,4 @@ Export-ModuleMember Get-CountryLookups;
 Export-ModuleMember Get-PointTypeLookups;
 Export-ModuleMember Get-CacheSizeLookup;
 Export-ModuleMember Get-CacheStatusLookup;
+Export-ModuleMember Get-PointTypeId;

@@ -476,7 +476,9 @@ param (
 		$CacheLoadCmd.Parameters["@Long"].Value = $Longitude;
 		$CacheLoadCmd.Parameters["@Placed"].Value = $PlacedDate;
 		$CacheLoadCmd.Parameters["@PlacedBy"].Value = $CacheWaypoint | Select-Object -ExpandProperty placed_by;
-		$CacheLoadCmd.Parameters["@TypeId"].Value = $script:PointTypeLookup | where-object{$_.typename -eq ($CacheWaypoint | Select-Object -ExpandProperty type)} | Select-Object -ExpandProperty typeid;
+		
+		$CacheLoadCmd.Parameters["@TypeId"].Value = Get-PointTypeId -TypeName $($CacheWaypoint | Select-Object -ExpandProperty type) -SQLInstance $SQLInstance -Database $Database;
+		
 		$CacheLoadCmd.Parameters["@SizeId"].Value = $script:CacheSizeLookup | where-object{$_.sizename -eq ($CacheWaypoint | Select-Object -ExpandProperty container)} | Select-Object -ExpandProperty sizeid;
 		
 		
@@ -782,47 +784,7 @@ param (
 	}
 	
 }
-function Get-PointTypeId {
-<#
-.SYNOPSIS
-	Gets waypoint type ID from the text name.
-.DESCRIPTION
-	Gets waypoint type ID from the text name. If no type ID exists for the name, a new one will be created on the point_types table.
-.PARAMETER PointTypeName
-	Name of the point type to look up. If no point type is found, a new one will be created with that name.
-.EXAMPLE
-	Get-PointTypeId -PointTypeName "Parking Area"
-#>
-[cmdletbinding()]
-param(
-	[Parameter(Mandatory=$true)]
-	[string]$PointTypeName
-)
-	begin{
-		$script:PointTypeLookupCmd = $SQLConnection.CreateCommand();
-		$PointTypeInsertCmd = $SQLConnection.CreateCommand();
-		$script:PointTypeLookupCmd.Parameters.Add("@typename",[System.Data.SqlDbType]::VarChar, 30) | Out-Null;
-		$PointTypeInsertCmd.Parameters.Add("@typename",[System.Data.SqlDbType]::VarChar, 30) | Out-Null;
-		$script:PointTypeLookupCmd.CommandText = "select typeid from point_types where typename = @typename";
-		$PointTypeInsertCmd.CommandText = "insert into point_types (typename) values (@typename);";
-		$script:PointTypeLookupCmd.Prepare();
-		$PointTypeInsertCmd.Prepare();
-	}
-	process{
-		$script:PointTypeLookupCmd.Parameters["@typename"].Value = $PointTypeName;
-		$PointTypeId = $script:PointTypeLookupCmd.ExecuteScalar();
-		if (-not ($PointTypeId -ge 1)) {
-			$PointTypeInsertCmd.Parameters["@typename"].Value = $PointTypeName;
-			$PointTypeInsertCmd.ExecuteNonQuery() | Out-Null;
-			$PointTypeId = $script:PointTypeLookupCmd.ExecuteScalar();
-		}
-		[int]$PointTypeId;
-	}
-	end{
-		$PointTypeInsertCmd.Dispose();
-		$script:PointTypeLookupCmd.Dispose();
-	}
-}
+
 function New-Attribute {
 <#
 .SYNOPSIS
