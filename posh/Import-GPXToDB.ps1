@@ -751,7 +751,7 @@ insert into waypoints (waypointid,parentcache,latitude,longitude,name,descriptio
 		
 	}
 }
-function Find-ParentCacheId {
+	function Find-ParentCacheId {
 <#
 .SYNOPSIS
 	Finds the GC ID of a waypoint's parent cache
@@ -938,9 +938,9 @@ param(
 #endregion
 
 # Get Type & Size lookup tables
-$script:PointTypeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select typeid, typename from point_types;";
-$script:CacheSizeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select sizeid, sizename from cache_sizes;";
-$script:CacheStatusLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select statusid, statusname from statuses;";
+$script:PointTypeLookup = Get-PointTypeLookups -SQLInstance $SQLInstance -Database $Database;
+$script:CacheSizeLookup = Get-CacheSizeLookup -SQLInstance $SQLInstance -Database $Database;
+$script:CacheStatusLookup = Get-CacheStatusLookup -SQLInstance $SQLInstance -Database $Database;
 $script:StateLookup = Get-StateLookups -SQLInstance $SQLInstance -Database $Database;
 $script:CountryLookup = Get-CountryLookups -SQLInstance $SQLInstance -Database $Database;
 

@@ -132,6 +132,17 @@ param(
 }
 
 function Get-StateLookups {
+<#
+.SYNOPSIS
+	Gets all states from the database
+.DESCRIPTION
+	Gets all states from the database
+.PARAMETER SQLInstance
+	SQL Server instance to hosting the database
+.PARAMETER Database
+	Database on the SQLInstance hosting the geocache database
+.EXAMPLE
+#>
 [cmdletbinding(SupportsShouldProcess=$False)]
 param (
 	[Parameter(Mandatory=$true)]
@@ -143,7 +154,19 @@ param (
 	$StateLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select StateId, rtrim(ltrim(Name)) as Name from states order by StateId Desc;";
 	$StateLookup;
 }
+
 function Get-CountryLookups {
+<#
+.SYNOPSIS
+	Gets all countries from the database
+.DESCRIPTION
+	Gets all countries from the database
+.PARAMETER SQLInstance
+	SQL Server instance to hosting the database
+.PARAMETER Database
+	Database on the SQLInstance hosting the geocache database
+.EXAMPLE
+#>
 [cmdletbinding(SupportsShouldProcess=$False)]
 param (
 	[Parameter(Mandatory=$true)]
@@ -156,7 +179,83 @@ param (
 	$CountryLookup;
 }
 
-Export-ModuleMember Set-CorrectedCoordinates
-Export-ModuleMember New-StateCountryId
-Export-ModuleMember Get-StateLookups
-Export-ModuleMember Get-CountryLookups
+function Get-PointTypeLookups {
+<#
+.SYNOPSIS
+	Gets all point types from the database
+.DESCRIPTION
+	Gets all point types from the database
+.PARAMETER SQLInstance
+	SQL Server instance to hosting the database
+.PARAMETER Database
+	Database on the SQLInstance hosting the geocache database
+.EXAMPLE
+#>
+[cmdletbinding(SupportsShouldProcess=$False)]
+param (
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance = 'Hobbes\sqlexpress',
+	[Parameter(Mandatory=$true)]
+	[string]$Database = 'Geocaches'
+)
+	$PointTypeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select typeid, typename from point_types;";
+	$PointTypeLookup;
+}
+
+function Get-CacheSizeLookup {
+<#
+.SYNOPSIS
+	Gets all cache sizes from the database
+.DESCRIPTION
+	Gets all cache sizes from the database
+.PARAMETER SQLInstance
+	SQL Server instance to hosting the database
+.PARAMETER Database
+	Database on the SQLInstance hosting the geocache database
+.EXAMPLE
+#>
+[cmdletbinding(SupportsShouldProcess=$False)]
+param (
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance = 'Hobbes\sqlexpress',
+	[Parameter(Mandatory=$true)]
+	[string]$Database = 'Geocaches'
+)
+	$CacheSizeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select sizeid, sizename from cache_sizes;";
+	$CacheSizeLookup;
+}
+
+function Get-CacheStatusLookup {
+<#
+.SYNOPSIS
+	Gets all cache statuses from the database
+.DESCRIPTION
+	Gets all cache statuses from the database
+.PARAMETER SQLInstance
+	SQL Server instance to hosting the database
+.PARAMETER Database
+	Database on the SQLInstance hosting the geocache database
+.EXAMPLE
+#>
+[cmdletbinding(SupportsShouldProcess=$False)]
+param (
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance = 'Hobbes\sqlexpress',
+	[Parameter(Mandatory=$true)]
+	[string]$Database = 'Geocaches'
+)
+	$CacheStatusLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select statusid, statusname from statuses;";
+	$CacheStatusLookup;
+}
+
+
+Export-ModuleMember Set-CorrectedCoordinates;
+Export-ModuleMember New-StateCountryId;
+Export-ModuleMember Get-StateLookups;
+Export-ModuleMember Get-CountryLookups;
+Export-ModuleMember Get-PointTypeLookups;
+Export-ModuleMember Get-CacheSizeLookup;
+Export-ModuleMember Get-CacheStatusLookup;
