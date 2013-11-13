@@ -283,6 +283,7 @@ param (
 	$PointTypeId = $script:PointTypeLookup | where-object{$_.typename -eq $PointTypeName} | Select-Object -ExpandProperty typeid;
 	if ($PointTypeId -eq $null) {
 		$PointType = New-PointType -TypeName $PointTypeName -SQLInstance $SQLInstance -Database $Database;
+		$script:PointTypeLookup = Get-PointTypeLookups -SQLInstance $SQLInstance -Database $Database;
 	}
 	$PointTypeId;
 	
