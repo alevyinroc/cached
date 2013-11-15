@@ -369,7 +369,7 @@ param (
 	
 	$CacheSizeId = $script:CacheSizeLookup | where-object{$_.sizename -eq $SizeName} | Select-Object -ExpandProperty sizeid;
 	if ($CacheSizeId -eq $null) {
-		$CacheSize = New-PointType -TypeName $SizeName -SQLInstance $SQLInstance -Database $Database;
+		$CacheSize = New-CacheSize -SizeName $SizeName -SQLInstance $SQLInstance -Database $Database;
 		$script:CacheSizeLookup = Get-CacheSizeLookup -SQLInstance $SQLInstance -Database $Database;
 	}
 	$CacheSizeId;
@@ -410,7 +410,7 @@ param(
 	$GetIdCmd.Parameters.Add("@SizeName", [System.Data.SqlDbType]::NVarChar, 16) | Out-Null;
 	
 	$NewCacheSizeCmd.CommandText = "insert into cache_sizes (sizename) values (@SizeName);";
-	$GetIdCmd.CommandText = "select typeid from cache_sizes where sizename = @SizeName;"
+	$GetIdCmd.CommandText = "select sizeid from cache_sizes where sizename = @SizeName;"
 	
 	$NewCacheSizeCmd.Prepare();
 	$GetIdCmd.Prepare();
@@ -419,6 +419,93 @@ param(
 	$NewCacheSizeCmd.ExecuteNonQuery() | Out-Null;
 	$NewId = $GetIdCmd.ExecuteScalar();
 	$NewCacheSizeCmd.Dispose();
+	$GetIdCmd.Dispose();
+	$SQLConnection.Close();
+	$SQLConnection.Dispose();
+	$NewId;
+}
+
+function Get-CacheStatusId {
+<#
+.SYNOPSIS
+	Looks up a cache status by name and gets its ID
+.DESCRIPTION
+	Looks up a cache status by name and gets its ID. If the status name doesn't exist, a new one is created.
+.PARAMETER StatusName
+	Name of the cache status to look up
+.PARAMETER SQLInstance
+	SQL Server instance to hosting the database
+.PARAMETER Database
+	Database on the SQLInstance hosting the geocache database
+.EXAMPLE
+#>
+[cmdletbinding()]
+param (
+	[Parameter(Mandatory=$true)]
+	[string]$StatusName,
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance = 'Hobbes\sqlexpress',
+	[Parameter(Mandatory=$true)]
+	[string]$Database = 'Geocaches'
+)
+	
+	if ($script:CacheStatusLookup -eq $null) {
+		$script:CacheStatusLookup = Get-CacheStatusLookup -SQLInstance $SQLInstance -Database $Database;
+	}
+	
+	$CacheStatusId = $script:CacheStatusLookup | where-object{$_.statusname -eq $StatusName} | Select-Object -ExpandProperty statusid;
+	if ($CacheStatusId -eq $null) {
+		$CacheStatus = New-CacheStatus -StatusName $StatusName -SQLInstance $SQLInstance -Database $Database;
+		$script:CacheStatusLookup = Get-CacheStatusLookup -SQLInstance $SQLInstance -Database $Database;
+	}
+	$CacheStatusId;
+}
+
+function New-CacheStatus {
+<#
+.SYNOPSIS
+	Adds a new cache status to the database
+.DESCRIPTION
+	Adds a cache status to the database and returns its ID.
+.PARAMETER StatusName
+	Name of the new cache status
+.PARAMETER SQLInstance
+	SQL Server instance to hosting the database
+.PARAMETER Database
+	Database on the SQLInstance hosting the geocache database
+.EXAMPLE
+#>
+[cmdletbinding(SupportsShouldProcess=$False)]
+param(
+	[Parameter(Mandatory=$true)]
+	[string]$StatusName,
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance = 'Hobbes\sqlexpress',
+	[Parameter(Mandatory=$true)]
+	[string]$Database = 'Geocaches'
+)
+
+	$SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
+	$SQLConnection = new-object System.Data.SqlClient.SqlConnection;
+	$SQLConnection.ConnectionString = $SQLConnectionString;
+	$SQLConnection.Open();
+	$NewCacheStatusCmd = $SQLConnection.CreateCommand();
+	$NewCacheStatusCmd.Parameters.Add("@StatusName", [System.Data.SqlDbType]::NVarChar, 12) | Out-Null;
+	$GetIdCmd = $SQLConnection.CreateCommand();
+	$GetIdCmd.Parameters.Add("@StatusName", [System.Data.SqlDbType]::NVarChar, 12) | Out-Null;
+	
+	$NewCacheStatusCmd.CommandText = "insert into statuses (statusname) values (@StatusName);";
+	$GetIdCmd.CommandText = "select statusid from statuses where statusname = @StatusName;"
+	
+	$NewCacheStatusCmd.Prepare();
+	$GetIdCmd.Prepare();
+	$NewCacheStatusCmd.Parameters["@StatusName"].Value = $StatusName;
+	$GetIdCmd.Parameters["@StatusName"].Value = $StatusName;
+	$NewCacheStatusCmd.ExecuteNonQuery() | Out-Null;
+	$NewId = $GetIdCmd.ExecuteScalar();
+	$NewCacheStatusCmd.Dispose();
 	$GetIdCmd.Dispose();
 	$SQLConnection.Close();
 	$SQLConnection.Dispose();
@@ -434,3 +521,4 @@ Export-ModuleMember Get-CacheSizeLookup;
 Export-ModuleMember Get-CacheStatusLookup;
 Export-ModuleMember Get-PointTypeId;
 Export-ModuleMember Get-CacheSizeId;
+Export-ModuleMember Get-CacheStatusId;
