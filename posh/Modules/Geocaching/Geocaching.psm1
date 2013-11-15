@@ -131,7 +131,7 @@ param(
 	$NewId;
 }
 
-function Get-StateLookups {
+function Get-StateLookup {
 <#
 .SYNOPSIS
 	Gets all states from the database
@@ -155,7 +155,7 @@ param (
 	$StateLookup;
 }
 
-function Get-CountryLookups {
+function Get-CountryLookup {
 <#
 .SYNOPSIS
 	Gets all countries from the database
@@ -282,7 +282,7 @@ param (
 	
 	$PointTypeId = $script:PointTypeLookup | where-object{$_.typename -eq $PointTypeName} | Select-Object -ExpandProperty typeid;
 	if ($PointTypeId -eq $null) {
-		$PointType = New-PointType -TypeName $PointTypeName -SQLInstance $SQLInstance -Database $Database;
+		$PointTypeId = New-PointType -TypeName $PointTypeName -SQLInstance $SQLInstance -Database $Database;
 		$script:PointTypeLookup = Get-PointTypeLookups -SQLInstance $SQLInstance -Database $Database;
 	}
 	$PointTypeId;
@@ -369,7 +369,7 @@ param (
 	
 	$CacheSizeId = $script:CacheSizeLookup | where-object{$_.sizename -eq $SizeName} | Select-Object -ExpandProperty sizeid;
 	if ($CacheSizeId -eq $null) {
-		$CacheSize = New-CacheSize -SizeName $SizeName -SQLInstance $SQLInstance -Database $Database;
+		$CacheSizeId = New-CacheSize -SizeName $SizeName -SQLInstance $SQLInstance -Database $Database;
 		$script:CacheSizeLookup = Get-CacheSizeLookup -SQLInstance $SQLInstance -Database $Database;
 	}
 	$CacheSizeId;
@@ -456,7 +456,7 @@ param (
 	
 	$CacheStatusId = $script:CacheStatusLookup | where-object{$_.statusname -eq $StatusName} | Select-Object -ExpandProperty statusid;
 	if ($CacheStatusId -eq $null) {
-		$CacheStatus = New-CacheStatus -StatusName $StatusName -SQLInstance $SQLInstance -Database $Database;
+		$CacheStatusId = New-CacheStatus -StatusName $StatusName -SQLInstance $SQLInstance -Database $Database;
 		$script:CacheStatusLookup = Get-CacheStatusLookup -SQLInstance $SQLInstance -Database $Database;
 	}
 	$CacheStatusId;
@@ -512,13 +512,86 @@ param(
 	$NewId;
 }
 
+function Get-StateId {
+<#
+.SYNOPSIS
+	Looks up a state by name and gets its ID
+.DESCRIPTION
+	Looks up a state by name and gets its ID. If the status name doesn't exist, a new one is created.
+.PARAMETER StateName
+	Name of the state to look up
+.PARAMETER SQLInstance
+	SQL Server instance to hosting the database
+.PARAMETER Database
+	Database on the SQLInstance hosting the geocache database
+.EXAMPLE
+#>
+[cmdletbinding()]
+param (
+	[Parameter(Mandatory=$true)]
+	[string]$StateName,
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance = 'Hobbes\sqlexpress',
+	[Parameter(Mandatory=$true)]
+	[string]$Database = 'Geocaches'
+)
+	
+	if ($script:StateLookup -eq $null) {
+		$script:StateLookup = Get-StateLookup -SQLInstance $SQLInstance -Database $Database;
+	}
+	
+	$StateId = $script:StateLookup | where-object{$_.Name -eq $StateName} | Select-Object -ExpandProperty StateId;
+	if ($StateId -eq $null) {
+		$StateId = New-StateCountryId -Name $StateName -SQLInstance $SQLInstance -Database $Database -Type State;
+		$script:StateLookup = Get-StateLookup -SQLInstance $SQLInstance -Database $Database;
+	}
+	$StateId;
+}
+
+function Get-CountryId {
+<#
+.SYNOPSIS
+	Looks up a country by name and gets its ID
+.DESCRIPTION
+	Looks up a country by name and gets its ID. If the status name doesn't exist, a new one is created.
+.PARAMETER CountryName
+	Name of the country to look up
+.PARAMETER SQLInstance
+	SQL Server instance to hosting the database
+.PARAMETER Database
+	Database on the SQLInstance hosting the geocache database
+.EXAMPLE
+#>
+[cmdletbinding()]
+param (
+	[Parameter(Mandatory=$true)]
+	[string]$CountryName,
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance = 'Hobbes\sqlexpress',
+	[Parameter(Mandatory=$true)]
+	[string]$Database = 'Geocaches'
+)
+	
+	if ($script:CountryLookup -eq $null) {
+		$script:CountryLookup = Get-CountryLookup -SQLInstance $SQLInstance -Database $Database;
+	}
+	
+	$CountryId = $script:CountryLookup | where-object{$_.Name -eq $CountryName} | Select-Object -ExpandProperty CountryId;
+	if ($CountryId -eq $null) {
+		$CountryId = New-StateCountryId -Name $CountryName -SQLInstance $SQLInstance -Database $Database -Type Country;
+		$script:CountryLookup = Get-CountryLookup -SQLInstance $SQLInstance -Database $Database;
+	}
+	$CountryId;
+}
+
 Export-ModuleMember Set-CorrectedCoordinates;
-Export-ModuleMember New-StateCountryId;
-Export-ModuleMember Get-StateLookups;
-Export-ModuleMember Get-CountryLookups;
 Export-ModuleMember Get-PointTypeLookups;
 Export-ModuleMember Get-CacheSizeLookup;
 Export-ModuleMember Get-CacheStatusLookup;
 Export-ModuleMember Get-PointTypeId;
 Export-ModuleMember Get-CacheSizeId;
 Export-ModuleMember Get-CacheStatusId;
+Export-ModuleMember Get-StateId;
+Export-ModuleMember Get-CountryId;
