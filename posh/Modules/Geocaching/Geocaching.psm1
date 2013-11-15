@@ -34,7 +34,7 @@ param(
 	[Parameter(Mandatory=$true,ParameterSetName="UpdateObject",ValueFromPipeline=$true)]
 	[PSObject[]]$CorrectedDetails,
 	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
 	[string]$SQLInstance = 'Hobbes\sqlexpress',
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
@@ -100,7 +100,7 @@ param(
 	[ValidateSet("State","Country")]
 	[string]$Type,
 	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
 	[string]$SQLInstance = 'Hobbes\sqlexpress',
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
@@ -146,7 +146,7 @@ function Get-StateLookups {
 [cmdletbinding(SupportsShouldProcess=$False)]
 param (
 	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
 	[string]$SQLInstance = 'Hobbes\sqlexpress',
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
@@ -170,7 +170,7 @@ function Get-CountryLookups {
 [cmdletbinding(SupportsShouldProcess=$False)]
 param (
 	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
 	[string]$SQLInstance = 'Hobbes\sqlexpress',
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
@@ -194,7 +194,7 @@ function Get-PointTypeLookups {
 [cmdletbinding(SupportsShouldProcess=$False)]
 param (
 	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
 	[string]$SQLInstance = 'Hobbes\sqlexpress',
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
@@ -218,7 +218,7 @@ function Get-CacheSizeLookup {
 [cmdletbinding(SupportsShouldProcess=$False)]
 param (
 	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
 	[string]$SQLInstance = 'Hobbes\sqlexpress',
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
@@ -242,7 +242,7 @@ function Get-CacheStatusLookup {
 [cmdletbinding(SupportsShouldProcess=$False)]
 param (
 	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
 	[string]$SQLInstance = 'Hobbes\sqlexpress',
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
@@ -270,7 +270,7 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$PointTypeName,
 	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
 	[string]$SQLInstance = 'Hobbes\sqlexpress',
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
@@ -286,7 +286,6 @@ param (
 		$script:PointTypeLookup = Get-PointTypeLookups -SQLInstance $SQLInstance -Database $Database;
 	}
 	$PointTypeId;
-	
 }
 
 function New-PointType {
@@ -308,7 +307,7 @@ param(
 	[Parameter(Mandatory=$true)]
 	[string]$TypeName,
 	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
 	[string]$SQLInstance = 'Hobbes\sqlexpress',
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
@@ -324,7 +323,7 @@ param(
 	$GetIdCmd.Parameters.Add("@TypeName", [System.Data.SqlDbType]::NVarChar, 30) | Out-Null;
 	
 	$NewPointTypeCmd.CommandText = "insert into point_types (typename) values (@TypeName);";
-	$GetIdCmd.CommandText = "select typeid from point_types where Name = @TypeName;"}
+	$GetIdCmd.CommandText = "select typeid from point_types where typeName = @TypeName;"
 	
 	$NewPointTypeCmd.Prepare();
 	$GetIdCmd.Prepare();

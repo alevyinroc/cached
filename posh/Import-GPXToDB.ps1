@@ -23,7 +23,7 @@ param (
 	[ValidateScript({Test-Path -path $_ -PathType Leaf})]
 	[string]$FileToImport = 'C:\Users\andy\Documents\Code\cachedb\scratchpad\GCF7C6.gpx',
 	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -computername $_.Split('\')[0] -quiet})]
+	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
 	[string]$SQLInstance = 'Hobbes\sqlexpress',
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
@@ -37,9 +37,10 @@ if ((Get-Module | Where-Object{$_.name -eq "SQLPS"} | Measure-Object).Count -lt 
 	Import-Module SQLPS -DisableNameChecking;
 }
 Pop-Location;
-if ((Get-Module | Where-Object{$_.name -eq "Geocaching"} | Measure-Object).Count -lt 1){
-	Import-Module C:\Users\andy\Documents\Code\cachedb\posh\Modules\Geocaching;
+if ((Get-Module | Where-Object{$_.name -eq "Geocaching"} | Measure-Object).Count -ge 1){
+	Remove-Module geocaching;
 }
+Import-Module C:\Users\andy\Documents\Code\cachedb\posh\Modules\Geocaching;
 
 #region Globals
 $SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
@@ -477,7 +478,7 @@ param (
 		$CacheLoadCmd.Parameters["@Placed"].Value = $PlacedDate;
 		$CacheLoadCmd.Parameters["@PlacedBy"].Value = $CacheWaypoint | Select-Object -ExpandProperty placed_by;
 		
-		$CacheLoadCmd.Parameters["@TypeId"].Value = Get-PointTypeId -TypeName $($CacheWaypoint | Select-Object -ExpandProperty type) -SQLInstance $SQLInstance -Database $Database;
+		$CacheLoadCmd.Parameters["@TypeId"].Value = Get-PointTypeId -PointTypeName $($CacheWaypoint | Select-Object -ExpandProperty type) -SQLInstance $SQLInstance -Database $Database;
 		
 		$CacheLoadCmd.Parameters["@SizeId"].Value = $script:CacheSizeLookup | where-object{$_.sizename -eq ($CacheWaypoint | Select-Object -ExpandProperty container)} | Select-Object -ExpandProperty sizeid;
 		
@@ -900,7 +901,7 @@ param(
 #endregion
 
 # Get Type & Size lookup tables
-$script:PointTypeLookup = Get-PointTypeLookups -SQLInstance $SQLInstance -Database $Database;
+#$script:PointTypeLookup = Get-PointTypeLookups -SQLInstance $SQLInstance -Database $Database;
 $script:CacheSizeLookup = Get-CacheSizeLookup -SQLInstance $SQLInstance -Database $Database;
 $script:CacheStatusLookup = Get-CacheStatusLookup -SQLInstance $SQLInstance -Database $Database;
 $script:StateLookup = Get-StateLookups -SQLInstance $SQLInstance -Database $Database;
