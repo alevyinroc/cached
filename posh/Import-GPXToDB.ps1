@@ -480,7 +480,7 @@ param (
 		
 		$CacheLoadCmd.Parameters["@TypeId"].Value = Get-PointTypeId -PointTypeName $($CacheWaypoint | Select-Object -ExpandProperty type) -SQLInstance $SQLInstance -Database $Database;
 		
-		$CacheLoadCmd.Parameters["@SizeId"].Value = $script:CacheSizeLookup | where-object{$_.sizename -eq ($CacheWaypoint | Select-Object -ExpandProperty container)} | Select-Object -ExpandProperty sizeid;
+		$CacheLoadCmd.Parameters["@SizeId"].Value = Get-CacheSizeId -SizeName $($CacheWaypoint | Select-Object -ExpandProperty container) -SQLInstance $SQLInstance -Database $Database;
 		
 		
 		$StateName = $CacheWaypoint | Select-Object -ExpandProperty state;
@@ -711,7 +711,7 @@ param (
 		$UrlDesc = $Waypoint | Select-Object -ExpandProperty UrlDesc;
 		$Symbol = $Waypoint | Select-Object -ExpandProperty Symbol;
 		$PointType = $Waypoint | Select-Object -ExpandProperty PointType;
-		$PointTypeId = Get-PointTypeId -PointTypeName $PointType;
+		$PointTypeId = Get-PointTypeId -PointTypeName $PointType -SQLInstance $SQLInstance -Database $Database;
 		
 # Check for point type. If it doesn't exist, create it
 		if ($WaypointExists) {
@@ -754,7 +754,7 @@ insert into waypoints (waypointid,parentcache,latitude,longitude,name,descriptio
 		
 	}
 }
-	function Find-ParentCacheId {
+function Find-ParentCacheId {
 <#
 .SYNOPSIS
 	Finds the GC ID of a waypoint's parent cache
@@ -901,8 +901,6 @@ param(
 #endregion
 
 # Get Type & Size lookup tables
-#$script:PointTypeLookup = Get-PointTypeLookups -SQLInstance $SQLInstance -Database $Database;
-$script:CacheSizeLookup = Get-CacheSizeLookup -SQLInstance $SQLInstance -Database $Database;
 $script:CacheStatusLookup = Get-CacheStatusLookup -SQLInstance $SQLInstance -Database $Database;
 $script:StateLookup = Get-StateLookups -SQLInstance $SQLInstance -Database $Database;
 $script:CountryLookup = Get-CountryLookups -SQLInstance $SQLInstance -Database $Database;
@@ -920,59 +918,61 @@ $Geocaches = $cachedata.gpx.wpt | where-object{$_.type.split(" | ")[0] -eq "Geoc
 $Geocaches | Select-Object -expandproperty cache | where-object{$_.attributes.attribute -ne $null} |
 	Select-Object -expandproperty attributes|Select-Object -expandproperty attribute |
 	Select-Object @{Name="attrname";expression={$_."#text"}},@{Name="attrid";expression={$_.id}} -Unique | New-Attribute;
-
-$Geocaches | ForEach-Object {
-	$GCNum = $_.name;
-	$GCNum;
-	Write-Progress -Activity "Loading Geocaches" -Status "Cache ID $GCNum" -Id 1 -PercentComplete $(($CachesProcessed/$Geocaches.Count)*100)
-	Update-Geocache $_; #Process as geocache
-# Load cacher table if no record for current cache's owner, or update name
-	Update-Cacher -Cacher $_.cache.owner;
-# Insert attributes & TBs into respective tables
-	if ($_.cache.attributes.attribute.Count -gt 0) {
-		$AllAttributes = New-Object -TypeName System.Collections.Generic.List[PSObject];
-		$_.cache.attributes.attribute | ForEach-Object {
-			$CacheAttribute = New-Object -TypeName PSObject -Property @{
-				AttrId = $_.id
-				AttrInc = $_.inc
-				ParentCache = $GCNum
+# TODO: There has to be a better way to do this. foreach $cache in $geocaches maybe?
+if ($Geocaches -ne $null) {
+	$Geocaches | ForEach-Object {
+		$GCNum = $_.name;
+		$GCNum;
+		Write-Progress -Activity "Loading Geocaches" -Status "Cache ID $GCNum" -Id 1 -PercentComplete $(($CachesProcessed/$Geocaches.Count)*100)
+		Update-Geocache $_; #Process as geocache
+	# Load cacher table if no record for current cache's owner, or update name
+		Update-Cacher -Cacher $_.cache.owner;
+	# Insert attributes & TBs into respective tables
+		if ($_.cache.attributes.attribute.Count -gt 0) {
+			$AllAttributes = New-Object -TypeName System.Collections.Generic.List[PSObject];
+			$_.cache.attributes.attribute | ForEach-Object {
+				$CacheAttribute = New-Object -TypeName PSObject -Property @{
+					AttrId = $_.id
+					AttrInc = $_.inc
+					ParentCache = $GCNum
+				};
+				$AllAttributes.Add($CacheAttribute);
 			};
-			$AllAttributes.Add($CacheAttribute);
+			Drop-Attributes -CacheID $GCNum;
+			$AllAttributes | Register-AttributeToCache;
+		}
+	#TODO: Make this pipeline aware with $cachedata.gpx.wpt.cache.travelbugs.travelbug | update-travelbugs
+		
+		if ($_.cache.travelbugs.travelbug.Count -gt 0) {
+			$_.cache.travelbugs.travelbug | ForEach-Object {
+				Update-TravelBug -GCNum $GCNum -TBPublicId $_.ref -TBName $_.name -TBInternalId $_.id;
+			}
+		}
+		$logs = $_.cache.logs | Select-Object -ExpandProperty log;
+	# TODO: Make this pipeline aware with $logs.finder | Update-Cacher
+		$logs | Select-Object -ExpandProperty finder | ForEach-Object{Update-Cacher -Cacher $_}
+		$logs | ForEach-Object {
+			$UpdateLogVars = @{
+				'LogId' = $_.id;
+				'CacheId' = $GCNum;
+				'LogDate' = $_.date;
+				'LogTypeName' = $_.type;
+				'Finder' = $_.finder.id;
+			};
+			if (($_.text | Select-Object -ExpandProperty "#text" -ErrorAction SilentlyContinue) -eq $null) {
+				$UpdateLogVars.Add('LogText', '');
+			} else {
+				$UpdateLogVars.Add('LogText', $($_.text | Select-Object -ExpandProperty "#text"));
+			}
+			if ($_.log_wpt) {
+				$UpdateLogVars.Add('Latitude',$_.log_wpt.lat);
+				$UpdateLogVars.Add('Longitude',$_.log_wpt.lon);
+			}
+			Update-Log @UpdateLogVars;
 		};
-		Drop-Attributes -CacheID $GCNum;
-		$AllAttributes | Register-AttributeToCache;
-	}
-#TODO: Make this pipeline aware with $cachedata.gpx.wpt.cache.travelbugs.travelbug | update-travelbugs
-	
-	if ($_.cache.travelbugs.travelbug.Count -gt 0) {
-		$_.cache.travelbugs.travelbug | ForEach-Object {
-			Update-TravelBug -GCNum $GCNum -TBPublicId $_.ref -TBName $_.name -TBInternalId $_.id;
-		}
-	}
-	$logs = $_.cache.logs | Select-Object -ExpandProperty log;
-# TODO: Make this pipeline aware with $logs.finder | Update-Cacher
-	$logs | Select-Object -ExpandProperty finder | ForEach-Object{Update-Cacher -Cacher $_}
-	$logs | ForEach-Object {
-		$UpdateLogVars = @{
-			'LogId' = $_.id;
-			'CacheId' = $GCNum;
-			'LogDate' = $_.date;
-			'LogTypeName' = $_.type;
-			'Finder' = $_.finder.id;
-		};
-		if (($_.text | Select-Object -ExpandProperty "#text" -ErrorAction SilentlyContinue) -eq $null) {
-			$UpdateLogVars.Add('LogText', '');
-		} else {
-			$UpdateLogVars.Add('LogText', $($_.text | Select-Object -ExpandProperty "#text"));
-		}
-		if ($_.log_wpt) {
-			$UpdateLogVars.Add('Latitude',$_.log_wpt.lat);
-			$UpdateLogVars.Add('Longitude',$_.log_wpt.lon);
-		}
-		Update-Log @UpdateLogVars;
+		$CachesProcessed++;
 	};
-	$CachesProcessed++;
-};
+}
 $ChildWaypoints = New-Object -TypeName System.Collections.Generic.List[PSObject];
 $cachedata.gpx.wpt | Where-Object{$_.type.split(" | ")[0] -ne "Geocache"} | ForEach-Object{
 	$Waypoint = New-Object -TypeName PSObject -Property @{
