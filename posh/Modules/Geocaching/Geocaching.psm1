@@ -338,6 +338,93 @@ param(
 	$NewId;
 }
 
+function Get-CacheSizeId {
+<#
+.SYNOPSIS
+	Looks up a cache size by name and gets its ID
+.DESCRIPTION
+	Looks up a cache size by name and gets its ID. If the size name doesn't exist, a new one is created.
+.PARAMETER SizeName
+	Name of the cache size to look up
+.PARAMETER SQLInstance
+	SQL Server instance to hosting the database
+.PARAMETER Database
+	Database on the SQLInstance hosting the geocache database
+.EXAMPLE
+#>
+[cmdletbinding()]
+param (
+	[Parameter(Mandatory=$true)]
+	[string]$SizeName,
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance = 'Hobbes\sqlexpress',
+	[Parameter(Mandatory=$true)]
+	[string]$Database = 'Geocaches'
+)
+	
+	if ($script:CacheSizeLookup -eq $null) {
+		$script:CacheSizeLookup = Get-CacheSizeLookup -SQLInstance $SQLInstance -Database $Database;
+	}
+	
+	$CacheSizeId = $script:CacheSizeLookup | where-object{$_.sizename -eq $SizeName} | Select-Object -ExpandProperty sizeid;
+	if ($CacheSizeId -eq $null) {
+		$CacheSize = New-PointType -TypeName $SizeName -SQLInstance $SQLInstance -Database $Database;
+		$script:CacheSizeLookup = Get-CacheSizeLookup -SQLInstance $SQLInstance -Database $Database;
+	}
+	$CacheSizeId;
+}
+
+function New-CacheSize {
+<#
+.SYNOPSIS
+	Adds a new cache size to the database
+.DESCRIPTION
+	Adds a cache size to the database and returns its ID.
+.PARAMETER SizeName
+	Name of the new cache size
+.PARAMETER SQLInstance
+	SQL Server instance to hosting the database
+.PARAMETER Database
+	Database on the SQLInstance hosting the geocache database
+.EXAMPLE
+#>
+[cmdletbinding(SupportsShouldProcess=$False)]
+param(
+	[Parameter(Mandatory=$true)]
+	[string]$SizeName,
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance = 'Hobbes\sqlexpress',
+	[Parameter(Mandatory=$true)]
+	[string]$Database = 'Geocaches'
+)
+
+	$SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
+	$SQLConnection = new-object System.Data.SqlClient.SqlConnection;
+	$SQLConnection.ConnectionString = $SQLConnectionString;
+	$SQLConnection.Open();
+	$NewCacheSizeCmd = $SQLConnection.CreateCommand();
+	$NewCacheSizeCmd.Parameters.Add("@SizeName", [System.Data.SqlDbType]::NVarChar, 16) | Out-Null;
+	$GetIdCmd = $SQLConnection.CreateCommand();
+	$GetIdCmd.Parameters.Add("@SizeName", [System.Data.SqlDbType]::NVarChar, 16) | Out-Null;
+	
+	$NewCacheSizeCmd.CommandText = "insert into cache_sizes (sizename) values (@SizeName);";
+	$GetIdCmd.CommandText = "select typeid from cache_sizes where sizename = @SizeName;"
+	
+	$NewCacheSizeCmd.Prepare();
+	$GetIdCmd.Prepare();
+	$NewCacheSizeCmd.Parameters["@SizeName"].Value = $SizeName;
+	$GetIdCmd.Parameters["@SizeName"].Value = $SizeName;
+	$NewCacheSizeCmd.ExecuteNonQuery() | Out-Null;
+	$NewId = $GetIdCmd.ExecuteScalar();
+	$NewCacheSizeCmd.Dispose();
+	$GetIdCmd.Dispose();
+	$SQLConnection.Close();
+	$SQLConnection.Dispose();
+	$NewId;
+}
+
 Export-ModuleMember Set-CorrectedCoordinates;
 Export-ModuleMember New-StateCountryId;
 Export-ModuleMember Get-StateLookups;
@@ -346,3 +433,4 @@ Export-ModuleMember Get-PointTypeLookups;
 Export-ModuleMember Get-CacheSizeLookup;
 Export-ModuleMember Get-CacheStatusLookup;
 Export-ModuleMember Get-PointTypeId;
+Export-ModuleMember Get-CacheSizeId;
