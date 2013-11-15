@@ -484,18 +484,9 @@ param (
 		
 		
 		$StateName = $CacheWaypoint | Select-Object -ExpandProperty state;
-		$StateId = $script:StateLookup | where-object{$_.Name -eq $StateName} | Select-Object -ExpandProperty StateId;
 		$CountryName = $CacheWaypoint | Select-Object -ExpandProperty country;
-		$CountryId = $script:CountryLookup | where-object{$_.Name -eq $CountryName} | Select-Object -ExpandProperty CountryId;
-		
-		if ($StateId -eq $null) {
-			$StateId = New-StateCountryId -Name $StateName -SQLInstance $SQLInstance -Database $Database -Type State;
-			$script:StateLookup = Get-StateLookups;
-		}
-		if ($CountryId -eq $null) {
-			$CountryId = New-StateCountryId -Name $CountryName -SQLInstance $SQLInstance -Database $Database -Type Country;
-			$script:CountryLookup = Get-CountryLookups;
-		}
+		$StateId = Get-StateId -StateName $StateName -SQLInstance $SQLInstance -Database $Database;
+		$CountryId = Get-CountryId -CountryName $CountryName -SQLInstance $SQLInstance -Database $Database;
 		
 		$CacheLoadCmd.Parameters["@StateId"].Value = $StateId;
 		$CacheLoadCmd.Parameters["@CountryId"].Value = $CountryId;
@@ -899,11 +890,6 @@ param(
 	}
 }
 #endregion
-
-# Get Type & Size lookup tables
-#$script:CacheStatusLookup = Get-CacheStatusLookup -SQLInstance $SQLInstance -Database $Database;
-$script:StateLookup = Get-StateLookups -SQLInstance $SQLInstance -Database $Database;
-$script:CountryLookup = Get-CountryLookups -SQLInstance $SQLInstance -Database $Database;
 
 [xml]$cachedata = get-content $FileToImport -Encoding UTF8;
 [DateTimeOffset]$script:GPXDate = get-date $cachedata.gpx.time;
