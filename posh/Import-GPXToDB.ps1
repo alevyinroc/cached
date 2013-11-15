@@ -511,15 +511,15 @@ param (
 		$CacheLoadCmd.Parameters["@CacheUpdated"].Value = $script:GPXDate;
 
 		if (($CacheWaypoint | Select-Object -ExpandProperty archived) -eq "true") {
-			$UnifiedStatus = $script:CacheStatusLookup | Where-Object{$_.statusname -eq "archived"} | Select-Object -ExpandProperty statusid;
-		} else{
+			$StatusName = "Archived";
+		} else {
 			if (($CacheWaypoint | Select-Object -ExpandProperty available) -eq "true") {
-				$UnifiedStatus = $script:CacheStatusLookup | Where-Object{$_.statusname -eq "available"} | Select-Object -ExpandProperty statusid;
+				$StatusName = "Available";
 			} else {
-				$UnifiedStatus = $script:CacheStatusLookup | Where-Object{$_.statusname -eq "disabled"} | Select-Object -ExpandProperty statusid;
+				$StatusName = "Disabled";
 			}
-		}
-		$CacheLoadCmd.Parameters["@CacheStatus"].Value = $UnifiedStatus;
+		}		
+		$CacheLoadCmd.Parameters["@CacheStatus"].Value = Get-CacheStatusId -StatusName $StatusName -sqlinstance $SQLInstance -database $Database;
 		# TODO: Figure out where premium only comes from. Doesn't appear to be in the GPX
 		$CacheLoadCmd.Parameters["@PremOnly"].Value = 0; #Get-DBTypeFromTrueFalse $cachedata.gpx.wpt.
 		# Execute
@@ -901,7 +901,7 @@ param(
 #endregion
 
 # Get Type & Size lookup tables
-$script:CacheStatusLookup = Get-CacheStatusLookup -SQLInstance $SQLInstance -Database $Database;
+#$script:CacheStatusLookup = Get-CacheStatusLookup -SQLInstance $SQLInstance -Database $Database;
 $script:StateLookup = Get-StateLookups -SQLInstance $SQLInstance -Database $Database;
 $script:CountryLookup = Get-CountryLookups -SQLInstance $SQLInstance -Database $Database;
 
