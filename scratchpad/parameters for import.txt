@@ -5,3 +5,5 @@
 -sqlinstance hobbes\sqlexpress -Database geocaches -FileToImport C:\Users\andy\Documents\Code\cachedb\scratchpad\500.gpx
 -sqlinstance hobbes\sqlexpress -Database CacheDB -FileToImport C:\Users\andy\Documents\Code\cachedb\scratchpad\100CP.gpx
 -sqlinstance hobbes\sqlexpress -Database CacheDB -FileToImport C:\Users\andy\Documents\Code\cachedb\scratchpad\5States.gpx
+-sqlinstance hobbes\sqlexpress -Database CacheDB -FileToImport 'C:\Users\andy\AppData\Local\Temp\PQs\10711228_Last 7 days.gpx'
+-sqlinstance hobbes\sqlexpress -Database CacheDB -FileToImport 'C:\Users\andy\AppData\Local\Temp\PQs\10711228_Last 7 days-wpts.gpx'
