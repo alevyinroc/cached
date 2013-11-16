@@ -67,7 +67,7 @@ param(
 			$UpdateCoordsCmd.Parameters["@long"].Value = $Longitude;
 			$UpdateCoordsCmd.ExecuteNonQuery();
 		}
-	}		
+	}
 	end {
 		$CheckForCorrectedCmd.Dispose();
 		$UpdateCoordsCmd.Dispose();
@@ -75,62 +75,6 @@ param(
 		$SQLConnection.Dispose();
 	}
 }
-
-function New-StateCountryId {
-<#
-.SYNOPSIS
-	Adds a new state or country to the database
-.DESCRIPTION
-	Adds a new state or country to the database and returns its ID.
-.PARAMETER Name
-	Name of the new state or country to add
-.PARAMETER Type
-	Type of location to add
-.PARAMETER SQLInstance
-	SQL Server instance to hosting the database
-.PARAMETER Database
-	Database on the SQLInstance hosting the geocache database
-.EXAMPLE
-#>
-[cmdletbinding(SupportsShouldProcess=$False)]
-param(
-	[Parameter(Mandatory=$true)]
-	[string]$Name,
-	[Parameter(Mandatory=$true)]
-	[ValidateSet("State","Country")]
-	[string]$Type,
-	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
-	[string]$SQLInstance = 'Hobbes\sqlexpress',
-	[Parameter(Mandatory=$true)]
-	[string]$Database = 'Geocaches'
-)
-
-	$SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
-	$SQLConnection = new-object System.Data.SqlClient.SqlConnection;
-	$SQLConnection.ConnectionString = $SQLConnectionString;
-	$SQLConnection.Open();
-	$NewStateCountryCmd = $SQLConnection.CreateCommand();
-	$NewStateCountryCmd.Parameters.Add("@Name", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
-	$GetIdCmd = $SQLConnection.CreateCommand();
-	$GetIdCmd.Parameters.Add("@Name", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
-	switch ($Type) {
-		"State" {$NewStateCountryCmd.CommandText = "insert into States (Name) values (@Name);";$GetIdCmd.CommandText = "select StateId from States where Name = @Name;"}
-		"Country"{$NewStateCountryCmd.CommandText = "insert into Countries (Name) values (@Name);";$GetIdCmd.CommandText = "select CountryId from Countries where Name = @Name;"}
-	}
-	$NewStateCountryCmd.Prepare();
-	$GetIdCmd.Prepare();
-	$NewStateCountryCmd.Parameters["@Name"].Value = $Name;
-	$GetIdCmd.Parameters["@Name"].Value = $Name;
-	$NewStateCountryCmd.ExecuteNonQuery() | Out-Null;
-	$NewId = $GetIdCmd.ExecuteScalar();
-	$NewStateCountryCmd.Dispose();
-	$GetIdCmd.Dispose();
-	$SQLConnection.Close();
-	$SQLConnection.Dispose();
-	$NewId;
-}
-
 function Get-StateLookup {
 <#
 .SYNOPSIS
@@ -154,7 +98,6 @@ param (
 	$StateLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select StateId, rtrim(ltrim(Name)) as Name from states order by StateId Desc;";
 	$StateLookup;
 }
-
 function Get-CountryLookup {
 <#
 .SYNOPSIS
@@ -178,7 +121,6 @@ param (
 	$CountryLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select CountryId, rtrim(ltrim(Name)) as Name from Countries order by CountryId Desc;";
 	$CountryLookup;
 }
-
 function Get-PointTypeLookups {
 <#
 .SYNOPSIS
@@ -202,7 +144,6 @@ param (
 	$PointTypeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select typeid, typename from point_types;";
 	$PointTypeLookup;
 }
-
 function Get-CacheSizeLookup {
 <#
 .SYNOPSIS
@@ -226,7 +167,6 @@ param (
 	$CacheSizeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select sizeid, sizename from cache_sizes;";
 	$CacheSizeLookup;
 }
-
 function Get-CacheStatusLookup {
 <#
 .SYNOPSIS
@@ -250,7 +190,6 @@ param (
 	$CacheStatusLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select statusid, statusname from statuses;";
 	$CacheStatusLookup;
 }
-
 function Get-PointTypeId {
 <#
 .SYNOPSIS
@@ -275,69 +214,18 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
-	
+
 	if ($script:PointTypeLookup -eq $null) {
 		$script:PointTypeLookup = Get-PointTypeLookups -SQLInstance $SQLInstance -Database $Database;
 	}
-	
+
 	$PointTypeId = $script:PointTypeLookup | where-object{$_.typename -eq $PointTypeName} | Select-Object -ExpandProperty typeid;
 	if ($PointTypeId -eq $null) {
-		$PointTypeId = New-PointType -TypeName $PointTypeName -SQLInstance $SQLInstance -Database $Database;
+		$PointTypeId = New-LookupEntry -LookupName $PointTypeName -SQLInstance $SQLInstance -Database $Database -LookupType Point;
 		$script:PointTypeLookup = Get-PointTypeLookups -SQLInstance $SQLInstance -Database $Database;
 	}
 	$PointTypeId;
 }
-
-function New-PointType {
-<#
-.SYNOPSIS
-	Adds a new point type to the database
-.DESCRIPTION
-	Adds a new point type to the database and returns its ID.
-.PARAMETER TypeName
-	Name of the new point type
-.PARAMETER SQLInstance
-	SQL Server instance to hosting the database
-.PARAMETER Database
-	Database on the SQLInstance hosting the geocache database
-.EXAMPLE
-#>
-[cmdletbinding(SupportsShouldProcess=$False)]
-param(
-	[Parameter(Mandatory=$true)]
-	[string]$TypeName,
-	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
-	[string]$SQLInstance = 'Hobbes\sqlexpress',
-	[Parameter(Mandatory=$true)]
-	[string]$Database = 'Geocaches'
-)
-
-	$SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
-	$SQLConnection = new-object System.Data.SqlClient.SqlConnection;
-	$SQLConnection.ConnectionString = $SQLConnectionString;
-	$SQLConnection.Open();
-	$NewPointTypeCmd = $SQLConnection.CreateCommand();
-	$NewPointTypeCmd.Parameters.Add("@TypeName", [System.Data.SqlDbType]::NVarChar, 30) | Out-Null;
-	$GetIdCmd = $SQLConnection.CreateCommand();
-	$GetIdCmd.Parameters.Add("@TypeName", [System.Data.SqlDbType]::NVarChar, 30) | Out-Null;
-	
-	$NewPointTypeCmd.CommandText = "insert into point_types (typename) values (@TypeName);";
-	$GetIdCmd.CommandText = "select typeid from point_types where typeName = @TypeName;"
-	
-	$NewPointTypeCmd.Prepare();
-	$GetIdCmd.Prepare();
-	$NewPointTypeCmd.Parameters["@TypeName"].Value = $TypeName;
-	$GetIdCmd.Parameters["@TypeName"].Value = $TypeName;
-	$NewPointTypeCmd.ExecuteNonQuery() | Out-Null;
-	$NewId = $GetIdCmd.ExecuteScalar();
-	$NewPointTypeCmd.Dispose();
-	$GetIdCmd.Dispose();
-	$SQLConnection.Close();
-	$SQLConnection.Dispose();
-	$NewId;
-}
-
 function Get-CacheSizeId {
 <#
 .SYNOPSIS
@@ -362,69 +250,18 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
-	
+
 	if ($script:CacheSizeLookup -eq $null) {
 		$script:CacheSizeLookup = Get-CacheSizeLookup -SQLInstance $SQLInstance -Database $Database;
 	}
-	
+
 	$CacheSizeId = $script:CacheSizeLookup | where-object{$_.sizename -eq $SizeName} | Select-Object -ExpandProperty sizeid;
 	if ($CacheSizeId -eq $null) {
-		$CacheSizeId = New-CacheSize -SizeName $SizeName -SQLInstance $SQLInstance -Database $Database;
+		$CacheSizeId = New-LookupEntry -LookupName $SizeName -SQLInstance $SQLInstance -Database $Database -LookupType Size;
 		$script:CacheSizeLookup = Get-CacheSizeLookup -SQLInstance $SQLInstance -Database $Database;
 	}
 	$CacheSizeId;
 }
-
-function New-CacheSize {
-<#
-.SYNOPSIS
-	Adds a new cache size to the database
-.DESCRIPTION
-	Adds a cache size to the database and returns its ID.
-.PARAMETER SizeName
-	Name of the new cache size
-.PARAMETER SQLInstance
-	SQL Server instance to hosting the database
-.PARAMETER Database
-	Database on the SQLInstance hosting the geocache database
-.EXAMPLE
-#>
-[cmdletbinding(SupportsShouldProcess=$False)]
-param(
-	[Parameter(Mandatory=$true)]
-	[string]$SizeName,
-	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
-	[string]$SQLInstance = 'Hobbes\sqlexpress',
-	[Parameter(Mandatory=$true)]
-	[string]$Database = 'Geocaches'
-)
-
-	$SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
-	$SQLConnection = new-object System.Data.SqlClient.SqlConnection;
-	$SQLConnection.ConnectionString = $SQLConnectionString;
-	$SQLConnection.Open();
-	$NewCacheSizeCmd = $SQLConnection.CreateCommand();
-	$NewCacheSizeCmd.Parameters.Add("@SizeName", [System.Data.SqlDbType]::NVarChar, 16) | Out-Null;
-	$GetIdCmd = $SQLConnection.CreateCommand();
-	$GetIdCmd.Parameters.Add("@SizeName", [System.Data.SqlDbType]::NVarChar, 16) | Out-Null;
-	
-	$NewCacheSizeCmd.CommandText = "insert into cache_sizes (sizename) values (@SizeName);";
-	$GetIdCmd.CommandText = "select sizeid from cache_sizes where sizename = @SizeName;"
-	
-	$NewCacheSizeCmd.Prepare();
-	$GetIdCmd.Prepare();
-	$NewCacheSizeCmd.Parameters["@SizeName"].Value = $SizeName;
-	$GetIdCmd.Parameters["@SizeName"].Value = $SizeName;
-	$NewCacheSizeCmd.ExecuteNonQuery() | Out-Null;
-	$NewId = $GetIdCmd.ExecuteScalar();
-	$NewCacheSizeCmd.Dispose();
-	$GetIdCmd.Dispose();
-	$SQLConnection.Close();
-	$SQLConnection.Dispose();
-	$NewId;
-}
-
 function Get-CacheStatusId {
 <#
 .SYNOPSIS
@@ -449,69 +286,18 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
-	
+
 	if ($script:CacheStatusLookup -eq $null) {
 		$script:CacheStatusLookup = Get-CacheStatusLookup -SQLInstance $SQLInstance -Database $Database;
 	}
-	
+
 	$CacheStatusId = $script:CacheStatusLookup | where-object{$_.statusname -eq $StatusName} | Select-Object -ExpandProperty statusid;
 	if ($CacheStatusId -eq $null) {
-		$CacheStatusId = New-CacheStatus -StatusName $StatusName -SQLInstance $SQLInstance -Database $Database;
+		$CacheStatusId = New-CacheStatus -LookupName $StatusName -SQLInstance $SQLInstance -Database $Database -LookupType Status;
 		$script:CacheStatusLookup = Get-CacheStatusLookup -SQLInstance $SQLInstance -Database $Database;
 	}
 	$CacheStatusId;
 }
-
-function New-CacheStatus {
-<#
-.SYNOPSIS
-	Adds a new cache status to the database
-.DESCRIPTION
-	Adds a cache status to the database and returns its ID.
-.PARAMETER StatusName
-	Name of the new cache status
-.PARAMETER SQLInstance
-	SQL Server instance to hosting the database
-.PARAMETER Database
-	Database on the SQLInstance hosting the geocache database
-.EXAMPLE
-#>
-[cmdletbinding(SupportsShouldProcess=$False)]
-param(
-	[Parameter(Mandatory=$true)]
-	[string]$StatusName,
-	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
-	[string]$SQLInstance = 'Hobbes\sqlexpress',
-	[Parameter(Mandatory=$true)]
-	[string]$Database = 'Geocaches'
-)
-
-	$SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
-	$SQLConnection = new-object System.Data.SqlClient.SqlConnection;
-	$SQLConnection.ConnectionString = $SQLConnectionString;
-	$SQLConnection.Open();
-	$NewCacheStatusCmd = $SQLConnection.CreateCommand();
-	$NewCacheStatusCmd.Parameters.Add("@StatusName", [System.Data.SqlDbType]::NVarChar, 12) | Out-Null;
-	$GetIdCmd = $SQLConnection.CreateCommand();
-	$GetIdCmd.Parameters.Add("@StatusName", [System.Data.SqlDbType]::NVarChar, 12) | Out-Null;
-	
-	$NewCacheStatusCmd.CommandText = "insert into statuses (statusname) values (@StatusName);";
-	$GetIdCmd.CommandText = "select statusid from statuses where statusname = @StatusName;"
-	
-	$NewCacheStatusCmd.Prepare();
-	$GetIdCmd.Prepare();
-	$NewCacheStatusCmd.Parameters["@StatusName"].Value = $StatusName;
-	$GetIdCmd.Parameters["@StatusName"].Value = $StatusName;
-	$NewCacheStatusCmd.ExecuteNonQuery() | Out-Null;
-	$NewId = $GetIdCmd.ExecuteScalar();
-	$NewCacheStatusCmd.Dispose();
-	$GetIdCmd.Dispose();
-	$SQLConnection.Close();
-	$SQLConnection.Dispose();
-	$NewId;
-}
-
 function Get-StateId {
 <#
 .SYNOPSIS
@@ -536,19 +322,18 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
-	
+
 	if ($script:StateLookup -eq $null) {
 		$script:StateLookup = Get-StateLookup -SQLInstance $SQLInstance -Database $Database;
 	}
-	
+
 	$StateId = $script:StateLookup | where-object{$_.Name -eq $StateName} | Select-Object -ExpandProperty StateId;
 	if ($StateId -eq $null) {
-		$StateId = New-StateCountryId -Name $StateName -SQLInstance $SQLInstance -Database $Database -Type State;
+		$StateId = New-LookupEntry -LookupName $StateName -SQLInstance $SQLInstance -Database $Database -LookupType State;
 		$script:StateLookup = Get-StateLookup -SQLInstance $SQLInstance -Database $Database;
 	}
 	$StateId;
 }
-
 function Get-CountryId {
 <#
 .SYNOPSIS
@@ -573,17 +358,98 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
-	
+
 	if ($script:CountryLookup -eq $null) {
 		$script:CountryLookup = Get-CountryLookup -SQLInstance $SQLInstance -Database $Database;
 	}
-	
+
 	$CountryId = $script:CountryLookup | where-object{$_.Name -eq $CountryName} | Select-Object -ExpandProperty CountryId;
 	if ($CountryId -eq $null) {
-		$CountryId = New-StateCountryId -Name $CountryName -SQLInstance $SQLInstance -Database $Database -Type Country;
+		$CountryId = New-LookupEntry -LookupName $CountryName -SQLInstance $SQLInstance -Database $Database -LookupName Country;
 		$script:CountryLookup = Get-CountryLookup -SQLInstance $SQLInstance -Database $Database;
 	}
 	$CountryId;
+}
+function New-LookupEntry {
+<#
+.SYNOPSIS
+	Adds a value to a database lookup table
+.DESCRIPTION
+	Adds a value to a database lookup table and returns its ID.
+.PARAMETER LookupName
+	Name of the lookup item to add
+.PARAMETER LookupType
+	Type of lookup item to add
+.PARAMETER SQLInstance
+	SQL Server instance to hosting the database
+.PARAMETER Database
+	Database on the SQLInstance hosting the geocache database
+.EXAMPLE
+#>
+[cmdletbinding(SupportsShouldProcess=$False)]
+param(
+	[Parameter(Mandatory=$true)]
+	[string]$LookupName,
+	[Parameter(Mandatory=$true)]
+	[ValidateSet("State","Country","Status","Point","Size")]
+	[string]$LookupType,
+	[Parameter(Mandatory=$true)]
+	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance = 'Hobbes\sqlexpress',
+	[Parameter(Mandatory=$true)]
+	[string]$Database = 'Geocaches'
+)
+
+	$SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
+	$SQLConnection = new-object System.Data.SqlClient.SqlConnection;
+	$SQLConnection.ConnectionString = $SQLConnectionString;
+	$SQLConnection.Open();
+	$NewLookupItemCmd = $SQLConnection.CreateCommand();
+	$GetIdCmd = $SQLConnection.CreateCommand();
+
+	switch ($Type) {
+		"State" {
+			$NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
+			$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
+			$NewLookupItemCmd.CommandText = "insert into States (Name) values (@LookupTextValue);";
+			$GetIdCmd.CommandText = "select StateId from States where Name = @LookupTextValue;"
+		}
+		"Country" {
+			$NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
+			$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
+			$NewLookupItemCmd.CommandText = "insert into Countries (Name) values (@LookupTextValue);";
+			$GetIdCmd.CommandText = "select CountryId from Countries where Name = @LookupTextValue;"
+		}
+		"Status" {
+			$NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 12) | Out-Null;
+			$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 12) | Out-Null;
+			$NewLookupItemCmd.CommandText = "insert into statuses (statusname) values (@LookupTextValue);";
+			$GetIdCmd.CommandText = "select statusid from statuses where statusname = @LookupTextValue;"
+		}
+		"Point"{
+			$NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 30) | Out-Null;
+			$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 30) | Out-Null;
+			$NewLookupItemCmd.CommandText = "insert into point_types (typename) values (@LookupTextValue);";
+			$GetIdCmd.CommandText = "select typeid from point_types where typeName = @LookupTextValue;"
+		}
+		"Size" {
+			$NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 16) | Out-Null;
+			$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 16) | Out-Null;
+			$NewLookupItemCmd.CommandText = "insert into cache_sizes (sizename) values (@LookupTextValue);";
+			$GetIdCmd.CommandText = "select sizeid from cache_sizes where sizename = @LookupTextValue;"
+		}
+	}
+	$NewLookupItemCmd.Prepare();
+	$GetIdCmd.Prepare();
+	$NewLookupItemCmd.Parameters["@Name"].Value = $LookupName;
+	$GetIdCmd.Parameters["@Name"].Value = $LookupName;
+	$NewLookupItemCmd.ExecuteNonQuery() | Out-Null;
+	$NewId = $GetIdCmd.ExecuteScalar();
+	$NewLookupItemCmd.Dispose();
+	$GetIdCmd.Dispose();
+	$SQLConnection.Close();
+	$SQLConnection.Dispose();
+	$NewId;
 }
 
 Export-ModuleMember Set-CorrectedCoordinates;
