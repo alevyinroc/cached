@@ -451,6 +451,140 @@ param(
 	$SQLConnection.Dispose();
 	$NewId;
 }
+function Update-Waypoint {
+<#
+.SYNOPSIS
+	Creates or updates a non-geocache waypoint
+.DESCRIPTION
+	Creates or updates a non-geocache waypoint. Locates the parent cache & associates the child with it.
+.PARAMETER Waypoint
+	Custom PSObject containing the data representing a single non-geocache waypoint
+.EXAMPLE
+	Update-Waypoint -Waypoint $WptData
+.EXAMPLE
+	$AllWaypoints | Update-Waypoint
+#>
+[cmdletbinding()]
+param (
+	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+	[PSObject[]]$Waypoint
+)
+	begin {
+		$WptLastUpdatedCmd = $SQLConnection.CreateCommand();
+		$WptLastUpdatedCmd.CommandText = "select LastUpdated from waypoints where waypointid = @wptid and parentcache = @cacheid;";
+		$WptLastUpdatedCmd.Parameters.Add("@wptid", [System.Data.SqlDbType]::VarChar,10) | Out-Null;
+		$WptLastUpdatedCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar,8) | Out-Null;
+		$WptUpsertCmd = $SQLConnection.CreateCommand();
+		$WptLastUpdatedCmd.Prepare();
+		$WptUpsertCmd.Parameters.Add("@wptid", [System.Data.SqlDbType]::VarChar,10) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar,8) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@lat",[System.Data.SqlDbType]::Float) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@long",[System.Data.SqlDbType]::Float) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@name",[System.Data.SqlDbType]::VarChar,50) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@desc",[System.Data.SqlDbType]::VarChar, 2000) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@url",[System.Data.SqlDbType]::VarChar,2038) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@urldesc",[System.Data.SqlDbType]::nVarChar, 200) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@pointtype", [System.Data.SqlDbType]::int) | Out-Null;
+		$WptUpsertCmd.Parameters.Add("@LastUpdated", [System.Data.SqlDbType]::DateTimeOffset) | Out-Null;
+	}
+	process {
+		$Id = $Waypoint | Select-Object -ExpandProperty Id;
+
+	# Get parent cache id. Same as waypoint ID but first 2 chars are GC
+		$ParentCache = "GC" + $Id.Substring(2,$Id.Length - 2);
+		$ParentCache = Find-ParentCacheId -CacheId $ParentCache;
+
+		$WptLastUpdatedCmd.Parameters["@wptid"].Value = $Id;
+		$WptLastUpdatedCmd.Parameters["@cacheid"].Value = $ParentCache;
+		$WaypointExists = $WptLastUpdatedCmd.ExecuteScalar();
+		if (($WaypointExists -ne $null) -and ($WaypointExists -ge $script:GPXDate)) {
+			return;
+		}
+
+		$Latitude = [float]($Waypoint | Select-Object -ExpandProperty Lat);
+		$Longitude = [float]($Waypoint | Select-Object -ExpandProperty Long);
+		$WptDate = get-date ($Waypoint | Select-Object -ExpandProperty DateTime);
+		$Name = $Waypoint | Select-Object -ExpandProperty Name;
+		$Description = $Waypoint | Select-Object -ExpandProperty Description;
+		$Url = $Waypoint | Select-Object -ExpandProperty Url;
+		$UrlDesc = $Waypoint | Select-Object -ExpandProperty UrlDesc;
+		$Symbol = $Waypoint | Select-Object -ExpandProperty Symbol;
+		$PointType = $Waypoint | Select-Object -ExpandProperty PointType;
+		$PointTypeId = Get-PointTypeId -PointTypeName $PointType -SQLInstance $SQLInstance -Database $Database;
+
+# Check for point type. If it doesn't exist, create it
+		if ($WaypointExists) {
+			$WptUpsertCmd.CommandText = @"
+update waypoints set
+	latitude = @lat,
+	longitude = @long,
+	name = @name,
+	description = @desc,
+	url = @url,
+	urldesc = @urldesc,
+	typeid = @pointtype,
+	LastUpdated = @LastUpdated
+where
+	waypointid = @wptid
+	and parentcache = @cacheid;
+"@;
+		} else {
+			$WptUpsertCmd.CommandText = @"
+insert into waypoints (waypointid,parentcache,latitude,longitude,name,description,url,urldesc,typeid,LastUpdated) values (
+@wptid, @cacheid,@lat,@long,@name,@desc,@url,@urldesc,@pointtype,@LastUpdated);
+"@;
+		}
+		$WptUpsertCmd.Parameters["@wptid"].Value = $Id;
+		$WptUpsertCmd.Parameters["@cacheid"].Value = $ParentCache;
+		$WptUpsertCmd.Parameters["@lat"].Value = $Latitude;
+		$WptUpsertCmd.Parameters["@long"].Value = $Longitude;
+		$WptUpsertCmd.Parameters["@name"].Value = $Name;
+		$WptUpsertCmd.Parameters["@desc"].Value = $Description;
+		$WptUpsertCmd.Parameters["@url"].Value = $Url;
+		$WptUpsertCmd.Parameters["@urldesc"].Value = $UrlDesc;
+		$WptUpsertCmd.Parameters["@pointtype"].Value = $PointTypeId;
+		$WptUpsertCmd.Parameters["@LastUpdated"].Value = $GPXDate;
+		$WptUpsertCmd.ExecuteNonQuery() | Out-Null;
+		$WaypointsProcessed++;
+	}
+	end {
+		$WptLastUpdatedCmd.Dispose();
+		$WptUpsertCmd.Dispose();
+
+	}
+}
+function Find-ParentCacheId {
+<#
+.SYNOPSIS
+	Finds the GC ID of a waypoint's parent cache
+.DESCRIPTION
+	Finds the GC ID of a waypoint's parent cache. This is currently tightly coupled to the calling function, Update-Waypoint because it assumes that a GC ID is being passed in. Assumes that the waypoint ID is XXYYYZZ where XX is any two characters, YYY is the GC ID of the parent cache less the preceding "GC", and ZZ is an optional suffix. This function recursively trims off any suffix until it locates the parent cache ID.
+.PARAMETER CacheId
+	ID of the parent cache to search for
+.EXAMPLE
+	Find-ParentCacheId -CacheId GC123401
+#>
+[cmdletbinding()]
+param (
+	[Parameter(Mandatory=$true)]
+	[string]$CacheId
+)
+	$CacheFindCmd = $SQLConnection.CreateCommand();
+	$CacheFindCmd.CommandText = "select count(1) from caches where cacheid like @cacheid";
+	$CacheFindCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar, 20) | Out-Null;
+	$CacheFindCmd.Prepare();
+	#$CacheId = "GC" + $WptId.Substring(2,$WptId.Length - 2);
+	$CacheFindCmd.Parameters["@cacheid"].Value = $CacheId + "%";
+	$FoundCache = $CacheFindCmd.ExecuteScalar();
+	$CacheFindCmd.Dispose();
+	if ($FoundCache) {
+		$CacheId;
+	} else {
+		Find-ParentCacheId -CacheId $CacheId.Substring(0,$CacheId.Length - 1);
+	}
+
+}
+
 
 Export-ModuleMember Set-CorrectedCoordinates;
 Export-ModuleMember Get-PointTypeLookups;
@@ -461,3 +595,5 @@ Export-ModuleMember Get-CacheSizeId;
 Export-ModuleMember Get-CacheStatusId;
 Export-ModuleMember Get-StateId;
 Export-ModuleMember Get-CountryId;
+Export-ModuleMember Update-Waypoint;
+Export-ModuleMember Find-ParentCacheId;

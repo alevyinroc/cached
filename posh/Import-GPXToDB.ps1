@@ -115,7 +115,7 @@ param(
 		switch ($PsCmdlet.ParameterSetName) {
 			"CacherObject" {$CacherName = $Cacher.innertext;$CacherId= $Cacher.id;}
 		}
-		
+
 		$CacherExistsCmd.Parameters["@CacherId"].Value = $CacherId;
 		$CacherExists = $CacherExistsCmd.ExecuteScalar();
 		if ($CacherExists){
@@ -162,7 +162,7 @@ param(
 		$CacheHasOwnerCmd.CommandText = "select count(1) as CacheOnOwners from cache_owners where cacheid = @gcnum;";
 		$CacheHasOwnerCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
 		$CacheHasOwnerCmd.Prepare();
-	
+
 		$CacheOwnerUpdateCmd = $SQLConnection.CreateCommand();
 		$CacheOwnerUpdateCmd.Parameters.Add("@ownerid", [System.Data.SqlDbType]::int) | Out-Null;
 		$CacheOwnerUpdateCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
@@ -172,7 +172,7 @@ param(
 		# Check to see if cache is already on the owner table. If owner has changed, update with new value. If cache isn't on the table, add it
 		$CacheHasOwnerCmd.Parameters["@gcnum"].Value = $GCNum;
 		$CacheHasOwner = $CacheHasOwnerCmd.ExecuteScalar();
-		
+
 		if ($CacheHasOwner) {
 			$CacheOwnerUpdateCmd.CommandText = "update cache_owners set cacherid = @ownerid where cacheid = @GCNum and cacherid <> @ownerid;"
 		} else {
@@ -264,10 +264,10 @@ param (
 )
 	begin {
 		$RegisterTBToCacheCmd = $SQLConnection.CreateCommand();
-		
+
 		$RegisterTBToCacheCmd.Parameters.Add("@tbpublicid", [System.Data.SqlDbType]::VarChar, 50) | Out-Null;
 		$RegisterTBToCacheCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
-		
+
 		$TBInOtherCacheCmd = $SQLConnection.CreateCommand();
 		$TBInOtherCacheCmd.CommandText = "select count(1) from tbinventory where tbpublicid = @tbpublicid;";
 		$TBInOtherCacheCmd.Parameters.Add("@tbpublicid", [System.Data.SqlDbType]::VarChar, 50) | Out-Null;
@@ -281,7 +281,7 @@ param (
 		if (!$TBWasInOtherCache) {
 			$RegisterTBToCacheCmd.CommandText = "insert into tbinventory (cacheid, tbpublicid) values (@cacheid,@tbpublicid)";
 		} else {
-			$RegisterTBToCacheCmd.CommandText = "update tbinventory set cacheid = @cacheid where tbpublicid = @tbpublicid";		
+			$RegisterTBToCacheCmd.CommandText = "update tbinventory set cacheid = @cacheid where tbpublicid = @tbpublicid";
 		}
 		$RegisterTBToCacheCmd.Parameters["@cacheid"].Value = $GCNum;
 		$RegisterTBToCacheCmd.Parameters["@tbpublicid"].Value = $TBPublicId;
@@ -380,19 +380,19 @@ param (
 	process {
 	# TODO: Can't navigate XML element structure anymore, need to use ugliness like $CacheWaypoint | Select-Object -ExpandProperty cache | Select-Object -ExpandProperty name
 		$GCNum = $CacheWaypoint | Select-Object -ExpandProperty name;
-		
+
 		$CacheLastUpdatedCmd.Parameters["@CacheId"].Value = $GCNum;
 		$CacheLastUpdated = $CacheLastUpdatedCmd.ExecuteScalar();
 # If the cache already exists and was updated more recently than the GPX was generated, do nothing
 		if ($CacheLastUpdated -and ($CacheLastUpdated -ge $script:GPXDate)) {
 			return;
 		}
-		
+
 		$PlacedDate = get-date ($CacheWaypoint | Select-Object -ExpandProperty time);
 		$Latitude = $CacheWaypoint | Select-Object -ExpandProperty lat;
 		$Longitude = $CacheWaypoint | Select-Object -ExpandProperty lon;
 		$CacheWaypoint = $CacheWaypoint | Select-Object -ExpandProperty cache;
-		
+
 		# Load/Update cache table
 		if (!$CacheLastUpdated){
 			$CacheLoadCmd.CommandText = @"
@@ -477,20 +477,20 @@ param (
 		$CacheLoadCmd.Parameters["@Long"].Value = $Longitude;
 		$CacheLoadCmd.Parameters["@Placed"].Value = $PlacedDate;
 		$CacheLoadCmd.Parameters["@PlacedBy"].Value = $CacheWaypoint | Select-Object -ExpandProperty placed_by;
-		
+
 		$CacheLoadCmd.Parameters["@TypeId"].Value = Get-PointTypeId -PointTypeName $($CacheWaypoint | Select-Object -ExpandProperty type) -SQLInstance $SQLInstance -Database $Database;
-		
+
 		$CacheLoadCmd.Parameters["@SizeId"].Value = Get-CacheSizeId -SizeName $($CacheWaypoint | Select-Object -ExpandProperty container) -SQLInstance $SQLInstance -Database $Database;
-		
-		
+
+
 		$StateName = $CacheWaypoint | Select-Object -ExpandProperty state;
 		$CountryName = $CacheWaypoint | Select-Object -ExpandProperty country;
 		$StateId = Get-StateId -StateName $StateName -SQLInstance $SQLInstance -Database $Database;
 		$CountryId = Get-CountryId -CountryName $CountryName -SQLInstance $SQLInstance -Database $Database;
-		
+
 		$CacheLoadCmd.Parameters["@StateId"].Value = $StateId;
 		$CacheLoadCmd.Parameters["@CountryId"].Value = $CountryId;
-		
+
 		$CacheLoadCmd.Parameters["@Diff"].Value = $CacheWaypoint | Select-Object -ExpandProperty difficulty;
 		$CacheLoadCmd.Parameters["@Terrain"].Value = $CacheWaypoint | Select-Object -ExpandProperty terrain;
 		$CacheLoadCmd.Parameters["@ShortDesc"].Value = $CacheWaypoint | Select-Object -ExpandProperty short_description | Select-Object -ExpandProperty innertext;
@@ -509,7 +509,7 @@ param (
 			} else {
 				$StatusName = "Disabled";
 			}
-		}		
+		}
 		$CacheLoadCmd.Parameters["@CacheStatus"].Value = Get-CacheStatusId -StatusName $StatusName -sqlinstance $SQLInstance -database $Database;
 		# TODO: Figure out where premium only comes from. Doesn't appear to be in the GPX
 		$CacheLoadCmd.Parameters["@PremOnly"].Value = 0; #Get-DBTypeFromTrueFalse $cachedata.gpx.wpt.
@@ -539,7 +539,7 @@ function Update-Log {
 .PARAMETER LogTypeName
 	Log entry type - found, didn't find, etc.
 .PARAMETER Finder
-	Groundspeak internal ID of the finder of the 
+	Groundspeak internal ID of the finder of the
 .PARAMETER LogText
 	Full text of the log entry
 .PARAMETER Latitude
@@ -613,7 +613,7 @@ begin {
 				$LogType = $LogTypes | Where-Object{$_.logtypedesc -eq $LogTypeName} | Select-Object -ExpandProperty logtypeid;
 			}
 		}
-		
+
 		$LogExistsCmd.Parameters["@LogId"].Value = $LogId;
 		$LogExists = $LogExistsCmd.ExecuteScalar();
 		if ($LogExists){
@@ -629,7 +629,7 @@ begin {
 		$LogTableUpdateCmd.Parameters["@Lat"].Value = $Latitude;
 		$LogTableUpdateCmd.Parameters["@Long"].Value = $Longitude;
 		$LogTableUpdateCmd.ExecuteNonQuery() | Out-Null;
-		
+
 		$LogLinkedCmd.Parameters["@LogId"].Value = $LogId;
 		$LogLinked = $LogLinkedCmd.ExecuteScalar();
 		if (!$LogLinked) {
@@ -643,140 +643,6 @@ begin {
 		$LogTableUpdateCmd.Dispose();
 	}
 }
-function Update-Waypoint {
-<#
-.SYNOPSIS
-	Creates or updates a non-geocache waypoint
-.DESCRIPTION
-	Creates or updates a non-geocache waypoint. Locates the parent cache & associates the child with it.
-.PARAMETER Waypoint
-	Custom PSObject containing the data representing a single non-geocache waypoint
-.EXAMPLE
-	Update-Waypoint -Waypoint $WptData
-.EXAMPLE
-	$AllWaypoints | Update-Waypoint
-#>
-[cmdletbinding()]
-param (
-	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
-	[PSObject[]]$Waypoint
-)
-	begin {
-		$WptLastUpdatedCmd = $SQLConnection.CreateCommand();
-		$WptLastUpdatedCmd.CommandText = "select LastUpdated from waypoints where waypointid = @wptid and parentcache = @cacheid;";
-		$WptLastUpdatedCmd.Parameters.Add("@wptid", [System.Data.SqlDbType]::VarChar,10) | Out-Null;
-		$WptLastUpdatedCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar,8) | Out-Null;
-		$WptUpsertCmd = $SQLConnection.CreateCommand();
-		$WptLastUpdatedCmd.Prepare();
-		$WptUpsertCmd.Parameters.Add("@wptid", [System.Data.SqlDbType]::VarChar,10) | Out-Null;
-		$WptUpsertCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar,8) | Out-Null;
-		$WptUpsertCmd.Parameters.Add("@lat",[System.Data.SqlDbType]::Float) | Out-Null;
-		$WptUpsertCmd.Parameters.Add("@long",[System.Data.SqlDbType]::Float) | Out-Null;
-		$WptUpsertCmd.Parameters.Add("@name",[System.Data.SqlDbType]::VarChar,50) | Out-Null;
-		$WptUpsertCmd.Parameters.Add("@desc",[System.Data.SqlDbType]::VarChar, 2000) | Out-Null;
-		$WptUpsertCmd.Parameters.Add("@url",[System.Data.SqlDbType]::VarChar,2038) | Out-Null;
-		$WptUpsertCmd.Parameters.Add("@urldesc",[System.Data.SqlDbType]::nVarChar, 200) | Out-Null;
-		$WptUpsertCmd.Parameters.Add("@pointtype", [System.Data.SqlDbType]::int) | Out-Null;
-		$WptUpsertCmd.Parameters.Add("@LastUpdated", [System.Data.SqlDbType]::DateTimeOffset) | Out-Null;
-	}
-	process {
-		$Id = $Waypoint | Select-Object -ExpandProperty Id;
-
-	# Get parent cache id. Same as waypoint ID but first 2 chars are GC
-		$ParentCache = "GC" + $Id.Substring(2,$Id.Length - 2);
-		$ParentCache = Find-ParentCacheId -CacheId $ParentCache;
-		
-		$WptLastUpdatedCmd.Parameters["@wptid"].Value = $Id;
-		$WptLastUpdatedCmd.Parameters["@cacheid"].Value = $ParentCache;
-		$WaypointExists = $WptLastUpdatedCmd.ExecuteScalar();
-		if (($WaypointExists -ne $null) -and ($WaypointExists -ge $script:GPXDate)) {
-			return;
-		}
-
-		$Latitude = [float]($Waypoint | Select-Object -ExpandProperty Lat);
-		$Longitude = [float]($Waypoint | Select-Object -ExpandProperty Long);
-		$WptDate = get-date ($Waypoint | Select-Object -ExpandProperty DateTime);
-		$Name = $Waypoint | Select-Object -ExpandProperty Name;
-		$Description = $Waypoint | Select-Object -ExpandProperty Description;
-		$Url = $Waypoint | Select-Object -ExpandProperty Url;
-		$UrlDesc = $Waypoint | Select-Object -ExpandProperty UrlDesc;
-		$Symbol = $Waypoint | Select-Object -ExpandProperty Symbol;
-		$PointType = $Waypoint | Select-Object -ExpandProperty PointType;
-		$PointTypeId = Get-PointTypeId -PointTypeName $PointType -SQLInstance $SQLInstance -Database $Database;
-		
-# Check for point type. If it doesn't exist, create it
-		if ($WaypointExists) {
-			$WptUpsertCmd.CommandText = @"
-update waypoints set
-	latitude = @lat,
-	longitude = @long,
-	name = @name,
-	description = @desc,
-	url = @url,
-	urldesc = @urldesc,
-	typeid = @pointtype,
-	LastUpdated = @LastUpdated
-where
-	waypointid = @wptid
-	and parentcache = @cacheid;
-"@;
-		} else {
-			$WptUpsertCmd.CommandText = @"
-insert into waypoints (waypointid,parentcache,latitude,longitude,name,description,url,urldesc,typeid,LastUpdated) values (
-@wptid, @cacheid,@lat,@long,@name,@desc,@url,@urldesc,@pointtype,@LastUpdated);
-"@;
-		}
-		$WptUpsertCmd.Parameters["@wptid"].Value = $Id;
-		$WptUpsertCmd.Parameters["@cacheid"].Value = $ParentCache;
-		$WptUpsertCmd.Parameters["@lat"].Value = $Latitude;
-		$WptUpsertCmd.Parameters["@long"].Value = $Longitude;
-		$WptUpsertCmd.Parameters["@name"].Value = $Name;
-		$WptUpsertCmd.Parameters["@desc"].Value = $Description;
-		$WptUpsertCmd.Parameters["@url"].Value = $Url;
-		$WptUpsertCmd.Parameters["@urldesc"].Value = $UrlDesc;
-		$WptUpsertCmd.Parameters["@pointtype"].Value = $PointTypeId;
-		$WptUpsertCmd.Parameters["@LastUpdated"].Value = $GPXDate;
-		$WptUpsertCmd.ExecuteNonQuery() | Out-Null;
-		$WaypointsProcessed++;
-	}
-	end {
-		$WptLastUpdatedCmd.Dispose();
-		$WptUpsertCmd.Dispose();
-		
-	}
-}
-function Find-ParentCacheId {
-<#
-.SYNOPSIS
-	Finds the GC ID of a waypoint's parent cache
-.DESCRIPTION
-	Finds the GC ID of a waypoint's parent cache. This is currently tightly coupled to the calling function, Update-Waypoint because it assumes that a GC ID is being passed in. Assumes that the waypoint ID is XXYYYZZ where XX is any two characters, YYY is the GC ID of the parent cache less the preceding "GC", and ZZ is an optional suffix. This function recursively trims off any suffix until it locates the parent cache ID.
-.PARAMETER CacheId
-	ID of the parent cache to search for
-.EXAMPLE
-	Find-ParentCacheId -CacheId GC123401
-#>
-[cmdletbinding()]
-param (
-	[Parameter(Mandatory=$true)]
-	[string]$CacheId
-)
-	$CacheFindCmd = $SQLConnection.CreateCommand();
-	$CacheFindCmd.CommandText = "select count(1) from caches where cacheid like @cacheid";
-	$CacheFindCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar, 20) | Out-Null;
-	$CacheFindCmd.Prepare();
-	#$CacheId = "GC" + $WptId.Substring(2,$WptId.Length - 2);
-	$CacheFindCmd.Parameters["@cacheid"].Value = $CacheId + "%";
-	$FoundCache = $CacheFindCmd.ExecuteScalar();
-	$CacheFindCmd.Dispose();
-	if ($FoundCache) {
-		$CacheId;
-	} else {
-		Find-ParentCacheId -CacheId $CacheId.Substring(0,$CacheId.Length - 1);
-	}
-	
-}
-
 function New-Attribute {
 <#
 .SYNOPSIS
@@ -928,7 +794,7 @@ if ($Geocaches -ne $null) {
 			$AllAttributes | Register-AttributeToCache;
 		}
 	#TODO: Make this pipeline aware with $cachedata.gpx.wpt.cache.travelbugs.travelbug | update-travelbugs
-		
+
 		if ($_.cache.travelbugs.travelbug.Count -gt 0) {
 			$_.cache.travelbugs.travelbug | ForEach-Object {
 				Update-TravelBug -GCNum $GCNum -TBPublicId $_.ref -TBName $_.name -TBInternalId $_.id;
