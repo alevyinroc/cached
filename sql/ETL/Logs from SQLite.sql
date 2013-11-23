@@ -1,8 +1,11 @@
-﻿select L.llogid as logid,
-L.ldate + L.ltime as logdate,
-L.ltype as logtypeid,
-L.lownerid as cacherid,
-LM.ltext as logtext,
-llat as latitude,
-llong as longitude
-from logs L inner join logmemo LM on l.llogid = lm.llogid
+SELECT L.llogid AS logid,
+       L.ldate + L.ltime AS logdate,
+       L.ltype AS logtypeid,
+       L.lownerid AS cacherid,
+       LM.ltext AS logtext,
+       llat AS latitude,
+       llon AS longitude
+  FROM logs L
+       INNER JOIN logmemo LM
+               ON l.llogid = lm.llogid;
+
