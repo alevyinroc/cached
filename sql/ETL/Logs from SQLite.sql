@@ -5,7 +5,5 @@ SELECT L.llogid AS logid,
        LM.ltext AS logtext,
        llat AS latitude,
        llon AS longitude
-  FROM logs L
-       INNER JOIN logmemo LM
-               ON l.llogid = lm.llogid;
-
+FROM logs L
+INNER JOIN logmemo LM ON l.llogid = lm.llogid;
