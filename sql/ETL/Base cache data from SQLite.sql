@@ -1,4 +1,4 @@
-SELECT C.code as cacheid,
+SELECT C.code AS cacheid,
        cacheid AS gsid,
        C.name AS cachename,
        C.latoriginal AS latitude,
@@ -20,11 +20,10 @@ SELECT C.code as cacheid,
        C.created,
        cm.url AS url,
        'urldesc' AS urldesc,
-       C.latitude AS correctedlatitude,
-       C.longitude AS correctedlongitude,
+       K.kafterlat AS correctedlatitude,
+/* TODO: Pull these via an ISNULL from corrected coords table */
        C.country AS countryid,
        C.state AS stateid
-  FROM Caches C
-       INNER JOIN cachememo CM
-               ON C.code = cm.code;
-
+FROM Caches C
+INNER JOIN cachememo CM ON C.code = cm.code
+LEFT OUTER JOIN corrected K ON k.kcode = c.code;
