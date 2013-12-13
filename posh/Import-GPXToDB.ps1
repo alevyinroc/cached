@@ -1,4 +1,4 @@
-﻿s<#
+<#
 .SYNOPSIS
 	Loads the contents of a geocaching-related GPX file into a database.
 .DESCRIPTION
@@ -61,11 +61,28 @@ $SQLConnection.Open();
 # Otherwise, it's a waypoint
 $CachesProcessed = 0;
 $Geocaches = $cachedata.gpx.wpt | where-object{$_.type.split(" | ")[0] -eq "Geocache"};
-# New method of loading attributes into database
 
+# New method of loading attributes into database
 $Geocaches | Select-Object -expandproperty cache | where-object{$_.attributes.attribute -ne $null} |
 	Select-Object -expandproperty attributes|Select-Object -expandproperty attribute |
 	Select-Object @{Name="attrname";expression={$_."#text"}},@{Name="attrid";expression={$_.id}} -Unique | New-Attribute;
+
+#Get all unique states, countries, types and containers. Pre-load into lookups for speedup later
+$states = $Geocaches|Select-Object -expandproperty cache|Select-Object -Property state |Sort-Object -Unique;
+$countries = $Geocaches|Select-Object -expandproperty cache|Select-Object -Property country |Sort-Object -Unique;
+$types = $Geocaches|Select-Object -expandproperty cache|Select-Object -Property type |Sort-Object -Unique;
+$containers = $Geocaches|Select-Object -expandproperty cache|Select-Object -Property container |Sort-Object -Unique;
+$cacheowners = $Geocaches|Select-Object -expandproperty cache|Select-Object -ExpandProperty owner | Select-Object id,@{Name="OwnerName";expression={$_."#text"}}|Sort-Object -property id,OwnerName -unique
+$cachefinders = $Geocaches|Select-Object -expandproperty cache|Select-Object -expandproperty logs|Select-Object -expandproperty log|Select-Object -expandproperty finder|Select-Object -Property id,@{Name="FinderName";Expression={$_."#text"}}|Sort-Object -Property id,FinderName -Unique;
+
+foreach ($state in $states) {
+	Get-StateId -StateName $state -DBConnection $SQLConnection;
+}
+
+foreach ($country in $countries) {
+	Get-StateId -StateName $state -DBConnection $SQLConnection;
+}
+
 # TODO: There has to be a better way to do this. foreach $cache in $geocaches maybe?
 if ($Geocaches -ne $null) {
 	$Geocaches | ForEach-Object {
@@ -89,7 +106,7 @@ if ($Geocaches -ne $null) {
 			Drop-Attributes -CacheID $GCNum;
 			$AllAttributes | Register-AttributeToCache;
 		}
-	#TODO: Make this pipeline aware with $cachedata.gpx.wpt.cache.travelbugs.travelbug | update-travelbugs
+#TODO: Make this pipeline aware with $cachedata.gpx.wpt.cache.travelbugs.travelbug | update-travelbugs
 
 		if ($_.cache.travelbugs.travelbug.Count -gt 0) {
 			$_.cache.travelbugs.travelbug | ForEach-Object {

@@ -1,4 +1,9 @@
-﻿s#requires -version 2.0
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETER
+#>
+#requires -version 2.0
 #Set-StrictMode -Version 2.0
 [cmdletbinding()]
 
@@ -9,21 +14,44 @@ param (
 )
 
 function Expand-ZIPFile {
-param (
-	$file,
-	$destination
-)
 <#
-Taken from http://www.howtogeek.com/tips/how-to-extract-zip-files-using-powershell/
+.SYNOPSIS
+    Expands all contents of a ZIP file into a destination directory.
+.DESCRIPTION
+    Expands all contents of a ZIP file into a destination directory. If a file
+    already exists in the destination directory which has the same name as a
+    file coming from the ZIP file, TODO I don't know what'll happen
+.PARAMETER ZipFileToExpand
+    Full path to the ZIP file which contains your GPX files
+.PARAMETER ExpandedFilesLocation
+    Path to the directory to unzip the files into
+.NOTES
+    Taken from http://www.howtogeek.com/tips/how-to-extract-zip-files-using-powershell/
 #>
+param (
+    [Parameter(Mandatory=$true}]
+    [ValidateScript({Test-Path -path $_ -pathtype leaf})]
+	$ZipFileToExpand,
+    [Parameter(Mandatory=$true}]
+    [ValidateScript({Test-Path -path $_ -pathtype container})]
+	$ExpandedFilesLocation
+)
+#TODO: Test PowerShell version, use System.IO.Compression when possible
 	$shell = new-object -com shell.application
-	$zip = $shell.NameSpace($file)
+	$zip = $shell.NameSpace($ZipFileToExpand)
 	foreach($item in $zip.items()) 	{
-		$shell.Namespace($destination).copyhere($item, 12)
+		$shell.Namespace($ExpandedFilesLocation).copyhere($item, 12)
 	}
 }
 
 function Get-GPXFiles {
+<#
+.SYNOPSIS
+.DESCRIPTION
+.PARAMETER
+.NOTES
+#>
+
 [cmdletbinding(SupportsShouldProcess=$true)]
 param (
 	[Parameter(Mandatory=$true)]

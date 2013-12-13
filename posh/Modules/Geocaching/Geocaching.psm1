@@ -1,4 +1,4 @@
-﻿sfunction Set-CorrectedCoordinates {
+﻿function Set-CorrectedCoordinates {
 <#
 .SYNOPSIS
 	Adds/updates corrected coordinates for a cache
@@ -214,7 +214,8 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
-
+# TODO: Make Pipeline-aware
+# TODO: Pass in database connection or connection string (like Update-Geocache)
 	if ($script:PointTypeLookup -eq $null) {
 		$script:PointTypeLookup = Get-PointTypeLookups -SQLInstance $SQLInstance -Database $Database;
 	}
@@ -250,7 +251,8 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
-
+# TODO: Make Pipeline-aware
+# TODO: Pass in database connection or connection string (like Update-Geocache)
 	if ($script:CacheSizeLookup -eq $null) {
 		$script:CacheSizeLookup = Get-CacheSizeLookup -SQLInstance $SQLInstance -Database $Database;
 	}
@@ -322,7 +324,8 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
-
+# TODO: Make Pipeline-aware
+# TODO: Pass in database connection or connection string (like Update-Geocache)
 	if ($script:StateLookup -eq $null) {
 		$script:StateLookup = Get-StateLookup -SQLInstance $SQLInstance -Database $Database;
 	}
@@ -358,7 +361,8 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
-
+# TODO: Make Pipeline-aware
+# TODO: Pass in database connection or connection string (like Update-Geocache)
 	if ($script:CountryLookup -eq $null) {
 		$script:CountryLookup = Get-CountryLookup -SQLInstance $SQLInstance -Database $Database;
 	}
@@ -748,6 +752,8 @@ param(
 	[Parameter(Mandatory=$true,ParameterSetName="CacherObject")]
 	[object]$Cacher
 )
+# TODO: Make Pipeline-aware
+# TODO: Pass in database connection or connection string (like Update-Geocache)
 	begin {
 		$CacherExistsCmd = $SQLConnection.CreateCommand();
 		$CacherExistsCmd.CommandText = "select count(1) from cachers where cacherid = @CacherId;"
