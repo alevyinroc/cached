@@ -67,21 +67,15 @@ $Geocaches | Select-Object -expandproperty cache | where-object{$_.attributes.at
 	Select-Object -expandproperty attributes|Select-Object -expandproperty attribute |
 	Select-Object @{Name="attrname";expression={$_."#text"}},@{Name="attrid";expression={$_.id}} -Unique | New-Attribute;
 
-#Get all unique states, countries, types and containers. Pre-load into lookups for speedup later
-$states = $Geocaches|Select-Object -expandproperty cache|Select-Object -ExpandProperty state |Sort-Object -Unique | where-object {$_ -ne ""};
-$countries = $Geocaches|Select-Object -expandproperty cache|Select-Object -ExpandProperty country |Sort-Object -Unique | where-object {$_ -ne ""};
+# Get all unique states, countries, types, containers, owners & finders.
+# Pre-load tables with the values found in the GPX file. This should be faster
+# than doing it as they're encountered while loading the actual cache data
+$states = $Geocaches|Select-Object -expandproperty cache|Select-Object -ExpandProperty state |Sort-Object -Unique | where-object {$_ -ne ""} | Get-StateId -DBConnection $SQLConnection | Out-Null;
+$countries = $Geocaches|Select-Object -expandproperty cache|Select-Object -ExpandProperty country |Sort-Object -Unique | where-object {$_ -ne ""} | Get-CountryId -DBConnection $SQLConnection | Out-Null;
 $types = $Geocaches|Select-Object -expandproperty cache|Select-Object -ExpandProperty type |Sort-Object -Unique;
 $containers = $Geocaches|Select-Object -expandproperty cache|Select-Object -ExpandProperty container |Sort-Object -Unique;
 $cacheowners = $Geocaches|Select-Object -expandproperty cache|Select-Object -ExpandProperty owner | Select-Object id,@{Name="OwnerName";expression={$_."#text"}}|Sort-Object -property id,OwnerName -unique
 $cachefinders = $Geocaches|Select-Object -expandproperty cache|Select-Object -expandproperty logs|Select-Object -expandproperty log|Select-Object -expandproperty finder|Select-Object -Property id,@{Name="FinderName";Expression={$_."#text"}}|Sort-Object -Property id,FinderName -Unique;
-
-# Pre-load lookups with the values found in the GPX file. This should be faster
-# than doing it as they're encountered while loading the actual cache data
-[Void]$states | Get-StateId -DBConnection $SQLConnection;
-
-foreach ($country in $countries) {
-	Get-StateId -StateName $state -DBConnection $SQLConnection;
-}
 
 # TODO: There has to be a better way to do this. foreach $cache in $geocaches maybe?
 if ($Geocaches -ne $null) {
