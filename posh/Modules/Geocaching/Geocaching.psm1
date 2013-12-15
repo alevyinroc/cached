@@ -89,11 +89,14 @@ function Get-StateLookup {
 #>
 [cmdletbinding(SupportsShouldProcess=$False)]
 param (
-	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
-	[string]$SQLInstance = 'Hobbes\sqlexpress',
-	[Parameter(Mandatory=$true)]
-	[string]$Database = 'Geocaches'
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
 	$StateLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select StateId, rtrim(ltrim(Name)) as Name from states order by StateId Desc;";
 	$StateLookup;
@@ -316,26 +319,61 @@ function Get-StateId {
 #>
 [cmdletbinding()]
 param (
-	[Parameter(Mandatory=$true)]
+	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true)]
 	[string]$StateName,
-	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
-	[string]$SQLInstance = 'Hobbes\sqlexpress',
-	[Parameter(Mandatory=$true)]
-	[string]$Database = 'Geocaches'
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
-# TODO: Make Pipeline-aware
-# TODO: Pass in database connection or connection string (like Update-Geocache)
-	if ($script:StateLookup -eq $null) {
-		$script:StateLookup = Get-StateLookup -SQLInstance $SQLInstance -Database $Database;
-	}
+	begin {
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+		}
 
-	$StateId = $script:StateLookup | where-object{$_.Name -eq $StateName} | Select-Object -ExpandProperty StateId;
-	if ($StateId -eq $null) {
-		$StateId = New-LookupEntry -LookupName $StateName -SQLInstance $SQLInstance -Database $Database -LookupType State;
-		$script:StateLookup = Get-StateLookup -SQLInstance $SQLInstance -Database $Database;
 	}
-	$StateId;
+	process {
+		if ($script:StateLookup -eq $null) {
+			$script:StateLookup = Get-StateLookup -SQLInstance $SQLInstance -DBName $Database;
+		}
+
+		$StateId = $script:StateLookup | where-object{$_.Name -eq $StateName} | Select-Object -ExpandProperty StateId;
+		if ($StateId -eq $null) {
+			$StateId = New-LookupEntry -LookupName $StateName -SQLInstance $SQLInstance -Database $Database -LookupType State;
+			$script:StateLookup = Get-StateLookup -SQLInstance $SQLInstance -Database $Database;
+		}
+		$StateId;
+	}
+	end {
+		switch ($PsCmdlet.ParameterSetName) {
+			{$_ -ne "DBConnection"} {
+				$DBConnection.Close();
+				$DBConnection.Dispose();
+			}
+		}
+	}
 }
 function Get-CountryId {
 <#
@@ -397,63 +435,84 @@ param(
 	[Parameter(Mandatory=$true)]
 	[ValidateSet("State","Country","Status","Point","Size")]
 	[string]$LookupType,
-	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
-	[string]$SQLInstance = 'Hobbes\sqlexpress',
-	[Parameter(Mandatory=$true)]
-	[string]$Database = 'Geocaches'
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
-
-	$SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
-	$SQLConnection = new-object System.Data.SqlClient.SqlConnection;
-	$SQLConnection.ConnectionString = $SQLConnectionString;
-	$SQLConnection.Open();
-	$NewLookupItemCmd = $SQLConnection.CreateCommand();
-	$GetIdCmd = $SQLConnection.CreateCommand();
-
-	switch ($Type) {
-		"State" {
-			$NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
-			$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
-			$NewLookupItemCmd.CommandText = "insert into States (Name) values (@LookupTextValue);";
-			$GetIdCmd.CommandText = "select StateId from States where Name = @LookupTextValue;"
-		}
-		"Country" {
-			$NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
-			$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
-			$NewLookupItemCmd.CommandText = "insert into Countries (Name) values (@LookupTextValue);";
-			$GetIdCmd.CommandText = "select CountryId from Countries where Name = @LookupTextValue;"
-		}
-		"Status" {
-			$NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 12) | Out-Null;
-			$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 12) | Out-Null;
-			$NewLookupItemCmd.CommandText = "insert into statuses (statusname) values (@LookupTextValue);";
-			$GetIdCmd.CommandText = "select statusid from statuses where statusname = @LookupTextValue;"
-		}
-		"Point"{
-			$NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 30) | Out-Null;
-			$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 30) | Out-Null;
-			$NewLookupItemCmd.CommandText = "insert into point_types (typename) values (@LookupTextValue);";
-			$GetIdCmd.CommandText = "select typeid from point_types where typeName = @LookupTextValue;"
-		}
-		"Size" {
-			$NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 16) | Out-Null;
-			$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 16) | Out-Null;
-			$NewLookupItemCmd.CommandText = "insert into cache_sizes (sizename) values (@LookupTextValue);";
-			$GetIdCmd.CommandText = "select sizeid from cache_sizes where sizename = @LookupTextValue;"
+	begin {
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+			}
 		}
 	}
-	$NewLookupItemCmd.Prepare();
-	$GetIdCmd.Prepare();
-	$NewLookupItemCmd.Parameters["@Name"].Value = $LookupName;
-	$GetIdCmd.Parameters["@Name"].Value = $LookupName;
-	$NewLookupItemCmd.ExecuteNonQuery() | Out-Null;
-	$NewId = $GetIdCmd.ExecuteScalar();
-	$NewLookupItemCmd.Dispose();
-	$GetIdCmd.Dispose();
-	$SQLConnection.Close();
-	$SQLConnection.Dispose();
-	$NewId;
+	process {
+		$NewLookupItemCmd = $DBConnection.CreateCommand();
+		$GetIdCmd = $DBConnection.CreateCommand();
+
+		switch ($Type) {
+			"State" {
+				$NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
+				$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
+				$NewLookupItemCmd.CommandText = "insert into States (Name) values (@LookupTextValue);";
+				$GetIdCmd.CommandText = "select StateId from States where Name = @LookupTextValue;"
+			}
+			"Country" {
+				$NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
+				$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
+				$NewLookupItemCmd.CommandText = "insert into Countries (Name) values (@LookupTextValue);";
+				$GetIdCmd.CommandText = "select CountryId from Countries where Name = @LookupTextValue;"
+			}
+			"Status" {
+				$NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 12) | Out-Null;
+				$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 12) | Out-Null;
+				$NewLookupItemCmd.CommandText = "insert into statuses (statusname) values (@LookupTextValue);";
+				$GetIdCmd.CommandText = "select statusid from statuses where statusname = @LookupTextValue;"
+			}
+			"Point"{
+				$NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 30) | Out-Null;
+				$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 30) | Out-Null;
+				$NewLookupItemCmd.CommandText = "insert into point_types (typename) values (@LookupTextValue);";
+				$GetIdCmd.CommandText = "select typeid from point_types where typeName = @LookupTextValue;"
+			}
+			"Size" {
+				$NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 16) | Out-Null;
+				$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 16) | Out-Null;
+				$NewLookupItemCmd.CommandText = "insert into cache_sizes (sizename) values (@LookupTextValue);";
+				$GetIdCmd.CommandText = "select sizeid from cache_sizes where sizename = @LookupTextValue;"
+			}
+		}
+		$NewLookupItemCmd.Prepare();
+		$GetIdCmd.Prepare();
+		$NewLookupItemCmd.Parameters["@Name"].Value = $LookupName;
+		$GetIdCmd.Parameters["@Name"].Value = $LookupName;
+		$NewLookupItemCmd.ExecuteNonQuery() | Out-Null;
+		$NewId = $GetIdCmd.ExecuteScalar();
+		$NewLookupItemCmd.Dispose();
+		$GetIdCmd.Dispose();
+		$NewId;
+	}
+	end {
+		switch ($PsCmdlet.ParameterSetName) {
+			{$_ -ne "DBConnection"} {
+				$DBConnection.Close();
+				$DBConnection.Dispose();
+			}
+		}
+	}
 }
 function Update-Waypoint {
 <#
@@ -999,7 +1058,7 @@ param (
 	[Parameter(Mandatory=$true)]
 	[DateTimeOffset]$LastUpdated,
 	[Parameter(ParameterSetName="DBConnectionDetails")]
-	[string]$DBServer,
+	[string]$SQLInstance,
 	[Parameter(ParameterSetName="DBConnectionDetails")]
 	[string]$DBName,
 	[Parameter(ParameterSetName="DBConnectionString")]
@@ -1011,7 +1070,7 @@ param (
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $DBServer;
+				$DBConnection.DataSource = $SQLInstance;
 				$DBConnection.Database = $DBName;
 				$DBConnection.Open();
 			}
