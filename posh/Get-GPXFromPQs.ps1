@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
 .DESCRIPTION
 .PARAMETER
@@ -29,10 +29,10 @@ function Expand-ZIPFile {
     Taken from http://www.howtogeek.com/tips/how-to-extract-zip-files-using-powershell/
 #>
 param (
-    [Parameter(Mandatory=$true}]
+    [Parameter(Mandatory=$true)]
     [ValidateScript({Test-Path -path $_ -pathtype leaf})]
 	$ZipFileToExpand,
-    [Parameter(Mandatory=$true}]
+    [Parameter(Mandatory=$true)]
     [ValidateScript({Test-Path -path $_ -pathtype container})]
 	$ExpandedFilesLocation
 )
@@ -66,7 +66,7 @@ param (
 		Start-Sleep -Seconds 1;
 	}
 	Get-ChildItem -Path $DirWithPQs -Filter *.gpx | Copy-Item -Destination $GPXPath;
-	Get-ChildItem -Path $DirWithPQs -Filter *.zip | foreach {Expand-Zipfile -file $_.FullName -destination $GPXPath;};
+	Get-ChildItem -Path $DirWithPQs -Filter *.zip | foreach {Expand-Zipfile -ZipFileToExpand $_.FullName -ExpandedFilesLocation $GPXPath;};
 	$AllGPXFiles = Get-ChildItem -Path $GPXPath -Filter *.gpx;
 	$GPXWithDate = @();
 	foreach ($gpx in $AllGPXFiles) {
