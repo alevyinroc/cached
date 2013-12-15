@@ -98,7 +98,7 @@ param (
 	[Parameter(ParameterSetName="DBConnection")]
 	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
-	$StateLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select StateId, rtrim(ltrim(Name)) as Name from states order by StateId Desc;";
+	$StateLookup = Invoke-SQLCmd -server $SQLInstance -database $DBName -query "select StateId, rtrim(ltrim(Name)) as Name from states order by StateId Desc;";
 	$StateLookup;
 }
 function Get-CountryLookup {
@@ -115,13 +115,16 @@ function Get-CountryLookup {
 #>
 [cmdletbinding(SupportsShouldProcess=$False)]
 param (
-	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
-	[string]$SQLInstance = 'Hobbes\sqlexpress',
-	[Parameter(Mandatory=$true)]
-	[string]$Database = 'Geocaches'
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
-	$CountryLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select CountryId, rtrim(ltrim(Name)) as Name from Countries order by CountryId Desc;";
+	$CountryLookup = Invoke-SQLCmd -server $SQLInstance -database $DBName -query "select CountryId, rtrim(ltrim(Name)) as Name from Countries order by CountryId Desc;";
 	$CountryLookup;
 }
 function Get-PointTypeLookups {
@@ -391,26 +394,61 @@ function Get-CountryId {
 #>
 [cmdletbinding()]
 param (
-	[Parameter(Mandatory=$true)]
+	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true)]
 	[string]$CountryName,
-	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
-	[string]$SQLInstance = 'Hobbes\sqlexpress',
-	[Parameter(Mandatory=$true)]
-	[string]$Database = 'Geocaches'
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
-# TODO: Make Pipeline-aware
-# TODO: Pass in database connection or connection string (like Update-Geocache)
-	if ($script:CountryLookup -eq $null) {
-		$script:CountryLookup = Get-CountryLookup -SQLInstance $SQLInstance -Database $Database;
+	begin {
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+		}
+	}
+	process {
+		if ($script:CountryLookup -eq $null) {
+			$script:CountryLookup = Get-CountryLookup -SQLInstance $SQLInstance -Database $DBName;
+		}
+
+		$CountryId = $script:CountryLookup | where-object{$_.Name -eq $CountryName} | Select-Object -ExpandProperty CountryId;
+		if ($CountryId -eq $null) {
+			$CountryId = New-LookupEntry -LookupName $CountryName -SQLInstance $SQLInstance -Database $DBName -LookupName Country;
+			$script:CountryLookup = Get-CountryLookup -SQLInstance $SQLInstance -Database $DBName;
+		}
+		$CountryId;
+	}
+	end {
+		switch ($PsCmdlet.ParameterSetName) {
+			{$_ -ne "DBConnection"} {
+				$DBConnection.Close();
+				$DBConnection.Dispose();
+			}
+		}
 	}
 
-	$CountryId = $script:CountryLookup | where-object{$_.Name -eq $CountryName} | Select-Object -ExpandProperty CountryId;
-	if ($CountryId -eq $null) {
-		$CountryId = New-LookupEntry -LookupName $CountryName -SQLInstance $SQLInstance -Database $Database -LookupName Country;
-		$script:CountryLookup = Get-CountryLookup -SQLInstance $SQLInstance -Database $Database;
-	}
-	$CountryId;
 }
 function New-LookupEntry {
 <#
