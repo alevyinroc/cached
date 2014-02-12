@@ -365,7 +365,7 @@ param (
 		$StateId = $script:StateLookup | where-object{$_.Name -eq $StateName} | Select-Object -ExpandProperty StateId;
 		if ($StateId -eq $null) {
 			$StateId = New-LookupEntry -LookupName $StateName -SQLInstance $SQLInstance -Database $Database -LookupType State;
-			$script:StateLookup = Get-StateLookup -SQLInstance $SQLInstance -Database $Database;
+			$script:StateLookup = Get-StateLookup -SQLInstance $SQLInstance -DBName $Database;
 		}
 		$StateId;
 	}
@@ -430,7 +430,7 @@ param (
 	}
 	process {
 		if ($script:CountryLookup -eq $null) {
-			$script:CountryLookup = Get-CountryLookup -SQLInstance $SQLInstance -Database $DBName;
+			$script:CountryLookup = Get-CountryLookup -SQLInstance $SQLInstance -DBName $DBName;
 		}
 
 		$CountryId = $script:CountryLookup | where-object{$_.Name -eq $CountryName} | Select-Object -ExpandProperty CountryId;
@@ -568,14 +568,35 @@ function Update-Waypoint {
 [cmdletbinding()]
 param (
 	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
-	[PSObject[]]$Waypoint
+	[PSObject[]]$Waypoint,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
 	begin {
-		$WptLastUpdatedCmd = $SQLConnection.CreateCommand();
+	switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+			}
+		}
+		$WptLastUpdatedCmd = $DBConnection.CreateCommand();
 		$WptLastUpdatedCmd.CommandText = "select LastUpdated from waypoints where waypointid = @wptid and parentcache = @cacheid;";
 		$WptLastUpdatedCmd.Parameters.Add("@wptid", [System.Data.SqlDbType]::VarChar,10) | Out-Null;
 		$WptLastUpdatedCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar,8) | Out-Null;
-		$WptUpsertCmd = $SQLConnection.CreateCommand();
+		$WptUpsertCmd = $DBConnection.CreateCommand();
 		$WptLastUpdatedCmd.Prepare();
 		$WptUpsertCmd.Parameters.Add("@wptid", [System.Data.SqlDbType]::VarChar,10) | Out-Null;
 		$WptUpsertCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar,8) | Out-Null;
@@ -651,7 +672,12 @@ insert into waypoints (waypointid,parentcache,latitude,longitude,name,descriptio
 	end {
 		$WptLastUpdatedCmd.Dispose();
 		$WptUpsertCmd.Dispose();
-
+switch ($PsCmdlet.ParameterSetName) {
+			{$_ -ne "DBConnection"} {
+				$DBConnection.Close();
+				$DBConnection.Dispose();
+			}
+		}
 	}
 }
 function Find-ParentCacheId {
@@ -701,15 +727,36 @@ function New-Attribute {
 [cmdletbinding()]
 param(
 	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
-	[PSObject[]]$Attribute
+	[PSObject[]]$Attribute,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
 	begin {
-		$CacheAttributeCheckCmd = $SQLConnection.CreateCommand();
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+			}
+		}
+		$CacheAttributeCheckCmd = $DBConnection.CreateCommand();
 		$CacheAttributeCheckCmd.CommandText = "select count(1) as attrexists from attributes where attributeid = @attrid";
 		$CacheAttributeCheckCmd.Parameters.Add("@attrid", [System.Data.SqlDbType]::Int) | Out-Null;
 		$CacheAttributeCheckCmd.Prepare();
 
-		$CacheAttributeInsertCmd = $SQLConnection.CreateCommand();
+		$CacheAttributeInsertCmd = $DBConnection.CreateCommand();
 		$CacheAttributeInsertCmd.CommandText = "insert into attributes (attributeid,attributename) values (@attrid, @attrname)";
 		$CacheAttributeInsertCmd.Parameters.Add("@attrid", [System.Data.SqlDbType]::Int) | Out-Null;
 		$CacheAttributeInsertCmd.Parameters.Add("@attrname", [System.Data.SqlDbType]::VarChar, 50) | Out-Null;
@@ -727,8 +774,14 @@ param(
 		}
 	}
 	end {
-		$CacheAttributeCheckCmd.Dispose();
+			$CacheAttributeCheckCmd.Dispose();
 		$CacheAttributeInsertCmd.Dispose();
+		switch ($PsCmdlet.ParameterSetName) {
+			{$_ -ne "DBConnection"} {
+				$DBConnection.Close();
+				$DBConnection.Dispose();
+			}
+		}
 	}
 }
 function Drop-Attributes {
@@ -1257,8 +1310,8 @@ param (
 
 		$StateName = $CacheWaypoint | Select-Object -ExpandProperty state;
 		$CountryName = $CacheWaypoint | Select-Object -ExpandProperty country;
-		$StateId = Get-StateId -StateName $StateName -SQLInstance $SQLInstance -Database $Database;
-		$CountryId = Get-CountryId -CountryName $CountryName -SQLInstance $SQLInstance -Database $Database;
+		$StateId = Get-StateId -StateName $StateName -SQLInstance $SQLInstance -DBName $Database;
+		$CountryId = Get-CountryId -CountryName $CountryName -SQLInstance $SQLInstance -DBName $Database;
 
 		$CacheLoadCmd.Parameters["@StateId"].Value = $StateId;
 		$CacheLoadCmd.Parameters["@CountryId"].Value = $CountryId;
