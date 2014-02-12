@@ -30,7 +30,7 @@ param (
 )
 
 $ErrorActionPreference = "Stop";
-Clear-Host;
+#Clear-Host;
 $Error.Clear();
 Push-Location;
 if ((Get-Module | Where-Object{$_.name -eq "SQLPS"} | Measure-Object).Count -lt 1){
@@ -65,7 +65,7 @@ $Geocaches = $cachedata.gpx.wpt | where-object{$_.type.split(" | ")[0] -eq "Geoc
 # New method of loading attributes into database
 $Geocaches | Select-Object -expandproperty cache | where-object{$_.attributes.attribute -ne $null} |
 	Select-Object -expandproperty attributes|Select-Object -expandproperty attribute |
-	Select-Object @{Name="attrname";expression={$_."#text"}},@{Name="attrid";expression={$_.id}} -Unique | New-Attribute;
+	Select-Object @{Name="attrname";expression={$_."#text"}},@{Name="attrid";expression={$_.id}} -Unique | New-Attribute -sqlinstance $SQLInstance -DBName $Database;
 
 # Get all unique states, countries, types, containers, owners & finders.
 # Pre-load tables with the values found in the GPX file. This should be faster
@@ -81,7 +81,7 @@ $cachefinders = $Geocaches|Select-Object -expandproperty cache|Select-Object -ex
 if ($Geocaches -ne $null) {
 	$Geocaches | ForEach-Object {
 		$GCNum = $_.name;
-		$GCNum;
+		write-verbose $GCNum;
 		Write-Progress -Activity "Loading Geocaches" -Status "Cache ID $GCNum" -Id 1 -PercentComplete $(($CachesProcessed/$Geocaches.Count)*100)
 		Update-Geocache $_ -LastUpdated $script:GPXDate -DBConnectionstring $SQLConnectionString; #Process as geocache
 	# Load cacher table if no record for current cache's owner, or update name
@@ -149,7 +149,7 @@ $cachedata.gpx.wpt | Where-Object{$_.type.split(" | ")[0] -ne "Geocache"} | ForE
 		$ChildWaypoints.Add($Waypoint);
 };
 
-$ChildWaypoints | Update-Waypoint;
+$ChildWaypoints | Update-Waypoint -sqlinstance $SQLInstance -DBName $Database;
 
 $SQLConnection.Close();
 Remove-Module Geocaching;
