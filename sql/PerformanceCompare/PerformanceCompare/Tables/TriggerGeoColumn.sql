@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[TriggerGeoColumn]
 (
-	[Id] INT NOT NULL PRIMARY KEY,
+	[Id] INT identity(1,1) NOT NULL PRIMARY KEY,
 	    [latitude]    FLOAT (53)      NOT NULL,
     [longitude]   FLOAT (53)      NOT NULL,
 	[latlong]     geography,
