@@ -60,15 +60,16 @@
     <Folder Include="Tables" />
     <Folder Include="SProcs" />
     <Folder Include="Triggers" />
+    <Folder Include="Functions" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\ComputedGeoColumn.sql" />
     <Build Include="Tables\TriggerGeoColumn.sql" />
     <Build Include="Tables\ComputedGeoColumnPersist.sql" />
     <Build Include="Triggers\UpdateStaticLatLong.sql" />
+    <Build Include="Functions\GeoPoint.sql" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="Tables\GetGeoPoint.sql" />
     <Build Include="Tables\NoGeoColumn.sql" />
   </ItemGroup>
 </Project>
