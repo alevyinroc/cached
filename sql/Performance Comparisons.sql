@@ -2,6 +2,7 @@ SET NOCOUNT OFF;
 SET STATISTICS IO ON;
 SET statistics TIME ON;
 --select latitude,longitude from Geocaches.dbo.caches;
+select COUNT(*) from CacheDB.dbo.caches;
 
 insert INTO PerformanceCompare.dbo.Computedcolumn (latitude,longitude) select latitude,longitude from Geocaches.dbo.caches;
 insert INTO PerformanceCompare.dbo.ComputedColumnPersist (latitude,longitude) select latitude,longitude from Geocaches.dbo.caches;
@@ -10,8 +11,11 @@ insert INTO PerformanceCompare.dbo.TriggerGeoColumn (latitude,longitude) select 
 SET STATISTICS IO OFF;
 SET statistics TIME Off;
 
-SELECT * from PerformanceCompare.dbo.ComputedColumn;
-SELECT * from PerformanceCompare.dbo.ComputedColumnPersist;
+SELECT latlong from PerformanceCompare.dbo.ComputedColumn;
+SELECT latlong from PerformanceCompare.dbo.ComputedColumnPersist;
+SELECT latlong from PerformanceCompare.dbo.TriggerGeoColumn;
+/* Aha! The trigger doesn't work with the bulk-insert I'm doing above! */
+SELECT performancecompare.dbo.GeoPoint(latitude,longitude) from PerformanceCompare.dbo.NoGeoColumn;
 /*TRUNCATE table PerformanceCompare.dbo.computedcolumn;
 TRUNCATE table PerformanceCompare.dbo.computedcolumnpersist;
 TRUNCATE table PerformanceCompare.dbo.nogeocolumn;
