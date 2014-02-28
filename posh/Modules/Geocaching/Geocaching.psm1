@@ -33,24 +33,45 @@ param(
 	[float]$Longitude,
 	[Parameter(Mandatory=$true,ParameterSetName="UpdateObject",ValueFromPipeline=$true)]
 	[PSObject[]]$CorrectedDetails,
-	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
-	[string]$SQLInstance = 'Hobbes\sqlexpress',
-	[Parameter(Mandatory=$true)]
-	[string]$Database = 'Geocaches'
+    [Parameter(ParameterSetName="DBConnectionDetails")]
+    [ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
 	begin {
-		$SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
-		$SQLConnection = new-object System.Data.SqlClient.SqlConnection;
-		$SQLConnection.ConnectionString = $SQLConnectionString;
-		$SQLConnection.Open();
-		$UpdateCoordsCmd = $SQLConnection.CreateCommand();
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+		}
+		$UpdateCoordsCmd = $DBConnection.CreateCommand();
 		$UpdateCoordsCmd.CommandText = "update caches set CorrectedLatitude = @lat, CorrectedLongitude = @long where CacheId = @cacheid;";
 		$UpdateCoordsCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::Char, 8) | Out-Null;
 		$UpdateCoordsCmd.Parameters.Add("@lat", [System.Data.SqlDbType]::Float) | Out-Null;
 		$UpdateCoordsCmd.Parameters.Add("@long", [System.Data.SqlDbType]::Float) | Out-Null;
 		$UpdateCoordsCmd.Prepare();
-		$CheckForCorrectedCmd = $SQLConnection.CreateCommand();
+		$CheckForCorrectedCmd = $DBConnection.CreateCommand();
 		$CheckForCorrectedCmd.CommandText = "select 1 from caches where cacheid = @cacheid and CorrectedLatitude is not null and CorrectedLongitude is not null;";
 		$CheckForCorrectedCmd.Parameters.Add("@cacheid",[System.Data.SqlDbType]::Char, 8) | Out-Null;
 		$CheckForCorrectedCmd.Prepare();
@@ -71,8 +92,12 @@ param(
 	end {
 		$CheckForCorrectedCmd.Dispose();
 		$UpdateCoordsCmd.Dispose();
-		$SQLConnection.Close();
-		$SQLConnection.Dispose();
+		switch ($PsCmdlet.ParameterSetName) {
+			{$_ -ne "DBConnection"} {
+				$DBConnection.Close();
+				$DBConnection.Dispose();
+			}
+		}
 	}
 }
 function Get-StateLookup {
@@ -101,6 +126,7 @@ param (
     begin {
     }
     process {
+    #TODO: Rip out invoke-sqlcmd
 	    $StateLookup = Invoke-SQLCmd -server $SQLInstance -database $DBName -query "select StateId, rtrim(ltrim(Name)) as Name from states order by StateId Desc;";
 	    $StateLookup;
     }
@@ -133,6 +159,7 @@ param (
     begin {
     }
 	process {
+#TODO: Rip out invoke-sqlcmd
         $CountryLookup = Invoke-SQLCmd -server $SQLInstance -database $DBName -query "select CountryId, rtrim(ltrim(Name)) as Name from Countries order by CountryId Desc;";
 	    $CountryLookup;
     }
@@ -153,15 +180,20 @@ function Get-PointTypeLookups {
 #>
 [cmdletbinding(SupportsShouldProcess=$False)]
 param (
-	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
-	[string]$SQLInstance = 'Hobbes\sqlexpress',
-	[Parameter(Mandatory=$true)]
-	[string]$Database = 'Geocaches'
+    [Parameter(ParameterSetName="DBConnectionDetails")]
+    [ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
     begin {
     }
 	process {
+#TODO: Rip out invoke-sqlcmd
         $PointTypeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select typeid, typename from point_types;";
 	    $PointTypeLookup;
     }
@@ -182,14 +214,19 @@ function Get-CacheSizeLookup {
 #>
 [cmdletbinding(SupportsShouldProcess=$False)]
 param (
-	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
-	[string]$SQLInstance = 'Hobbes\sqlexpress',
-	[Parameter(Mandatory=$true)]
-	[string]$Database = 'Geocaches'
+    [Parameter(ParameterSetName="DBConnectionDetails")]
+    [ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
     begin {}
     process {
+    #TODO: Rip out invoke-sqlcmd
 	    $CacheSizeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select sizeid, sizename from cache_sizes;";
 	    $CacheSizeLookup;
     }
@@ -209,14 +246,19 @@ function Get-CacheStatusLookup {
 #>
 [cmdletbinding(SupportsShouldProcess=$False)]
 param (
-	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
-	[string]$SQLInstance = 'Hobbes\sqlexpress',
-	[Parameter(Mandatory=$true)]
-	[string]$Database = 'Geocaches'
+    [Parameter(ParameterSetName="DBConnectionDetails")]
+    [ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
     begin {}
     process {
+    #TODO: Rip out invoke-sqlcmd
 	    $CacheStatusLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select statusid, statusname from statuses;";
 	    $CacheStatusLookup;
     }
@@ -240,15 +282,20 @@ function Get-PointTypeId {
 param (
 	[Parameter(Mandatory=$true)]
 	[string]$PointTypeName,
-	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
-	[string]$SQLInstance = 'Hobbes\sqlexpress',
-	[Parameter(Mandatory=$true)]
-	[string]$Database = 'Geocaches'
+    [Parameter(ParameterSetName="DBConnectionDetails")]
+    [ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
 # TODO: Make Pipeline-aware
-# TODO: Pass in database connection or connection string (like Update-Geocache)
-    begin {}
+    begin {
+#TODO: Fix creating the database connection    
+    }
     process {
 	    if ($script:PointTypeLookup -eq $null) {
 		    $script:PointTypeLookup = Get-PointTypeLookups -SQLInstance $SQLInstance -Database $Database;
@@ -281,15 +328,20 @@ function Get-CacheSizeId {
 param (
 	[Parameter(Mandatory=$true)]
 	[string]$SizeName,
-	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
-	[string]$SQLInstance = 'Hobbes\sqlexpress',
-	[Parameter(Mandatory=$true)]
-	[string]$Database = 'Geocaches'
+    [Parameter(ParameterSetName="DBConnectionDetails")]
+    [ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
 # TODO: Make Pipeline-aware
-# TODO: Pass in database connection or connection string (like Update-Geocache)
-    begin {}
+    begin {
+# TODO: Fix creating the database connection    
+    }
     process {
 	    if ($script:CacheSizeLookup -eq $null) {
 		    $script:CacheSizeLookup = Get-CacheSizeLookup -SQLInstance $SQLInstance -Database $Database;
@@ -322,11 +374,15 @@ function Get-CacheStatusId {
 param (
 	[Parameter(Mandatory=$true)]
 	[string]$StatusName,
-	[Parameter(Mandatory=$true)]
-	[ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
-	[string]$SQLInstance = 'Hobbes\sqlexpress',
-	[Parameter(Mandatory=$true)]
-	[string]$Database = 'Geocaches'
+    [Parameter(ParameterSetName="DBConnectionDetails")]
+    [ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
     begin {}
     process {
@@ -1052,7 +1108,7 @@ param(
 		$CacherExistsCmd.CommandText = "select count(1) from cachers where cacherid = @CacherId;"
 		$CacherExistsCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::int) | Out-Null;
 		$CacherExistsCmd.Prepare();
-		$CacherTableUpdateCmd = $SQLConnection.CreateCommand();
+		$CacherTableUpdateCmd = $DBConnection.CreateCommand();
 		$CacherTableUpdateCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::int) | Out-Null;
 		$CacherTableUpdateCmd.Parameters.Add("@CacherName", [System.Data.SqlDbType]::VarChar, 50) | Out-Null;
 	}
@@ -1106,15 +1162,45 @@ param(
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacheOwnerDetails")]
 	[int]$OwnerId,
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacheOwnerDetails")]
-	[string]$PlacedByName
+	[string]$PlacedByName,
+    [Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
 	begin {
-		$CacheHasOwnerCmd = $SQLConnection.CreateCommand();
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+		}
+
+		$CacheHasOwnerCmd = $DBConnection.CreateCommand();
 		$CacheHasOwnerCmd.CommandText = "select count(1) as CacheOnOwners from cache_owners where cacheid = @gcnum;";
 		$CacheHasOwnerCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
 		$CacheHasOwnerCmd.Prepare();
 
-		$CacheOwnerUpdateCmd = $SQLConnection.CreateCommand();
+		$CacheOwnerUpdateCmd = $DBConnection.CreateCommand();
 		$CacheOwnerUpdateCmd.Parameters.Add("@ownerid", [System.Data.SqlDbType]::int) | Out-Null;
 		$CacheOwnerUpdateCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
 	}
@@ -1136,6 +1222,12 @@ param(
 	end {
 		$CacheOwnerUpdateCmd.Dispose();
 		$CacheOwnerUpdateCmd.Dispose();
+        switch ($PsCmdlet.ParameterSetName) {
+			{$_ -ne "DBConnection"} {
+				$DBConnection.Close();
+				$DBConnection.Dispose();
+			}
+		}
 	}
 }
 function New-TravelBug {
@@ -1161,15 +1253,45 @@ param (
 #	[ValidationScript({$_.Length -le 8})]
 	[string]$TBPublicId,
 #	[ValidationScript({$_.Length -le 50})]
-	[string]$TBName
+	[string]$TBName,
+    [Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
 	begin {
-		$TBCheckCmd = $SQLConnection.CreateCommand();
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+		}
+
+		$TBCheckCmd = $DBConnection.CreateCommand();
 		$TBCheckCmd.CommandText = "select count(1) as tbexists from travelbugs where tbinternalid = @tbid";
 		$TBCheckCmd.Parameters.Add("@tbid", [System.Data.SqlDbType]::Int) | Out-Null;
 		$TBCheckCmd.Prepare();
 
-		$TBInsertCmd = $SQLConnection.CreateCommand();
+		$TBInsertCmd = $DBConnection.CreateCommand();
 		$TBInsertCmd.CommandText = "insert into travelbugs (tbinternalid, tbpublicid,tbname) values (@tbid, @tbpublicid, @tbname)";
 		$TBInsertCmd.Parameters.Add("@tbid", [System.Data.SqlDbType]::Int) | Out-Null;
 		$TBInsertCmd.Parameters.Add("@tbpublicid", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
@@ -1189,6 +1311,12 @@ param (
 	end {
 		$TBCheckCmd.Dispose();
 		$TBInsertCmd.Dispose();
+        switch ($PsCmdlet.ParameterSetName) {
+			{$_ -ne "DBConnection"} {
+				$DBConnection.Close();
+				$DBConnection.Dispose();
+			}
+		}
 	}
 }
 function Move-TravelBugToCache {
@@ -1211,15 +1339,45 @@ param (
 	[string]$GCNum,
 	[Parameter(Mandatory=$true)]
 #	[ValidationScript({$_.Length -le 8})]
-	[string]$TBPublicId
+	[string]$TBPublicId,
+    [Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
 	begin {
-		$RegisterTBToCacheCmd = $SQLConnection.CreateCommand();
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+		}
+
+		$RegisterTBToCacheCmd = $DBConnection.CreateCommand();
 
 		$RegisterTBToCacheCmd.Parameters.Add("@tbpublicid", [System.Data.SqlDbType]::VarChar, 50) | Out-Null;
 		$RegisterTBToCacheCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
 
-		$TBInOtherCacheCmd = $SQLConnection.CreateCommand();
+		$TBInOtherCacheCmd = $DBConnection.CreateCommand();
 		$TBInOtherCacheCmd.CommandText = "select count(1) from tbinventory where tbpublicid = @tbpublicid;";
 		$TBInOtherCacheCmd.Parameters.Add("@tbpublicid", [System.Data.SqlDbType]::VarChar, 50) | Out-Null;
 		$TBInOtherCacheCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
@@ -1241,6 +1399,12 @@ param (
 	end {
 		$TBInOtherCacheCmd.Dispose();
 		$RegisterTBToCacheCmd.Dispose();
+        switch ($PsCmdlet.ParameterSetName) {
+			{$_ -ne "DBConnection"} {
+				$DBConnection.Close();
+				$DBConnection.Dispose();
+			}
+		}
 	}
 }
 # TODO: Make this pipeline-aware & pass in single TBs.
@@ -1270,15 +1434,51 @@ param (
 	[Parameter(Mandatory=$true)]
 	[int]$TBInternalId,
 	[Parameter(Mandatory=$true)]
-	[string]$TBName
+	[string]$TBName,
+    [Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
 	begin {
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+		}
+
 	}
 	process{
-		New-TravelBug -TBId $TBInternalId -TBPublicId $TBPublicId -TBName $TBName;
-		Move-TravelBugToCache -GCNum $GCNum -TBPublicId $TBPublicId;
+		New-TravelBug -TBId $TBInternalId -TBPublicId $TBPublicId -TBName $TBName -DBConnection $DBConnection;
+		Move-TravelBugToCache -GCNum $GCNum -TBPublicId $TBPublicId -DBConnection $DBConnection;
 	}
 	end {
+        switch ($PsCmdlet.ParameterSetName) {
+			{$_ -ne "DBConnection"} {
+				$DBConnection.Close();
+				$DBConnection.Dispose();
+			}
+		}
 	}
 }
 function Update-Geocache {
@@ -1552,14 +1752,36 @@ param (
 	[Parameter(Mandatory=$false,ParameterSetName="ExplicitLogDetails")]
 	[float]$Longitude,
 	[Parameter(Mandatory=$true,ParameterSetName="LogObject")]
-	[System.Xml.XmlElement]$CacheLog
+	[System.Xml.XmlElement]$CacheLog,
+    [Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
 begin {
-		$LogExistsCmd = $SQLConnection.CreateCommand();
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+			}
+		}
+
+		$LogExistsCmd = $DBConnection.CreateCommand();
 		$LogExistsCmd.CommandText = "select count(1) from logs where logid = @LogId;"
 		$LogExistsCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt) | Out-Null;
 		$LogExistsCmd.Prepare();
-		$LogTableUpdateCmd = $SQLConnection.CreateCommand();
+		$LogTableUpdateCmd = $DBConnection.CreateCommand();
 		$LogTableUpdateCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::VarChar, 50) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@LogDate", [System.Data.SqlDbType]::DateTimeOffset) | Out-Null;
@@ -1567,13 +1789,14 @@ begin {
 		$LogTableUpdateCmd.Parameters.Add("@LogText", [System.Data.SqlDbType]::NVarChar, 4000) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::Float) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@Long", [System.Data.SqlDbType]::Float) | Out-Null;
+#TODO: Rip out invoke-sqlcmd
 		$LogTypes = Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $Database -Query "select logtypeid,logtypedesc from log_types";
-		$LogLinkToCacheCmd = $SQLConnection.CreateCommand();
+		$LogLinkToCacheCmd = $DBConnection.CreateCommand();
 		$LogLinkToCacheCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt) | Out-Null;
 		$LogLinkToCacheCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
 		$LogLinkToCacheCmd.CommandText = "insert into cache_logs (cacheid,logid) values (@CacheId, @LogId)";
 		$LogLinkToCacheCmd.Prepare();
-		$LogLinkedCmd = $SQLConnection.CreateCommand();
+		$LogLinkedCmd = $DBConnection.CreateCommand();
 		$LogLinkedCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt) | Out-Null;
 		$LogLinkedCmd.CommandText = "select count(1) from cache_logs where logid = @LogId";
 		$LogLinkedCmd.Prepare();
@@ -1621,6 +1844,12 @@ begin {
 	end {
 		$LogExistsCmd.Dispose();
 		$LogTableUpdateCmd.Dispose();
+		switch ($PsCmdlet.ParameterSetName) {
+			{$_ -ne "DBConnection"} {
+				$DBConnection.Close();
+				$DBConnection.Dispose();
+			}
+		}
 	}
 }
 
