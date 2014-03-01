@@ -65,7 +65,7 @@ $Geocaches = $cachedata.gpx.wpt | where-object{$_.type.split(" | ")[0] -eq "Geoc
 # New method of loading attributes into database
 $Geocaches | Select-Object -expandproperty cache | where-object{$_.attributes.attribute -ne $null} |
 	Select-Object -expandproperty attributes|Select-Object -expandproperty attribute |
-	Select-Object @{Name="attrname";expression={$_."#text"}},@{Name="attrid";expression={$_.id}} -Unique | New-Attribute -sqlinstance $SQLInstance -DBName $Database;
+	Select-Object @{Name="attrname";expression={$_."#text"}},@{Name="attrid";expression={$_.id}} -Unique | New-Attribute -DBConnection $SQLConnection;
 
 # Get all unique states, countries, types, containers, owners & finders.
 # Pre-load tables with the values found in the GPX file. This should be faster

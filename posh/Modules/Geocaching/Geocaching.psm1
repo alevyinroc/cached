@@ -124,7 +124,28 @@ param (
 	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
     begin {
-    }
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+		}
+	}
     process {
     #TODO: Rip out invoke-sqlcmd
 	    $StateLookup = Invoke-SQLCmd -server $SQLInstance -database $DBName -query "select StateId, rtrim(ltrim(Name)) as Name from states order by StateId Desc;";
@@ -157,7 +178,28 @@ param (
 	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
     begin {
-    }
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+		}
+	}
 	process {
 #TODO: Rip out invoke-sqlcmd
         $CountryLookup = Invoke-SQLCmd -server $SQLInstance -database $DBName -query "select CountryId, rtrim(ltrim(Name)) as Name from Countries order by CountryId Desc;";
@@ -191,10 +233,31 @@ param (
 	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
     begin {
-    }
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+		}
+	}
 	process {
 #TODO: Rip out invoke-sqlcmd
-        $PointTypeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select typeid, typename from point_types;";
+        $PointTypeLookup = Invoke-SQLCmd -server $SQLInstance -database $DBName -query "select typeid, typename from point_types;";
 	    $PointTypeLookup;
     }
     end {
@@ -224,7 +287,29 @@ param (
 	[Parameter(ParameterSetName="DBConnection")]
 	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
-    begin {}
+    begin {
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+		}
+	}
     process {
     #TODO: Rip out invoke-sqlcmd
 	    $CacheSizeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select sizeid, sizename from cache_sizes;";
@@ -256,7 +341,29 @@ param (
 	[Parameter(ParameterSetName="DBConnection")]
 	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
-    begin {}
+    begin {
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+		}
+	}
     process {
     #TODO: Rip out invoke-sqlcmd
 	    $CacheStatusLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select statusid, statusname from statuses;";
@@ -294,17 +401,37 @@ param (
 )
 # TODO: Make Pipeline-aware
     begin {
-#TODO: Fix creating the database connection    
-    }
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+		}
+	}
     process {
 	    if ($script:PointTypeLookup -eq $null) {
-		    $script:PointTypeLookup = Get-PointTypeLookups -SQLInstance $SQLInstance -Database $Database;
+		    $script:PointTypeLookup = Get-PointTypeLookups -DBConnection $DBConnection;
 	    }
 
 	    $PointTypeId = $script:PointTypeLookup | where-object{$_.typename -eq $PointTypeName} | Select-Object -ExpandProperty typeid;
 	    if ($PointTypeId -eq $null) {
-		    $PointTypeId = New-LookupEntry -LookupName $PointTypeName -SQLInstance $SQLInstance -Database $Database -LookupType Point;
-		    $script:PointTypeLookup = Get-PointTypeLookups -SQLInstance $SQLInstance -Database $Database;
+		    $PointTypeId = New-LookupEntry -LookupName $PointTypeName -DBConnection $DBConnection -LookupType Point;
+		    $script:PointTypeLookup = Get-PointTypeLookups -DBConnection $DBConnection;
 	    }
 	    $PointTypeId;
     }
@@ -340,17 +467,37 @@ param (
 )
 # TODO: Make Pipeline-aware
     begin {
-# TODO: Fix creating the database connection    
-    }
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+		}
+	}
     process {
 	    if ($script:CacheSizeLookup -eq $null) {
-		    $script:CacheSizeLookup = Get-CacheSizeLookup -SQLInstance $SQLInstance -Database $Database;
+		    $script:CacheSizeLookup = Get-CacheSizeLookup -DBConnection $DBConnection;
 	    }
 
 	    $CacheSizeId = $script:CacheSizeLookup | where-object{$_.sizename -eq $SizeName} | Select-Object -ExpandProperty sizeid;
 	    if ($CacheSizeId -eq $null) {
-		    $CacheSizeId = New-LookupEntry -LookupName $SizeName -SQLInstance $SQLInstance -Database $Database -LookupType Size;
-		    $script:CacheSizeLookup = Get-CacheSizeLookup -SQLInstance $SQLInstance -Database $Database;
+		    $CacheSizeId = New-LookupEntry -LookupName $SizeName -DBConnection $DBConnection -LookupType Size;
+		    $script:CacheSizeLookup = Get-CacheSizeLookup -DBConnection $DBConnection;
 	    }
 	    $CacheSizeId;
     }
@@ -384,16 +531,38 @@ param (
 	[Parameter(ParameterSetName="DBConnection")]
 	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
-    begin {}
+    begin {
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.DataSource = $SQLInstance;
+				$DBConnection.Database = $DBName;
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+		}
+	}
     process {
 	    if ($script:CacheStatusLookup -eq $null) {
-		    $script:CacheStatusLookup = Get-CacheStatusLookup -SQLInstance $SQLInstance -Database $Database;
+		    $script:CacheStatusLookup = Get-CacheStatusLookup -DBConnection $DBConnection;
 	    }
 
 	    $CacheStatusId = $script:CacheStatusLookup | where-object{$_.statusname -eq $StatusName} | Select-Object -ExpandProperty statusid;
 	    if ($CacheStatusId -eq $null) {
-		    $CacheStatusId = New-CacheStatus -LookupName $StatusName -SQLInstance $SQLInstance -Database $Database -LookupType Status;
-		    $script:CacheStatusLookup = Get-CacheStatusLookup -SQLInstance $SQLInstance -Database $Database;
+		    $CacheStatusId = New-CacheStatus -LookupName $StatusName -DBConnection $DBConnection -LookupType Status;
+		    $script:CacheStatusLookup = Get-CacheStatusLookup -DBConnection $DBConnection;
 	    }
 	    $CacheStatusId;
     }
@@ -451,13 +620,13 @@ param (
 	}
 	process {
 		if ($script:StateLookup -eq $null) {
-			$script:StateLookup = Get-StateLookup -SQLInstance $SQLInstance -DBName $Database;
+			$script:StateLookup = Get-StateLookup -DBConnection $DBConnection;
 		}
 
 		$StateId = $script:StateLookup | where-object{$_.Name -eq $StateName} | Select-Object -ExpandProperty StateId;
 		if ($StateId -eq $null) {
-			$StateId = New-LookupEntry -LookupName $StateName -SQLInstance $SQLInstance -Database $Database -LookupType State;
-			$script:StateLookup = Get-StateLookup -SQLInstance $SQLInstance -DBName $Database;
+			$StateId = New-LookupEntry -LookupName $StateName -DBConnection $DBConnection -LookupType State;
+			$script:StateLookup = Get-StateLookup -DBConnection $DBConnection;
 		}
 		$StateId;
 	}
@@ -522,13 +691,13 @@ param (
 	}
 	process {
 		if ($script:CountryLookup -eq $null) {
-			$script:CountryLookup = Get-CountryLookup -SQLInstance $SQLInstance -DBName $DBName;
+			$script:CountryLookup = Get-CountryLookup -DBConnection $DBConnection;
 		}
 
 		$CountryId = $script:CountryLookup | where-object{$_.Name -eq $CountryName} | Select-Object -ExpandProperty CountryId;
 		if ($CountryId -eq $null) {
-			$CountryId = New-LookupEntry -LookupName $CountryName -SQLInstance $SQLInstance -Database $DBName -LookupName Country;
-			$script:CountryLookup = Get-CountryLookup -SQLInstance $SQLInstance -Database $DBName;
+			$CountryId = New-LookupEntry -LookupName $CountryName -DBConnection $DBConnection -LookupName Country;
+			$script:CountryLookup = Get-CountryLookup -DBConnection $DBConnection;
 		}
 		$CountryId;
 	}
@@ -724,7 +893,7 @@ param (
 		$UrlDesc = $Waypoint | Select-Object -ExpandProperty UrlDesc;
 		$Symbol = $Waypoint | Select-Object -ExpandProperty Symbol;
 		$PointType = $Waypoint | Select-Object -ExpandProperty PointType;
-		$PointTypeId = Get-PointTypeId -PointTypeName $PointType -SQLInstance $SQLInstance -Database $Database;
+		$PointTypeId = Get-PointTypeId -PointTypeName $PointType -DBConnection $DBConnection;
 
 # Check for point type. If it doesn't exist, create it
 		if ($WaypointExists) {
@@ -1652,15 +1821,15 @@ param (
 		$CacheLoadCmd.Parameters["@Placed"].Value = $PlacedDate;
 		$CacheLoadCmd.Parameters["@PlacedBy"].Value = $CacheWaypoint | Select-Object -ExpandProperty placed_by;
 
-		$CacheLoadCmd.Parameters["@TypeId"].Value = Get-PointTypeId -PointTypeName $($CacheWaypoint | Select-Object -ExpandProperty type) -SQLInstance $SQLInstance -Database $Database;
+		$CacheLoadCmd.Parameters["@TypeId"].Value = Get-PointTypeId -PointTypeName $($CacheWaypoint | Select-Object -ExpandProperty type) -DBConnection $DBConnection;
 
-		$CacheLoadCmd.Parameters["@SizeId"].Value = Get-CacheSizeId -SizeName $($CacheWaypoint | Select-Object -ExpandProperty container) -SQLInstance $SQLInstance -Database $Database;
+		$CacheLoadCmd.Parameters["@SizeId"].Value = Get-CacheSizeId -SizeName $($CacheWaypoint | Select-Object -ExpandProperty container) -DBConnection $DBConnection;
 
 
 		$StateName = $CacheWaypoint | Select-Object -ExpandProperty state;
 		$CountryName = $CacheWaypoint | Select-Object -ExpandProperty country;
-		$StateId = Get-StateId -StateName $StateName -SQLInstance $SQLInstance -DBName $Database;
-		$CountryId = Get-CountryId -CountryName $CountryName -SQLInstance $SQLInstance -DBName $Database;
+		$StateId = Get-StateId -StateName $StateName -DBConnection $DBConnection;
+		$CountryId = Get-CountryId -CountryName $CountryName -DBConnection $DBConnection;
 
 		$CacheLoadCmd.Parameters["@StateId"].Value = $StateId;
 		$CacheLoadCmd.Parameters["@CountryId"].Value = $CountryId;
@@ -1684,7 +1853,7 @@ param (
 				$StatusName = "Disabled";
 			}
 		}
-		$CacheLoadCmd.Parameters["@CacheStatus"].Value = Get-CacheStatusId -StatusName $StatusName -sqlinstance $SQLInstance -database $Database;
+		$CacheLoadCmd.Parameters["@CacheStatus"].Value = Get-CacheStatusId -StatusName $StatusName -DBConnection $DBConnection;
 		# TODO: Figure out where premium only comes from. Doesn't appear to be in the GPX
 		$CacheLoadCmd.Parameters["@PremOnly"].Value = 0; #Get-DBTypeFromTrueFalse $cachedata.gpx.wpt.
 		# Execute
