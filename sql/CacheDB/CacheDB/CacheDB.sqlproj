@@ -191,6 +191,7 @@
     <Build Include="dbo\Stored Procedures\CacheDensity.sql" />
     <Build Include="dbo\Sequences\StateId.sql" />
     <Build Include="dbo\Sequences\CountryId.sql" />
+    <Build Include="dbo\Sequences\CacheSizeId.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="CacheDB.refactorlog" />

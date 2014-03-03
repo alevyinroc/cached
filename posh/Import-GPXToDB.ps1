@@ -40,7 +40,7 @@ Pop-Location;
 if ((Get-Module | Where-Object{$_.name -eq "Geocaching"} | Measure-Object).Count -ge 1){
 	Remove-Module geocaching;
 }
-Import-Module C:\Users\andy\Documents\Code\cachedb\posh\Modules\Geocaching;
+Import-Module C:\Users\andy\Documents\cachedb\posh\Modules\Geocaching;
 
 #region Globals
 $SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
@@ -83,9 +83,9 @@ if ($Geocaches -ne $null) {
 		$GCNum = $_.name;
 		write-verbose $GCNum;
 		Write-Progress -Activity "Loading Geocaches" -Status "Cache ID $GCNum" -Id 1 -PercentComplete $(($CachesProcessed/$Geocaches.Count)*100)
-		Update-Geocache $_ -LastUpdated $script:GPXDate -DBConnectionstring $SQLConnectionString; #Process as geocache
+		Update-Geocache $_ -LastUpdated $script:GPXDate -DBConnection $SQLConnection; #Process as geocache
 	# Load cacher table if no record for current cache's owner, or update name
-		Update-Cacher -Cacher $_.cache.owner;
+		Update-Cacher -CacherId $_.cache.owner.id -CacherName $_.cache.owner.innertext -DBConnection $SQLConnection;
 	# Insert attributes & TBs into respective tables
 		if ($_.cache.attributes.attribute.Count -gt 0) {
 			$AllAttributes = New-Object -TypeName System.Collections.Generic.List[PSObject];
@@ -97,19 +97,19 @@ if ($Geocaches -ne $null) {
 				};
 				$AllAttributes.Add($CacheAttribute);
 			};
-			Drop-Attributes -CacheID $GCNum;
-			$AllAttributes | Register-AttributeToCache;
+			Drop-Attributes -CacheID $GCNum -DBConnection $SQLConnection;
+			$AllAttributes | Register-AttributeToCache -DBConnection $SQLConnection;
 		}
 #TODO: Make this pipeline aware with $cachedata.gpx.wpt.cache.travelbugs.travelbug | update-travelbugs
 
 		if ($_.cache.travelbugs.travelbug.Count -gt 0) {
 			$_.cache.travelbugs.travelbug | ForEach-Object {
-				Update-TravelBug -GCNum $GCNum -TBPublicId $_.ref -TBName $_.name -TBInternalId $_.id;
+				Update-TravelBug -GCNum $GCNum -TBPublicId $_.ref -TBName $_.name -TBInternalId $_.id -DBConnection $SQLConnection;
 			}
 		}
 		$logs = $_.cache.logs | Select-Object -ExpandProperty log;
 	# TODO: Make this pipeline aware with $logs.finder | Update-Cacher
-		$logs | Select-Object -ExpandProperty finder | ForEach-Object{Update-Cacher -Cacher $_}
+		$logs | Select-Object -ExpandProperty finder | ForEach-Object{Update-Cacher -CacherName $_.innertext -CacherId $_.id -DBConnection $SQLConnection}
 		$logs | ForEach-Object {
 			$UpdateLogVars = @{
 				'LogId' = $_.id;
@@ -127,7 +127,7 @@ if ($Geocaches -ne $null) {
 				$UpdateLogVars.Add('Latitude',$_.log_wpt.lat);
 				$UpdateLogVars.Add('Longitude',$_.log_wpt.lon);
 			}
-			Update-Log @UpdateLogVars;
+			Update-Log @UpdateLogVars -DBConnection $SQLConnection;
 		};
 		$CachesProcessed++;
 	};
@@ -149,7 +149,7 @@ $cachedata.gpx.wpt | Where-Object{$_.type.split(" | ")[0] -ne "Geocache"} | ForE
 		$ChildWaypoints.Add($Waypoint);
 };
 
-$ChildWaypoints | Update-Waypoint -sqlinstance $SQLInstance -DBName $Database;
+$ChildWaypoints | Update-Waypoint -DBConnection $SQLConnection
 
 $SQLConnection.Close();
 Remove-Module Geocaching;
