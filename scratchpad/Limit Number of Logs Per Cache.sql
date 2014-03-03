@@ -6,8 +6,9 @@ SELECT @home = latlong from CenterPoints where locationname='Home';
 
 --SELECT cacheid,latlong from caches where @home.STDistance(latlong)/1000 <= 50;
 
+SELECT * from (
 SELECT
-	c2.cachename, c2.cacheid,logdate, logtext, c.cachername as finder, lt.logtypedesc as LogType
+	c2.cachename, c2.cacheid,logdate, logtext, c.cachername as finder, lt.logtypedesc as LogType,@home.STDistance(c2.latlong) as DistFromHome
 	,ROW_NUMBER() OVER(PARTITION BY c2.cacheid ORDER BY l.logdate DESC) as CacheLogNum
 from
 	caches c2
@@ -18,6 +19,9 @@ from
 where
 	--c2.cacheid = 'GC38VEC'
 	@home.STDistance(c2.latlong)/1000 <= 50
-ORDER BY
+/*ORDER BY
 	@home.STDistance(c2.latlong),
-	l.logdate DESC
+	l.logdate DESC*/
+) A where cachelognum <= 5
+order by A.DistFromHome,A.logdate
+;
