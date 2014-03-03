@@ -149,8 +149,8 @@ $cachedata.gpx.wpt | Where-Object{$_.type.split(" | ")[0] -ne "Geocache"} | ForE
 		$ChildWaypoints.Add($Waypoint);
 };
 
-$ChildWaypoints | Update-Waypoint -DBConnection $SQLConnection
-
+$ChildWaypoints | Update-Waypoint -DBConnection $SQLConnection -LastUpdated $script:GPXDate
+ -
 $SQLConnection.Close();
 Remove-Module Geocaching;
 Remove-Module SQLPS;

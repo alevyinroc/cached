@@ -500,7 +500,7 @@ param (
 		    $script:LogTypeLookup = Get-LogTypeLookup -DBConnection $DBConnection;
 	    }
 
-	    $LogTypeId = $script:LogTypeLookup | where-object{$_.typename -eq $LogTypeName} | Select-Object -ExpandProperty typeid;
+	    $LogTypeId = $script:LogTypeLookup | where-object{$_.LogTypeDesc -eq $LogTypeName} | Select-Object -ExpandProperty logtypeid;
 	    if ($LogTypeId -eq $null) {
 		    $LogTypeId = New-LookupEntry -LookupName $LogTypeName -DBConnection $DBConnection -LookupType Log;
 		    $script:LogTypeLookup = Get-LogTypeLookup -DBConnection $DBConnection;
@@ -995,6 +995,8 @@ function Update-Waypoint {
 param (
 	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
 	[PSObject[]]$Waypoint,
+    [Parameter(Mandatory=$true)]
+    [DateTimeOffset]$LastUpdated,
 	[Parameter(ParameterSetName="DBConnectionDetails")]
 	[string]$SQLInstance,
 	[Parameter(ParameterSetName="DBConnectionDetails")]
@@ -1101,7 +1103,7 @@ insert into waypoints (waypointid,parentcache,latitude,longitude,name,descriptio
 		$WptUpsertCmd.Parameters["@url"].Value = $Url;
 		$WptUpsertCmd.Parameters["@urldesc"].Value = $UrlDesc;
 		$WptUpsertCmd.Parameters["@pointtype"].Value = $PointTypeId;
-		$WptUpsertCmd.Parameters["@LastUpdated"].Value = $script:GPXDate;
+		$WptUpsertCmd.Parameters["@LastUpdated"].Value = $LastUpdated;
 		$WptUpsertCmd.ExecuteNonQuery() | Out-Null;
 		$WaypointsProcessed++;
 	}
@@ -1176,7 +1178,7 @@ process {
 	if ($FoundCache) {
 		$CacheId;
 	} else {
-		Find-ParentCacheId -CacheId $CacheId.Substring(0,$CacheId.Length - 1);
+		Find-ParentCacheId -CacheId $CacheId.Substring(0,$CacheId.Length - 1) -DBConnection $DBConnection;
 	}
 } end {
 	$CacheFindCmd.Dispose();
