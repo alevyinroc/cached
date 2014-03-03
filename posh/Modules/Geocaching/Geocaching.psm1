@@ -46,9 +46,11 @@ param(
 	begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
@@ -100,6 +102,64 @@ param(
 		}
 	}
 }
+
+function Get-LogTypeLookup {
+<#
+.SYNOPSIS
+	Gets all log types from the database
+.DESCRIPTION
+	Gets all log types from the database
+.PARAMETER SQLInstance
+	SQL Server instance to hosting the database
+.PARAMETER Database
+	Database on the SQLInstance hosting the geocache database
+.EXAMPLE
+#>
+[cmdletbinding(SupportsShouldProcess=$False)]
+param (
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
+)
+    begin {
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+		}
+	}
+    process {
+    #TODO: Rip out invoke-sqlcmd
+	    $LogTypeLookup = Invoke-SQLCmd -server $SQLInstance -database $DBName -query "select logtypeid,logtypedesc from log_types order by logtypeid Desc;";
+	    $LogTypeLookup;
+    }
+    end {
+    }
+}
+
 function Get-StateLookup {
 <#
 .SYNOPSIS
@@ -126,9 +186,11 @@ param (
     begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
@@ -180,9 +242,11 @@ param (
     begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
@@ -208,7 +272,7 @@ param (
     end {
     }
 }
-function Get-PointTypeLookups {
+function Get-PointTypeLookup {
 <#
 .SYNOPSIS
 	Gets all point types from the database
@@ -235,9 +299,11 @@ param (
     begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
@@ -290,9 +356,11 @@ param (
     begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
@@ -312,7 +380,7 @@ param (
 	}
     process {
     #TODO: Rip out invoke-sqlcmd
-	    $CacheSizeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select sizeid, sizename from cache_sizes;";
+	    $CacheSizeLookup = Invoke-SQLCmd -server $SQLInstance -database $DBName -query "select sizeid, sizename from cache_sizes;";
 	    $CacheSizeLookup;
     }
     end {}
@@ -344,9 +412,11 @@ param (
     begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
@@ -366,8 +436,76 @@ param (
 	}
     process {
     #TODO: Rip out invoke-sqlcmd
-	    $CacheStatusLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select statusid, statusname from statuses;";
+	    $CacheStatusLookup = Invoke-SQLCmd -server $SQLInstance -database $DBName -query "select statusid, statusname from statuses;";
 	    $CacheStatusLookup;
+    }
+    end {}
+}
+function Get-LogTypeId {
+<#
+.SYNOPSIS
+	Looks up a log type by name and gets its ID
+.DESCRIPTION
+	Looks up a log type by name and gets its ID. If the type name doesn't exist, a new one is created.
+.PARAMETER TypeName
+	Name of the log type to look up
+.PARAMETER SQLInstance
+	SQL Server instance to hosting the database
+.PARAMETER Database
+	Database on the SQLInstance hosting the geocache database
+.EXAMPLE
+#>
+[cmdletbinding()]
+param (
+	[Parameter(Mandatory=$true)]
+	[string]$LogTypeName,
+    [Parameter(ParameterSetName="DBConnectionDetails")]
+    [ValidateScript({Test-Connection -count 1 -computername $_.Split('\')[0] -quiet})]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
+)
+# TODO: Make Pipeline-aware
+    begin {
+		switch ($PsCmdlet.ParameterSetName) {
+			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
+				$DBConnection.Open();
+			}
+			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
+				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+				$DBConnection.ConnectionString = $DBConnectionString;
+				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+		}
+	}
+    process {
+	    if ($script:LogTypeLookup -eq $null) {
+		    $script:LogTypeLookup = Get-LogTypeLookup -DBConnection $DBConnection;
+	    }
+
+	    $LogTypeId = $script:LogTypeLookup | where-object{$_.typename -eq $LogTypeName} | Select-Object -ExpandProperty typeid;
+	    if ($LogTypeId -eq $null) {
+		    $LogTypeId = New-LookupEntry -LookupName $LogTypeName -DBConnection $DBConnection -LookupType Log;
+		    $script:LogTypeLookup = Get-LogTypeLookup -DBConnection $DBConnection;
+	    }
+	    $LogTypeId;
     }
     end {}
 }
@@ -403,9 +541,11 @@ param (
     begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
@@ -425,13 +565,13 @@ param (
 	}
     process {
 	    if ($script:PointTypeLookup -eq $null) {
-		    $script:PointTypeLookup = Get-PointTypeLookups -DBConnection $DBConnection;
+		    $script:PointTypeLookup = Get-PointTypeLookup -DBConnection $DBConnection;
 	    }
 
 	    $PointTypeId = $script:PointTypeLookup | where-object{$_.typename -eq $PointTypeName} | Select-Object -ExpandProperty typeid;
 	    if ($PointTypeId -eq $null) {
 		    $PointTypeId = New-LookupEntry -LookupName $PointTypeName -DBConnection $DBConnection -LookupType Point;
-		    $script:PointTypeLookup = Get-PointTypeLookups -DBConnection $DBConnection;
+		    $script:PointTypeLookup = Get-PointTypeLookup -DBConnection $DBConnection;
 	    }
 	    $PointTypeId;
     }
@@ -469,9 +609,11 @@ param (
     begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
@@ -534,9 +676,11 @@ param (
     begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
@@ -561,7 +705,7 @@ param (
 
 	    $CacheStatusId = $script:CacheStatusLookup | where-object{$_.statusname -eq $StatusName} | Select-Object -ExpandProperty statusid;
 	    if ($CacheStatusId -eq $null) {
-		    $CacheStatusId = New-CacheStatus -LookupName $StatusName -DBConnection $DBConnection -LookupType Status;
+		    $CacheStatusId = New-LookupEntry -LookupName $StatusName -DBConnection $DBConnection -LookupType Status;
 		    $script:CacheStatusLookup = Get-CacheStatusLookup -DBConnection $DBConnection;
 	    }
 	    $CacheStatusId;
@@ -598,9 +742,11 @@ param (
 	begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
@@ -669,9 +815,11 @@ param (
 	begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
@@ -696,7 +844,7 @@ param (
 
 		$CountryId = $script:CountryLookup | where-object{$_.Name -eq $CountryName} | Select-Object -ExpandProperty CountryId;
 		if ($CountryId -eq $null) {
-			$CountryId = New-LookupEntry -LookupName $CountryName -DBConnection $DBConnection -LookupName Country;
+			$CountryId = New-LookupEntry -LookupName $CountryName -DBConnection $DBConnection -LookupType Country;
 			$script:CountryLookup = Get-CountryLookup -DBConnection $DBConnection;
 		}
 		$CountryId;
@@ -732,7 +880,8 @@ param(
 	[Parameter(Mandatory=$true)]
 	[string]$LookupName,
 	[Parameter(Mandatory=$true)]
-	[ValidateSet("State","Country","Status","Point","Size")]
+    [Alias("Type")]
+	[ValidateSet("State","Country","Status","Point","Size","Log")]
 	[string]$LookupType,
 	[Parameter(ParameterSetName="DBConnectionDetails")]
 	[string]$SQLInstance,
@@ -746,23 +895,32 @@ param(
 	begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
 				$DBConnection.ConnectionString = $DBConnectionString;
 				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
 			}
 		}
-	}
-	process {
 		$NewLookupItemCmd = $DBConnection.CreateCommand();
 		$GetIdCmd = $DBConnection.CreateCommand();
-
-		switch ($Type) {
+	}
+	process {
+		switch ($LookupType) {
 			"State" {
 				$NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
 				$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
@@ -793,18 +951,25 @@ param(
 				$NewLookupItemCmd.CommandText = "insert into cache_sizes (sizename) values (@LookupTextValue);";
 				$GetIdCmd.CommandText = "select sizeid from cache_sizes where sizename = @LookupTextValue;"
 			}
+            "Log" {
+                $NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 30) | Out-Null;
+				$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 30) | Out-Null;
+				$NewLookupItemCmd.CommandText = "insert into log_types (logtypedesc) values (@LookupTextValue);";
+				$GetIdCmd.CommandText = "select logtypeid from log_types where logtypedesc = @LookupTextValue;"
+            }
 		}
 		$NewLookupItemCmd.Prepare();
 		$GetIdCmd.Prepare();
-		$NewLookupItemCmd.Parameters["@Name"].Value = $LookupName;
-		$GetIdCmd.Parameters["@Name"].Value = $LookupName;
+		$NewLookupItemCmd.Parameters["@LookupTextValue"].Value = $LookupName;
+		$GetIdCmd.Parameters["@LookupTextValue"].Value = $LookupName;
 		$NewLookupItemCmd.ExecuteNonQuery() | Out-Null;
 		$NewId = $GetIdCmd.ExecuteScalar();
-		$NewLookupItemCmd.Dispose();
-		$GetIdCmd.Dispose();
 		$NewId;
 	}
 	end {
+		$NewLookupItemCmd.Dispose();
+		$GetIdCmd.Dispose();
+
 		switch ($PsCmdlet.ParameterSetName) {
 			{$_ -ne "DBConnection"} {
 				$DBConnection.Close();
@@ -842,15 +1007,25 @@ param (
 	begin {
 	switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
 				$DBConnection.ConnectionString = $DBConnectionString;
 				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
 			}
 		}
 		$WptLastUpdatedCmd = $DBConnection.CreateCommand();
@@ -875,7 +1050,7 @@ param (
 
 	# Get parent cache id. Same as waypoint ID but first 2 chars are GC
 		$ParentCache = "GC" + $Id.Substring(2,$Id.Length - 2);
-		$ParentCache = Find-ParentCacheId -CacheId $ParentCache;
+		$ParentCache = Find-ParentCacheId -CacheId $ParentCache -DBConnection $DBConnection;
 
 		$WptLastUpdatedCmd.Parameters["@wptid"].Value = $Id;
 		$WptLastUpdatedCmd.Parameters["@cacheid"].Value = $ParentCache;
@@ -926,7 +1101,7 @@ insert into waypoints (waypointid,parentcache,latitude,longitude,name,descriptio
 		$WptUpsertCmd.Parameters["@url"].Value = $Url;
 		$WptUpsertCmd.Parameters["@urldesc"].Value = $UrlDesc;
 		$WptUpsertCmd.Parameters["@pointtype"].Value = $PointTypeId;
-		$WptUpsertCmd.Parameters["@LastUpdated"].Value = $GPXDate;
+		$WptUpsertCmd.Parameters["@LastUpdated"].Value = $script:GPXDate;
 		$WptUpsertCmd.ExecuteNonQuery() | Out-Null;
 		$WaypointsProcessed++;
 	}
@@ -968,15 +1143,25 @@ param (
 	begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
 				$DBConnection.ConnectionString = $DBConnectionString;
 				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
 			}
 		}
 	$CacheFindCmd = $DBConnection.CreateCommand();
@@ -1034,15 +1219,25 @@ param(
 	begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
 				$DBConnection.ConnectionString = $DBConnectionString;
 				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
 			}
 		}
 		$CacheAttributeCheckCmd = $DBConnection.CreateCommand();
@@ -1091,7 +1286,7 @@ function Drop-Attributes {
 #>
 [cmdletbinding()]
 param(
-	[Parameter(Position=0,Mandatory=$true,ParameterSetName="SingleCache")]
+	[Parameter(Position=0,Mandatory=$true)]
 	[string]$CacheId,
 	[Parameter(ParameterSetName="DBConnectionDetails")]
 	[string]$SQLInstance,
@@ -1105,15 +1300,25 @@ param(
 	begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
 				$DBConnection.ConnectionString = $DBConnectionString;
 				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
 			}
 		}
 		$DropCacheAttributesCmd = $DBConnection.CreateCommand();
@@ -1164,15 +1369,25 @@ param(
 	begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
 				$DBConnection.ConnectionString = $DBConnectionString;
 				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
 			}
 		}
 		$RegisterAttributeToCacheCmd = $DBConnection.CreateCommand();
@@ -1243,12 +1458,10 @@ function Update-Cacher {
 #>
 [cmdletbinding()]
 param(
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacherDetails")]
+	[Parameter(Mandatory=$true)]
 	[string]$CacherName,
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacherDetails")]
+	[Parameter(Mandatory=$true)]
 	[int]$CacherId,
-	[Parameter(Mandatory=$true,ParameterSetName="CacherObject")]
-	[object]$Cacher,
 	[Parameter(ParameterSetName="DBConnectionDetails")]
 	[string]$SQLInstance,
 	[Parameter(ParameterSetName="DBConnectionDetails")]
@@ -1262,15 +1475,25 @@ param(
 	begin {
         switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
 				$DBConnection.ConnectionString = $DBConnectionString;
 				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
 			}
 		}
 		$CacherExistsCmd = $DBConnection.CreateCommand();
@@ -1282,10 +1505,6 @@ param(
 		$CacherTableUpdateCmd.Parameters.Add("@CacherName", [System.Data.SqlDbType]::VarChar, 50) | Out-Null;
 	}
 	process{
-		switch ($PsCmdlet.ParameterSetName) {
-			"CacherObject" {$CacherName = $Cacher.innertext;$CacherId= $Cacher.id;}
-		}
-
 		$CacherExistsCmd.Parameters["@CacherId"].Value = $CacherId;
 		$CacherExists = $CacherExistsCmd.ExecuteScalar();
 		if ($CacherExists){
@@ -1326,11 +1545,11 @@ function Update-CacheOwner {
 #>
 [cmdletbinding()]
 param(
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacheOwnerDetails")]
+	[Parameter(Mandatory=$true)]
 	[string]$GCNum,
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacheOwnerDetails")]
+	[Parameter(Mandatory=$true)]
 	[int]$OwnerId,
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacheOwnerDetails")]
+	[Parameter(Mandatory=$true)]
 	[string]$PlacedByName,
     [Parameter(ParameterSetName="DBConnectionDetails")]
 	[string]$SQLInstance,
@@ -1344,9 +1563,11 @@ param(
 	begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
@@ -1374,7 +1595,7 @@ param(
 		$CacheOwnerUpdateCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
 	}
 	process {
-		Update-Cacher -Cachername $PlacedByName -CacherId $OwnerId;
+		Update-Cacher -Cachername $PlacedByName -CacherId $OwnerId -DBConnection $DBConnection;
 		# Check to see if cache is already on the owner table. If owner has changed, update with new value. If cache isn't on the table, add it
 		$CacheHasOwnerCmd.Parameters["@gcnum"].Value = $GCNum;
 		$CacheHasOwner = $CacheHasOwnerCmd.ExecuteScalar();
@@ -1435,9 +1656,11 @@ param (
 	begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
@@ -1521,9 +1744,11 @@ param (
 	begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
@@ -1616,9 +1841,11 @@ param (
 	begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
@@ -1635,7 +1862,6 @@ param (
 				$DBConnectionString = $DBConnection.ConnectionString;
 			}
 		}
-
 	}
 	process{
 		New-TravelBug -TBId $TBInternalId -TBPublicId $TBPublicId -TBName $TBName -DBConnection $DBConnection;
@@ -1678,15 +1904,25 @@ param (
 	begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
 				$DBConnection.ConnectionString = $DBConnectionString;
 				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
 			}
 		}
 		$CacheLoadCmd = $DBConnection.CreateCommand();
@@ -1859,7 +2095,7 @@ param (
 		# Execute
 		$CacheLoadCmd.ExecuteNonQuery() | Out-Null;
 
-		Update-CacheOwner -GCNum $GCNum -OwnerId $($CacheWaypoint | Select-Object -ExpandProperty owner | Select-Object -ExpandProperty id) -PlacedByName $($CacheWaypoint | Select-Object -ExpandProperty placed_by);
+		Update-CacheOwner -DBConnection $DBConnection -GCNum $GCNum -OwnerId $($CacheWaypoint | Select-Object -ExpandProperty owner | Select-Object -ExpandProperty id) -PlacedByName $($CacheWaypoint | Select-Object -ExpandProperty placed_by);
 	}
 	end {
 		$CacheLoadCmd.Dispose();
@@ -1904,24 +2140,22 @@ function Update-Log {
 #>
 [cmdletbinding()]
 param (
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
+	[Parameter(Mandatory=$true)]
 	[int]$LogId,
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
+	[Parameter(Mandatory=$true)]
 	[string]$CacheId,
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
+	[Parameter(Mandatory=$true)]
 	[DateTimeOffset]$LogDate,
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
+	[Parameter(Mandatory=$true)]
 	[string]$LogTypeName,
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
+	[Parameter(Mandatory=$true)]
 	[int]$Finder,
-	[Parameter(Mandatory=$false,ParameterSetName="ExplicitLogDetails")]
+	[Parameter(Mandatory=$false)]
 	[string]$LogText="",
-	[Parameter(Mandatory=$false,ParameterSetName="ExplicitLogDetails")]
+	[Parameter(Mandatory=$false)]
 	[float]$Latitude,
-	[Parameter(Mandatory=$false,ParameterSetName="ExplicitLogDetails")]
+	[Parameter(Mandatory=$false)]
 	[float]$Longitude,
-	[Parameter(Mandatory=$true,ParameterSetName="LogObject")]
-	[System.Xml.XmlElement]$CacheLog,
     [Parameter(ParameterSetName="DBConnectionDetails")]
 	[string]$SQLInstance,
 	[Parameter(ParameterSetName="DBConnectionDetails")]
@@ -1932,20 +2166,30 @@ param (
 	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
 begin {
-		switch ($PsCmdlet.ParameterSetName) {
+# TODO: Turn this around
+	switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
+                $DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBConnBuilder.Database = $DBName;
+                $DBConnBuilder.DataSource = $SQLInstance;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
+                $DBConnection.ConnectionString = $DBConnBuilder.ToString();
 				$DBConnection.Open();
 			}
 			"DBConnectionString" {
+				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
 				$DBConnection.ConnectionString = $DBConnectionString;
 				$DBConnection.Open();
+				$DBName = $DBConnBuilder.InitialCatalog;
+				$SQLInstance = $DBConnBuilder.DataSource;
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
 			}
 		}
-
 		$LogExistsCmd = $DBConnection.CreateCommand();
 		$LogExistsCmd.CommandText = "select count(1) from logs where logid = @LogId;"
 		$LogExistsCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt) | Out-Null;
@@ -1959,7 +2203,7 @@ begin {
 		$LogTableUpdateCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::Float) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@Long", [System.Data.SqlDbType]::Float) | Out-Null;
 #TODO: Rip out invoke-sqlcmd
-		$LogTypes = Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $Database -Query "select logtypeid,logtypedesc from log_types";
+		$LogTypes = Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $DBName -Query "select logtypeid,logtypedesc from log_types";
 		$LogLinkToCacheCmd = $DBConnection.CreateCommand();
 		$LogLinkToCacheCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt) | Out-Null;
 		$LogLinkToCacheCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
@@ -1971,21 +2215,9 @@ begin {
 		$LogLinkedCmd.Prepare();
 	}
 	process{
-		switch ($PsCmdlet.ParameterSetName) {
-			"LogObject" {
-				$Finder = $CacheLog.finder.id;
-				$LogId = $CacheLog.id;
-				[DateTimeOffset]$LogDate = Get-Date $CacheLog.date;
-				$LogType = $LogTypes | Where-Object{$_.logtypedesc -eq $CacheLog.type};
-				$LogText = $CacheLog.text;
-				$Latitude = $CacheLog.lat;
-				$Longitude = $CacheLog.lon;
-			}
-			"ExplicitLogDetails" {
-				$LogType = $LogTypes | Where-Object{$_.logtypedesc -eq $LogTypeName} | Select-Object -ExpandProperty logtypeid;
-			}
-		}
-
+        $LogType = Get-LogTypeId -LogTypeName $LogTypeName -DBConnection $DBConnection;
+#		$LogType = $LogTypes | Where-Object{$_.logtypedesc -eq $LogTypeName} | Select-Object -ExpandProperty logtypeid;
+		
 		$LogExistsCmd.Parameters["@LogId"].Value = $LogId;
 		$LogExists = $LogExistsCmd.ExecuteScalar();
 		if ($LogExists){
@@ -2030,7 +2262,7 @@ Export-ModuleMember Update-TravelBug;
 Export-ModuleMember Update-Geocache;
 Export-ModuleMember Update-Log;
 Export-ModuleMember Set-CorrectedCoordinates;
-Export-ModuleMember Get-PointTypeLookups;
+Export-ModuleMember Get-PointTypeLookup;
 Export-ModuleMember Get-CacheSizeLookup;
 Export-ModuleMember Get-CacheStatusLookup;
 Export-ModuleMember Get-PointTypeId;
@@ -2044,3 +2276,5 @@ Export-ModuleMember New-Attribute;
 Export-ModuleMember Drop-Attributes;
 Export-ModuleMember Register-AttributeToCache;
 Export-ModuleMember Get-DBTypeFromTrueFalse;
+Export-ModuleMember Get-LogTypeLookup;
+Export-ModuleMember Get-LogTypeId;
