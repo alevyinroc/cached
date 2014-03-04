@@ -1053,7 +1053,7 @@ param (
 	# Get parent cache id. Same as waypoint ID but first 2 chars are GC
 		$ParentCache = "GC" + $Id.Substring(2,$Id.Length - 2);
 		$ParentCache = Find-ParentCacheId -CacheId $ParentCache -DBConnection $DBConnection;
-
+#TODO: Does this work?
 		$WptLastUpdatedCmd.Parameters["@wptid"].Value = $Id;
 		$WptLastUpdatedCmd.Parameters["@cacheid"].Value = $ParentCache;
 		$WaypointExists = $WptLastUpdatedCmd.ExecuteScalar();

@@ -1,11 +1,5 @@
-﻿#$GPXFiles = .\Get-GPXFromPQs.ps1 -DirWithPQs C:\Users\andy\Documents\Code\cachedb\scratchpad\zip;
+﻿$GPXFiles = .\Get-GPXFromPQs.ps1 -DirWithPQs c:\users\andy\Downloads;
 $GPXFILES = $GPXFiles |sort timestamp;
 foreach ($gpx in $GPXFiles) {
-#	.\import-gpxtodb.ps1 -sqlinstance hobbes\sqlexpress -Database CacheDB -FileToImport $gpx.filepath;
-}
-
-$gpxfiles = get-childitem -path C:\Users\andy\AppData\Local\Temp\PQs;
-$GPXFILES = $GPXFiles |sort lastwritetime;
-foreach ($gpx in $GPXFiles) {
-	.\import-gpxtodb.ps1 -sqlinstance hobbes\sqlexpress -Database CacheDB -FileToImport $gpx.fullname;
+	.\import-gpxtodb.ps1 -sqlinstance win81 -Database CacheDB -FileToImport $gpx.filepath;
 }
