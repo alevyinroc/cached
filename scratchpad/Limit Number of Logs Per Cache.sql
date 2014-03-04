@@ -1,5 +1,5 @@
-use Geocaches;
-SELECT * FROM caches c join cache_logs cl on c.cacheid = cl.cacheid JOIN logs l on cl.logid = l.logid JOIN cachers c2 on c2.cacherid = l.cacherid where c2.cachername = 'dakboy';
+use CacheDB;
+--SELECT * FROM caches c join cache_logs cl on c.cacheid = cl.cacheid JOIN logs l on cl.logid = l.logid JOIN cachers c2 on c2.cacherid = l.cacherid where c2.cachername = 'dakboy';
 
 declare @home geography;
 SELECT @home = latlong from CenterPoints where locationname='Home';
