@@ -72,14 +72,14 @@ param (
 	foreach ($gpx in $AllGPXFiles) {
 	# Not using DateTimeOffset here because we're not concerned about the exact time, just the relative times.
 	# Todo: Find more efficient way to search large files
-		$FileTime = (select-string -Path $gpx.FullName -pattern "(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))" -list).Matches[0].value;
+		[datetime]$FileTime = (select-string -Path $gpx.FullName -pattern "(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d+([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))|(\d{4}-[01]\d-[0-3]\dT[0-2]\d:[0-5]\d([+-][0-2]\d:[0-5]\d|Z))" -list).Matches[0].value;
 		$FileData = New-Object -TypeName PSObject -Property @{
 			FilePath = $gpx.FullName
-			Timestamp =  $FileTime	
+			Timestamp =  $FileTime.toshortdatestring();
 		};
 		$GPXWithDate+=$FileData;
 	}
-	$GPXWithDate|Sort-Object -Property Timestamp;
+	$GPXWithDate|Sort-Object -Property Timestamp,FilePath;
 }
 
 Get-GPXFiles -DirWithPQs $DirWithPQs;
