@@ -2066,9 +2066,16 @@ param (
 
 		$StateName = $CacheWaypoint | Select-Object -ExpandProperty state;
 		$CountryName = $CacheWaypoint | Select-Object -ExpandProperty country;
-		$StateId = Get-StateId -StateName $StateName -DBConnection $DBConnection;
-		$CountryId = Get-CountryId -CountryName $CountryName -DBConnection $DBConnection;
-
+        if ([string]::IsNullOrEmpty($StateName)) {
+            $StateName = "Not Set";
+        }
+        $StateId = Get-StateId -StateName $StateName -DBConnection $DBConnection;
+        
+        if ([string]::IsNullOrEmpty($CountryName)) {
+            $CountryId = "Not Set";
+        }
+        $CountryId = Get-CountryId -CountryName $CountryName -DBConnection $DBConnection;
+        
 		$CacheLoadCmd.Parameters["@StateId"].Value = $StateId;
 		$CacheLoadCmd.Parameters["@CountryId"].Value = $CountryId;
 
