@@ -6,3 +6,6 @@ select cacheid,latlong from caches where longitude < -76;
 select cacheid,latlong from caches order by cacheid;
 select latlong,waypointid from waypoints where latitude <> 0 and longitude < -74;
 select count(1) from caches;
+select count(1) from waypoints;
+SELECT * FROM waypoints order by waypointid;
+SELECT * from waypoints where waypointid = 'PK20YRA';

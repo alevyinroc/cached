@@ -20,7 +20,7 @@ SELECT cacheid, count(tbpublicid) from tbinventory group BY cacheid ORDER by COU
 
 
 SELECT
-	c2.cachename, c2.cacheid,l.latitude,l.longitude, l.latlong,logdate, logtext, c.cachername as finder, lt.logtypedesc as LogType
+	c2.cachename, c2.cacheid,c2.latitude,c2.longitude, c2.latlong,logdate, logtext, c.cachername as finder, lt.logtypedesc as LogType
 from
 	caches c2
 	join cache_logs cl on c2.cacheid = cl.cacheid
@@ -28,6 +28,6 @@ from
 	JOIN log_types lt on l.logtypeid = lt.logtypeid
 	JOIN cachers c on l.cacherid = c.cacherid
 where
-	c2.cacheid = 'GC38VEC'
+	c.cachername = 'dakboy' AND lt.logtypedesc = 'Found it'
 ORDER BY
-	l.logdate desc;
+	l.logdate asc;
