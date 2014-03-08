@@ -18,6 +18,7 @@ select * from travelbugs tb JOIN tbinventory tbi on tb.tbpublicid = tbi.tbpublic
 select * from travelbugs;
 SELECT cacheid, count(tbpublicid) from tbinventory group BY cacheid ORDER by COUNT(tbpublicid) desc;
 
+exec sp_updatestats;
 
 SELECT
 	c2.cachename, c2.cacheid,c2.latitude,c2.longitude, c2.latlong,logdate, logtext, c.cachername as finder, lt.logtypedesc as LogType

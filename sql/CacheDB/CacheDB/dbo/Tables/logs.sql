@@ -12,3 +12,7 @@
     CONSTRAINT [fk_logtype] FOREIGN KEY ([logtypeid]) REFERENCES [dbo].[log_types] ([logtypeid])
 );
 
+
+GO
+
+CREATE INDEX [IX_logs_cacherid] ON [dbo].[logs] (cacherid)
