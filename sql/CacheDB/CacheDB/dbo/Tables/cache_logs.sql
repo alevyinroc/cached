@@ -6,3 +6,7 @@
     CONSTRAINT [fk_log_logid] FOREIGN KEY ([logid]) REFERENCES [dbo].[logs] ([logid])
 );
 
+
+GO
+
+CREATE INDEX [IX_cache_logs_logid] ON [dbo].[cache_logs] ([logid])
