@@ -1,4 +1,4 @@
-﻿$GPXFiles = .\Get-GPXFromPQs.ps1 -DirWithPQs c:\users\andy\Downloads;
+﻿$GPXFiles = .\Get-GPXFromPQs.ps1 -DirWithPQs c:\users\andy\Downloads\PQs;
 $GPXFILES = $GPXFiles |sort timestamp;
 foreach ($gpx in $GPXFiles|Where-Object {$_.filepath -notlike "*-wpts.gpx"}) {
     write-output $gpx.filepath;
