@@ -18,9 +18,10 @@ SELECT top 20 geography::STGeomFromText(
 	  +')'	  
 	  ,latlong.STSrid),
 	  @home.STDistance(latlong)/1000 as DistFromHomeKM,
-	  ((@home.STDistance(latlong)/1000) * 0.62137) as DistFromHomeMiles,
+	  dbo.DistanceInMiles(@home,latlong) as DistFromHomeMiles,
 	  cacheid
 FROM caches
+--where dbo.Bearing(@home,latlong) between 270 and 360 and dbo.Bearing(@home,latlong) between 0 and 90
 order by @home.STDistance(latlong) desc
 ;
 
