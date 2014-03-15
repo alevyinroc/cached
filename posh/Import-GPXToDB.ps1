@@ -132,6 +132,7 @@ if ($Geocaches -ne $null) {
 		$CachesProcessed++;
 	};
 }
+Write-Progress -Activity "Loading Geocaches" -completed -Id 1
 $ChildWaypoints = New-Object -TypeName System.Collections.Generic.List[PSObject];
 $cachedata.gpx.wpt | Where-Object{$_.type.split(" | ")[0] -ne "Geocache"} | ForEach-Object{
 	$Waypoint = New-Object -TypeName PSObject -Property @{
