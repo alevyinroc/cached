@@ -7,3 +7,4 @@ scratchpad/*.zip
 sql/PerformanceCompare/PerformanceCompare/bin/*
 sql/PerformanceCompare/PerformanceCompare/obj/*
 *.user
+*.ssms_suo
