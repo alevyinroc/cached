@@ -8,3 +8,5 @@ sql/PerformanceCompare/PerformanceCompare/bin/*
 sql/PerformanceCompare/PerformanceCompare/obj/*
 *.user
 *.ssms_suo
+sql\TravelMap\TravelMap\TravelMap - Backup.rdl
+*.data
