@@ -39,6 +39,7 @@ param(
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
+# TODO: Properly support confirmation/whatif
 	begin {
 		$SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
 		$SQLConnection = new-object System.Data.SqlClient.SqlConnection;
@@ -61,11 +62,10 @@ param(
 		}
 		$CheckForCorrectedCmd.Parameters["@cacheid"].Value = $CacheId;
 		$HasCorrected = $CheckForCorrectedCmd.ExecuteScalar();
-		if ($HasCorrected -and $pscmdlet.ShouldProcess()) {
-			$UpdateCoordsCmd.Parameters["@cacheid"].Value = $CacheId;
-			$UpdateCoordsCmd.Parameters["@lat"].Value = $Latitude;
-			$UpdateCoordsCmd.Parameters["@long"].Value = $Longitude;
-			$UpdateCoordsCmd.ExecuteNonQuery();
+		$UpdateCoordsCmd.Parameters["@cacheid"].Value = $CacheId;
+		$UpdateCoordsCmd.Parameters["@lat"].Value = $Latitude;
+		$UpdateCoordsCmd.Parameters["@long"].Value = $Longitude;
+		$UpdateCoordsCmd.ExecuteNonQuery();
 		}
 	}
 	end {
@@ -98,7 +98,7 @@ param (
 	[Parameter(ParameterSetName="DBConnection")]
 	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
-	$StateLookup = Invoke-SQLCmd -server $SQLInstance -database $DBName -query "select StateId, rtrim(ltrim(Name)) as Name from states order by StateId Desc;";
+	$StateLookup = Get-DataFromQuery -SQLInstance $SQLInstance -Database $DBName -query "select StateId, rtrim(ltrim(Name)) as Name from states order by StateId Desc;";
 	$StateLookup;
 }
 function Get-CountryLookup {
@@ -124,7 +124,7 @@ param (
 	[Parameter(ParameterSetName="DBConnection")]
 	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
-	$CountryLookup = Invoke-SQLCmd -server $SQLInstance -database $DBName -query "select CountryId, rtrim(ltrim(Name)) as Name from Countries order by CountryId Desc;";
+	$CountryLookup = Get-DataFromQuery -server $SQLInstance -database $DBName -query "select CountryId, rtrim(ltrim(Name)) as Name from Countries order by CountryId Desc;";
 	$CountryLookup;
 }
 function Get-PointTypeLookups {
@@ -147,7 +147,7 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
-	$PointTypeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select typeid, typename from point_types;";
+	$PointTypeLookup = Get-DataFromQuery -server $SQLInstance -database $Database -query "select typeid, typename from point_types;";
 	$PointTypeLookup;
 }
 function Get-CacheSizeLookup {
@@ -170,7 +170,7 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
-	$CacheSizeLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select sizeid, sizename from cache_sizes;";
+	$CacheSizeLookup = Get-DataFromQuery -server $SQLInstance -database $Database -query "select sizeid, sizename from cache_sizes;";
 	$CacheSizeLookup;
 }
 function Get-CacheStatusLookup {
@@ -193,7 +193,7 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
-	$CacheStatusLookup = Invoke-SQLCmd -server $SQLInstance -database $Database -query "select statusid, statusname from statuses;";
+	$CacheStatusLookup = Get-DataFromQuery -server $SQLInstance -database $Database -query "select statusid, statusname from statuses;";
 	$CacheStatusLookup;
 }
 function Get-PointTypeId {
@@ -1355,6 +1355,7 @@ param (
 	}
 }
 #TODO: This probably doesn't work for the CacheLog parameter (all data in one)
+#TODO: This needs a connection parameter (set of parameters) passed in!
 function Update-Log {
 <#
 .SYNOPSIS
@@ -1418,7 +1419,7 @@ begin {
 		$LogTableUpdateCmd.Parameters.Add("@LogText", [System.Data.SqlDbType]::NVarChar, 4000) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::Float) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@Long", [System.Data.SqlDbType]::Float) | Out-Null;
-		$LogTypes = Invoke-Sqlcmd -ServerInstance $SQLInstance -Database $Database -Query "select logtypeid,logtypedesc from log_types";
+		$LogTypes = Get-DataFromQuery -ServerInstance $SQLInstance -Database $Database -Query "select logtypeid,logtypedesc from log_types";
 		$LogLinkToCacheCmd = $SQLConnection.CreateCommand();
 		$LogLinkToCacheCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt) | Out-Null;
 		$LogLinkToCacheCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
@@ -1473,6 +1474,50 @@ begin {
 		$LogExistsCmd.Dispose();
 		$LogTableUpdateCmd.Dispose();
 	}
+}
+
+function Get-DataFromQuery  {
+[cmdletBinding()]
+param(
+	[Parameter(Mandatory=$true)]
+	[string]$Query,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
+)
+	switch ($PsCmdlet.ParameterSetName) {
+		"DBConnectionDetails" {
+			$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+			$DBConnection.DataSource = $SQLInstance;
+			$DBConnection.Database = $DBName;
+			$DBConnection.Open();
+		}
+		"DBConnectionString" {
+			$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+			$DBConnection.ConnectionString = $DBConnectionString;
+			$DBConnection.Open();
+		}
+	}
+	$QueryCmd = $DBConnection.CreateCommand();
+	$QueryCmd.CommandText = $Query;
+	$SqlAdapter = New-Object System.Data.SqlClient.SqlDataAdapter
+	$SqlAdapter.SelectCommand = $QueryCmd
+	$SqlCmd.Connection = $Connection
+	$DataSet = New-Object System.Data.DataSet;
+	$SqlAdapter.Fill($DataSet)
+
+	switch ($PsCmdlet.ParameterSetName) {
+		{$_ -ne "DBConnection"} {
+			$DBConnection.Close();
+			$DBConnection.Dispose();
+		}
+	}
+	$DataSet.Tables[0]
 }
 
 Export-ModuleMember Update-Cacher;
