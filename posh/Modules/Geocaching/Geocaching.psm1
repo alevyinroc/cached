@@ -62,10 +62,12 @@ param(
 		}
 		$CheckForCorrectedCmd.Parameters["@cacheid"].Value = $CacheId;
 		$HasCorrected = $CheckForCorrectedCmd.ExecuteScalar();
-		$UpdateCoordsCmd.Parameters["@cacheid"].Value = $CacheId;
-		$UpdateCoordsCmd.Parameters["@lat"].Value = $Latitude;
-		$UpdateCoordsCmd.Parameters["@long"].Value = $Longitude;
-		$UpdateCoordsCmd.ExecuteNonQuery();
+#If there are already corrected coordinates, check for confirmation before changing them
+		if ((-not $HasCorrected) -or ($HasCorrected -and $pscmdlet.ShouldProcess($CacheId)) {
+			$UpdateCoordsCmd.Parameters["@cacheid"].Value = $CacheId;
+			$UpdateCoordsCmd.Parameters["@lat"].Value = $Latitude;
+			$UpdateCoordsCmd.Parameters["@long"].Value = $Longitude;
+			$UpdateCoordsCmd.ExecuteNonQuery();
 		}
 	}
 	end {
