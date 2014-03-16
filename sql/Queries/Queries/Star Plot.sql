@@ -22,7 +22,7 @@ SELECT top 20 geography::STGeomFromText(
 	  cacheid
 FROM caches
 --where dbo.Bearing(@home,latlong) between 270 and 360 and dbo.Bearing(@home,latlong) between 0 and 90
-order by @home.STDistance(latlong) desc
+order by @home.STDistance(latlong) asc
 ;
 
 SELECT
@@ -45,7 +45,7 @@ from
 	JOIN log_types lt on l.logtypeid = lt.logtypeid
 	JOIN cachers c on l.cacherid = c.cacherid
 where
-	c.cachername = 'dakboy' AND lt.logtypedesc = 'Found it'
+	c.cachername = 'dakboy' AND lt.countsasfind = 1
 ORDER BY
 	l.logdate asc;
 
