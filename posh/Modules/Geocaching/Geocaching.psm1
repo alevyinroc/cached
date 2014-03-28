@@ -501,6 +501,11 @@ param(
 				$DBConnection.ConnectionString = $DBConnectionString;
 				$DBConnection.Open();
 			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
 		}
 	}
 	process {
@@ -601,6 +606,11 @@ param (
 			    $DBConnection.ConnectionString = $DBConnectionString;
 			    $DBConnection.Open();
 			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
         }
 		$WptLastUpdatedCmd = $DBConnection.CreateCommand();
 		$WptLastUpdatedCmd.CommandText = "select LastUpdated from waypoints where waypointid = @wptid and parentcache = @cacheid;";
@@ -682,7 +692,7 @@ insert into waypoints (waypointid,parentcache,latitude,longitude,name,descriptio
 	end {
 		$WptLastUpdatedCmd.Dispose();
 		$WptUpsertCmd.Dispose();
-switch ($PsCmdlet.ParameterSetName) {
+        switch ($PsCmdlet.ParameterSetName) {
 			{$_ -ne "DBConnection"} {
 				$DBConnection.Close();
 				$DBConnection.Dispose();
@@ -759,6 +769,11 @@ param(
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
 				$DBConnection.ConnectionString = $DBConnectionString;
 				$DBConnection.Open();
+			}
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
 			}
 		}
 		$CacheAttributeCheckCmd = $DBConnection.CreateCommand();
@@ -910,12 +925,42 @@ param(
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacherDetails")]
 	[int]$CacherId,
 	[Parameter(Mandatory=$true,ParameterSetName="CacherObject")]
-	[object]$Cacher
+	[object]$Cacher,
+    [Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
 # TODO: Make Pipeline-aware
 # TODO: Pass in database connection or connection string (like Update-Geocache)
 	begin {
-		$CacherExistsCmd = $SQLConnection.CreateCommand();
+        switch ($PsCmdlet.ParameterSetName) {
+		    "DBConnectionDetails" {
+			    $DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+                $DBCSBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBCSBuilder['Data Source'] = $SQLInstance;
+		    	$DBCSBuilder['Initial Catalog'] = $DBName;
+                $DBCSBuilder['Application Name'] = "Cache Loader";
+                $DBCSBuilder['Integrated Security'] = "true";
+                $DBConnection.ConnectionString = $DBCSBuilder.ToString();
+			    $DBConnection.Open();
+		    }
+		    "DBConnectionString" {
+			    $DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+			    $DBConnection.ConnectionString = $DBConnectionString;
+			    $DBConnection.Open();
+		    }
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+    	}
+		$CacherExistsCmd = $DBConnection.CreateCommand();
 		$CacherExistsCmd.CommandText = "select count(1) from cachers where cacherid = @CacherId;"
 		$CacherExistsCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::int) | Out-Null;
 		$CacherExistsCmd.Prepare();
@@ -943,6 +988,9 @@ param(
 	end {
 		$CacherExistsCmd.Dispose();
 		$CacherTableUpdateCmd.Dispose();
+        if ($PsCmdlet.ParameterSetName -ne "DBConnection") {
+            $DBConnection.Close();
+        }
 	}
 }
 function Update-CacheOwner {
@@ -967,20 +1015,50 @@ param(
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacheOwnerDetails")]
 	[int]$OwnerId,
 	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacheOwnerDetails")]
-	[string]$PlacedByName
+	[string]$PlacedByName,
+    [Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
 	begin {
-		$CacheHasOwnerCmd = $SQLConnection.CreateCommand();
+        switch ($PsCmdlet.ParameterSetName) {
+		    "DBConnectionDetails" {
+			    $DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+                $DBCSBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBCSBuilder['Data Source'] = $SQLInstance;
+		    	$DBCSBuilder['Initial Catalog'] = $DBName;
+                $DBCSBuilder['Application Name'] = "Cache Loader";
+                $DBCSBuilder['Integrated Security'] = "true";
+                $DBConnection.ConnectionString = $DBCSBuilder.ToString();
+			    $DBConnection.Open();
+		    }
+		    "DBConnectionString" {
+			    $DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+			    $DBConnection.ConnectionString = $DBConnectionString;
+			    $DBConnection.Open();
+		    }
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+    	}
+		$CacheHasOwnerCmd = $DBConnection.CreateCommand();
 		$CacheHasOwnerCmd.CommandText = "select count(1) as CacheOnOwners from cache_owners where cacheid = @gcnum;";
 		$CacheHasOwnerCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
 		$CacheHasOwnerCmd.Prepare();
 
-		$CacheOwnerUpdateCmd = $SQLConnection.CreateCommand();
+		$CacheOwnerUpdateCmd = $DBConnection.CreateCommand();
 		$CacheOwnerUpdateCmd.Parameters.Add("@ownerid", [System.Data.SqlDbType]::int) | Out-Null;
 		$CacheOwnerUpdateCmd.Parameters.Add("@gcnum", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
 	}
 	process {
-		Update-Cacher -Cachername $PlacedByName -CacherId $OwnerId;
+		Update-Cacher -Cachername $PlacedByName -CacherId $OwnerId -DBConnection $DBConnection;
 		# Check to see if cache is already on the owner table. If owner has changed, update with new value. If cache isn't on the table, add it
 		$CacheHasOwnerCmd.Parameters["@gcnum"].Value = $GCNum;
 		$CacheHasOwner = $CacheHasOwnerCmd.ExecuteScalar();
@@ -997,6 +1075,9 @@ param(
 	end {
 		$CacheOwnerUpdateCmd.Dispose();
 		$CacheOwnerUpdateCmd.Dispose();
+        if ($PsCmdlet.ParameterSetName -ne "DBConnection") {
+            $DBConnection.Close();
+        }
 	}
 }
 function New-TravelBug {
@@ -1168,19 +1249,28 @@ param (
 	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
 	begin {
-		switch ($PsCmdlet.ParameterSetName) {
-			"DBConnectionDetails" {
-				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
-				$DBConnection.Open();
+	    switch ($PsCmdlet.ParameterSetName) {
+		    "DBConnectionDetails" {
+			    $DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+                $DBCSBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBCSBuilder['Data Source'] = $SQLInstance;
+			    $DBCSBuilder['Initial Catalog'] = $DBName;
+                $DBCSBuilder['Application Name'] = "Cache Loader";
+                $DBCSBuilder['Integrated Security'] = "true";
+                $DBConnection.ConnectionString = $DBCSBuilder.ToString();
+			    $DBConnection.Open();
+		    }
+		    "DBConnectionString" {
+			    $DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+			    $DBConnection.ConnectionString = $DBConnectionString;
+			    $DBConnection.Open();
+		    }
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
 			}
-			"DBConnectionString" {
-				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.ConnectionString = $DBConnectionString;
-				$DBConnection.Open();
-			}
-		}
+	    }
 		$CacheLoadCmd = $DBConnection.CreateCommand();
 		$CacheLastUpdatedCmd = $DBConnection.CreateCommand();
 		$CacheLastUpdatedCmd.CommandText = "select LastUpdated from caches where cacheid = @CacheId;";
@@ -1219,7 +1309,8 @@ param (
 		$CacheLastUpdatedCmd.Parameters["@CacheId"].Value = $GCNum;
 		$CacheLastUpdated = $CacheLastUpdatedCmd.ExecuteScalar();
 # If the cache already exists and was updated more recently than the GPX was generated, do nothing
-		if ($CacheLastUpdated -and ($CacheLastUpdated -ge $script:GPXDate)) {
+# $script:GPXDate is empty. Need to pass in a different way
+		if ($CacheLastUpdated -and ($CacheLastUpdated -ge $LastUpdated)) {
 			return;
 		}
 
@@ -1516,6 +1607,11 @@ param(
 			$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
 			$DBConnection.ConnectionString = $DBConnectionString;
 			$DBConnection.Open();
+		}
+		"DBConnection" {
+			$DBName = $DBConnection.Database;
+			$SQLInstance = $DBConnection.DataSource;
+			$DBConnectionString = $DBConnection.ConnectionString;
 		}
 	}
 	$QueryCmd = $DBConnection.CreateCommand();
