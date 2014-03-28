@@ -1,4 +1,4 @@
-set statistics io on;
+﻿$query = @"
 SELECT ROW_NUMBER() over (order by l.logid) as findnum, c2.cacheid,c3.cachename
 	,l.logdate
 	,c3.placed
@@ -21,4 +21,6 @@ WHERE c.cachername = 'dakboy'
 --order by [Days After Placed]
 ORDER BY l.logdate
 	,l.logid;
-	set statistics io off;
+"@
+$finds = Invoke-Sqlcmd -database cachedb -serverinstance win81 -query $query | select findnum,"Days after placed", "moving average age of cache at find";
+$finds|export-csv -NoTypeInformation -Path "$env:tmp\finds.csv";
