@@ -82,8 +82,10 @@ if ($Geocaches -ne $null) {
 	$Geocaches | ForEach-Object {
 		$GCNum = $_.name;
 		write-verbose $GCNum;
-		Write-Progress -Activity "Loading Geocaches" -Status "Cache ID $GCNum" -Id 1 -PercentComplete $(($CachesProcessed/$Geocaches.Count)*100)
-		Update-Geocache $_ -LastUpdated $script:GPXDate -DBConnection $SQLConnection; #Process as geocache
+        if ($Geocaches.Count) {
+		    Write-Progress -Activity "Loading Geocaches" -Status "Cache ID $GCNum" -Id 1 -PercentComplete $(($CachesProcessed/$Geocaches.Count)*100);
+        }
+		Update-Geocache -CacheWaypoint $_ -LastUpdated $script:GPXDate -DBConnection $SQLConnection; #Process as geocache
 	# Load cacher table if no record for current cache's owner, or update name
 		Update-Cacher -CacherId $_.cache.owner.id -CacherName $_.cache.owner.innertext -DBConnection $SQLConnection;
 	# Insert attributes & TBs into respective tables
