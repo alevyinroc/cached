@@ -149,7 +149,7 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
-	$PointTypeLookup = Get-DataFromQuery -server $SQLInstance -DBName $Database -query "select typeid, typename from point_types;";
+	$PointTypeLookup = Get-DataFromQuery -SQLInstance $SQLInstance -DBName $Database -query "select typeid, typename from point_types;";
 	$PointTypeLookup;
 }
 function Get-CacheSizeLookup {
@@ -172,7 +172,7 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
-	$CacheSizeLookup = Get-DataFromQuery -server $SQLInstance -DBName $Database -query "select sizeid, sizename from cache_sizes;";
+	$CacheSizeLookup = Get-DataFromQuery -SQLInstance $SQLInstance -DBName $Database -query "select sizeid, sizename from cache_sizes;";
 	$CacheSizeLookup;
 }
 function Get-CacheStatusLookup {
@@ -195,7 +195,7 @@ param (
 	[Parameter(Mandatory=$true)]
 	[string]$Database = 'Geocaches'
 )
-	$CacheStatusLookup = Get-DataFromQuery -server $SQLInstance -DBName $Database -query "select statusid, statusname from statuses;";
+	$CacheStatusLookup = Get-DataFromQuery -SQLInstance $SQLInstance -DBName $Database -query "select statusid, statusname from statuses;";
 	$CacheStatusLookup;
 }
 function Get-PointTypeId {
@@ -338,18 +338,19 @@ param (
 	begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
-				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
-				$DBConnection.Open();
+			    $DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+                $DBCSBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBCSBuilder['Data Source'] = $SQLInstance;
+			    $DBCSBuilder['Initial Catalog'] = $DBName;
+                $DBCSBuilder['Application Name'] = "Cache Loader";
+                $DBCSBuilder['Integrated Security'] = "true";
+                $DBConnection.ConnectionString = $DBCSBuilder.ToString();
+			    $DBConnection.Open();
 			}
 			"DBConnectionString" {
-				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
 				$DBConnection.ConnectionString = $DBConnectionString;
 				$DBConnection.Open();
-				$DBName = $DBConnBuilder.InitialCatalog;
-				$SQLInstance = $DBConnBuilder.DataSource;
 			}
 			"DBConnection" {
 				$DBName = $DBConnection.Database;
@@ -357,7 +358,6 @@ param (
 				$DBConnectionString = $DBConnection.ConnectionString;
 			}
 		}
-
 	}
 	process {
 		if ($script:StateLookup -eq $null) {
@@ -410,26 +410,26 @@ param (
 	begin {
 		switch ($PsCmdlet.ParameterSetName) {
 			"DBConnectionDetails" {
-				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
-				$DBConnection.DataSource = $SQLInstance;
-				$DBConnection.Database = $DBName;
-				$DBConnection.Open();
+			    $DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+                $DBCSBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBCSBuilder['Data Source'] = $SQLInstance;
+			    $DBCSBuilder['Initial Catalog'] = $DBName;
+                $DBCSBuilder['Application Name'] = "Cache Loader";
+                $DBCSBuilder['Integrated Security'] = "true";
+                $DBConnection.ConnectionString = $DBCSBuilder.ToString();
+			    $DBConnection.Open();
 			}
 			"DBConnectionString" {
-				$DBConnBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder $DBConnectionString;
 				$DBConnection = New-Object System.Data.SqlClient.SqlConnection;
 				$DBConnection.ConnectionString = $DBConnectionString;
 				$DBConnection.Open();
-				$DBName = $DBConnBuilder.InitialCatalog;
-				$SQLInstance = $DBConnBuilder.DataSource;
 			}
 			"DBConnection" {
 				$DBName = $DBConnection.Database;
 				$SQLInstance = $DBConnection.DataSource;
 				$DBConnectionString = $DBConnection.ConnectionString;
 			}
-		}
-	}
+		}	}
 	process {
 		if ($script:CountryLookup -eq $null) {
 			$script:CountryLookup = Get-CountryLookup -SQLInstance $SQLInstance -DBName $DBName;
@@ -1404,9 +1404,9 @@ param (
 		$CacheLoadCmd.Parameters["@Placed"].Value = $PlacedDate;
 		$CacheLoadCmd.Parameters["@PlacedBy"].Value = $CacheWaypoint | Select-Object -ExpandProperty placed_by;
 
-		$CacheLoadCmd.Parameters["@TypeId"].Value = Get-PointTypeId -PointTypeName $($CacheWaypoint | Select-Object -ExpandProperty type) -SQLInstance $SQLInstance -Database $Database;
+		$CacheLoadCmd.Parameters["@TypeId"].Value = Get-PointTypeId -PointTypeName $($CacheWaypoint | Select-Object -ExpandProperty type) -SQLInstance $SQLInstance -Database $DBName;
 
-		$CacheLoadCmd.Parameters["@SizeId"].Value = Get-CacheSizeId -SizeName $($CacheWaypoint | Select-Object -ExpandProperty container) -SQLInstance $SQLInstance -Database $Database;
+		$CacheLoadCmd.Parameters["@SizeId"].Value = Get-CacheSizeId -SizeName $($CacheWaypoint | Select-Object -ExpandProperty container) -SQLInstance $SQLInstance -Database $DBName;
 
 
 		$StateName = $CacheWaypoint | Select-Object -ExpandProperty state;
@@ -1520,7 +1520,7 @@ begin {
 		$LogTableUpdateCmd.Parameters.Add("@LogText", [System.Data.SqlDbType]::NVarChar, 4000) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::Float) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@Long", [System.Data.SqlDbType]::Float) | Out-Null;
-		$LogTypes = Get-DataFromQuery -ServerInstance $SQLInstance -DBName $Database -Query "select logtypeid,logtypedesc from log_types";
+		$LogTypes = Get-DataFromQuery -SQLInstanceInstance $SQLInstance -DBName $Database -Query "select logtypeid,logtypedesc from log_types";
 		$LogLinkToCacheCmd = $SQLConnection.CreateCommand();
 		$LogLinkToCacheCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt) | Out-Null;
 		$LogLinkToCacheCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
