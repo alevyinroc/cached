@@ -493,7 +493,7 @@ param (
 # TODO: Make Pipeline-aware
 # TODO: Pass in database connection or connection string (like Update-Geocache)
 	if ($script:CacheSizeLookup -eq $null) {
-		$script:CacheSizeLookup = Get-CacheSizeLookup -SQLInstance $SQLInstance -Database $Database;
+		$script:CacheSizeLookup = Get-CacheSizeLookup -DBConnection $DBConnection;
 	}
 
 	$CacheSizeId = $script:CacheSizeLookup | where-object{$_.sizename -eq $SizeName} | Select-Object -ExpandProperty sizeid;
@@ -558,13 +558,13 @@ param (
 			$DBConnectionString = $DBConnection.ConnectionString;
 			}
 		}	if ($script:CacheStatusLookup -eq $null) {
-		$script:CacheStatusLookup = Get-CacheStatusLookup -SQLInstance $SQLInstance -Database $Database;
+		$script:CacheStatusLookup = Get-CacheStatusLookup -DBConnection $DBConnection;
 	}
 
 	$CacheStatusId = $script:CacheStatusLookup | where-object{$_.statusname -eq $StatusName} | Select-Object -ExpandProperty statusid;
 	if ($CacheStatusId -eq $null) {
-		$CacheStatusId = New-CacheStatus -LookupName $StatusName -SQLInstance $SQLInstance -Database $Database -LookupType Status;
-		$script:CacheStatusLookup = Get-CacheStatusLookup -SQLInstance $SQLInstance -Database $Database;
+		$CacheStatusId = New-CacheStatus -LookupName $StatusName -DBConnection $DBConnection -LookupType Status;
+		$script:CacheStatusLookup = Get-CacheStatusLookup -DBConnection $DBConnection;
 	}
 	$CacheStatusId;
 	switch ($PsCmdlet.ParameterSetName) {
@@ -699,7 +699,7 @@ param (
 	}
 	process {
 		if ($script:CountryLookup -eq $null) {
-			$script:CountryLookup = Get-CountryLookup -DBConnection $DBConnection $DBName;
+			$script:CountryLookup = Get-CountryLookup -DBConnection $DBConnection;
 		}
 
 		$CountryId = $script:CountryLookup | where-object{$_.Name -eq $CountryName} | Select-Object -ExpandProperty CountryId;
@@ -848,6 +848,8 @@ function Update-Waypoint {
 param (
 	[Parameter(Position=0,Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
 	[PSObject[]]$Waypoint,
+    [Parameter(Mandatory=$true)]
+    [DateTimeOffset]$LastUpdated,
 	[Parameter(ParameterSetName="DBConnectionDetails")]
 	[string]$SQLInstance,
 	[Parameter(ParameterSetName="DBConnectionDetails")]
@@ -902,12 +904,12 @@ param (
 
 	# Get parent cache id. Same as waypoint ID but first 2 chars are GC
 		$ParentCache = "GC" + $Id.Substring(2,$Id.Length - 2);
-		$ParentCache = Find-ParentCacheId -CacheId $ParentCache;
+		$ParentCache = Find-ParentCacheId -CacheId $ParentCache -DBConnection $DBConnection;
 
 		$WptLastUpdatedCmd.Parameters["@wptid"].Value = $Id;
 		$WptLastUpdatedCmd.Parameters["@cacheid"].Value = $ParentCache;
 		$WaypointExists = $WptLastUpdatedCmd.ExecuteScalar();
-		if (($WaypointExists -ne $null) -and ($WaypointExists -ge $script:GPXDate)) {
+		if (($WaypointExists -ne $null) -and ($WaypointExists -ge $LastUpdated)) {
 			return;
 		}
 
@@ -953,7 +955,7 @@ insert into waypoints (waypointid,parentcache,latitude,longitude,name,descriptio
 		$WptUpsertCmd.Parameters["@url"].Value = $Url;
 		$WptUpsertCmd.Parameters["@urldesc"].Value = $UrlDesc;
 		$WptUpsertCmd.Parameters["@pointtype"].Value = $PointTypeId;
-		$WptUpsertCmd.Parameters["@LastUpdated"].Value = $GPXDate;
+		$WptUpsertCmd.Parameters["@LastUpdated"].Value = $LastUpdated;
 		$WptUpsertCmd.ExecuteNonQuery() | Out-Null;
 		$WaypointsProcessed++;
 	}
@@ -983,7 +985,7 @@ function Find-ParentCacheId {
 param (
 	[Parameter(Mandatory=$true)]
 	[string]$CacheId,
-[Parameter(ParameterSetName="DBConnectionDetails")]
+    [Parameter(ParameterSetName="DBConnectionDetails")]
 	[string]$SQLInstance,
 	[Parameter(ParameterSetName="DBConnectionDetails")]
 	[string]$DBName,
@@ -1129,7 +1131,7 @@ function Drop-Attributes {
 #>
 [cmdletbinding()]
 param(
-	[Parameter(Position=0,Mandatory=$true,ParameterSetName="SingleCache")]
+	[Parameter(Position=0,Mandatory=$true)]
 	[string]$CacheId,
 	[Parameter(ParameterSetName="DBConnectionDetails")]
 	[string]$SQLInstance,
@@ -1299,12 +1301,12 @@ function Update-Cacher {
 #>
 [cmdletbinding()]
 param(
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacherDetails")]
+	[Parameter(Mandatory=$true)]
 	[string]$CacherName,
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacherDetails")]
+	[Parameter(Mandatory=$true)]
 	[int]$CacherId,
-	[Parameter(Mandatory=$true,ParameterSetName="CacherObject")]
-	[object]$Cacher,
+#	[Parameter(Mandatory=$true,ParameterSetName="CacherObject")]
+#	[object]$Cacher,
     [Parameter(ParameterSetName="DBConnectionDetails")]
 	[string]$SQLInstance,
 	[Parameter(ParameterSetName="DBConnectionDetails")]
@@ -1343,7 +1345,7 @@ param(
 		$CacherExistsCmd.CommandText = "select count(1) from cachers where cacherid = @CacherId;"
 		$CacherExistsCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::int) | Out-Null;
 		$CacherExistsCmd.Prepare();
-		$CacherTableUpdateCmd = $SQLConnection.CreateCommand();
+		$CacherTableUpdateCmd = $DBConnection.CreateCommand();
 		$CacherTableUpdateCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::int) | Out-Null;
 		$CacherTableUpdateCmd.Parameters.Add("@CacherName", [System.Data.SqlDbType]::VarChar, 50) | Out-Null;
 	}
@@ -1389,11 +1391,11 @@ function Update-CacheOwner {
 #>
 [cmdletbinding()]
 param(
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacheOwnerDetails")]
+	[Parameter(Mandatory=$true)]
 	[string]$GCNum,
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacheOwnerDetails")]
+	[Parameter(Mandatory=$true)]
 	[int]$OwnerId,
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitCacheOwnerDetails")]
+	[Parameter(Mandatory=$true)]
 	[string]$PlacedByName,
     [Parameter(ParameterSetName="DBConnectionDetails")]
 	[string]$SQLInstance,
@@ -1601,12 +1603,12 @@ param (
 				$DBConnectionString = $DBConnection.ConnectionString;
 			}
 		}
-		$RegisterTBToCacheCmd = $SQLConnection.CreateCommand();
+		$RegisterTBToCacheCmd = $DBConnection.CreateCommand();
 
 		$RegisterTBToCacheCmd.Parameters.Add("@tbpublicid", [System.Data.SqlDbType]::VarChar, 50) | Out-Null;
 		$RegisterTBToCacheCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
 
-		$TBInOtherCacheCmd = $SQLConnection.CreateCommand();
+		$TBInOtherCacheCmd = $DBConnection.CreateCommand();
 		$TBInOtherCacheCmd.CommandText = "select count(1) from tbinventory where tbpublicid = @tbpublicid;";
 		$TBInOtherCacheCmd.Parameters.Add("@tbpublicid", [System.Data.SqlDbType]::VarChar, 50) | Out-Null;
 		$TBInOtherCacheCmd.Parameters.Add("@cacheid", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
@@ -1698,8 +1700,8 @@ param (
 		}
 	}
 	process{
-		New-TravelBug -TBId $TBInternalId -TBPublicId $TBPublicId -TBName $TBName -DBConnection DBConnection;
-		Move-TravelBugToCache -GCNum $GCNum -TBPublicId $TBPublicId -DBConnection DBConnection;
+		New-TravelBug -TBId $TBInternalId -TBPublicId $TBPublicId -TBName $TBName -DBConnection $DBConnection;
+		Move-TravelBugToCache -GCNum $GCNum -TBPublicId $TBPublicId -DBConnection $DBConnection;
 	}
 	end {
 		switch ($PsCmdlet.ParameterSetName) {
@@ -1891,9 +1893,9 @@ param (
 		$CacheLoadCmd.Parameters["@Placed"].Value = $PlacedDate;
 		$CacheLoadCmd.Parameters["@PlacedBy"].Value = $CacheWaypoint | Select-Object -ExpandProperty placed_by;
 
-		$CacheLoadCmd.Parameters["@TypeId"].Value = Get-PointTypeId -PointTypeName $($CacheWaypoint | Select-Object -ExpandProperty type) -SQLInstance $SQLInstance -Database $DBName;
+		$CacheLoadCmd.Parameters["@TypeId"].Value = Get-PointTypeId -PointTypeName $($CacheWaypoint | Select-Object -ExpandProperty type) -DBConnection $DBConnection;
 
-		$CacheLoadCmd.Parameters["@SizeId"].Value = Get-CacheSizeId -SizeName $($CacheWaypoint | Select-Object -ExpandProperty container) -SQLInstance $SQLInstance -Database $DBName;
+		$CacheLoadCmd.Parameters["@SizeId"].Value = Get-CacheSizeId -SizeName $($CacheWaypoint | Select-Object -ExpandProperty container) -DBConnection $DBConnection;
 
 
 		$StateName = $CacheWaypoint | Select-Object -ExpandProperty state;
@@ -1923,13 +1925,13 @@ param (
 				$StatusName = "Disabled";
 			}
 		}
-		$CacheLoadCmd.Parameters["@CacheStatus"].Value = Get-CacheStatusId -StatusName $StatusName -sqlinstance $SQLInstance -database $Database;
+		$CacheLoadCmd.Parameters["@CacheStatus"].Value = Get-CacheStatusId -StatusName $StatusName -DBConnection $DBConnection;
 		# TODO: Figure out where premium only comes from. Doesn't appear to be in the GPX
 		$CacheLoadCmd.Parameters["@PremOnly"].Value = 0; #Get-DBTypeFromTrueFalse $cachedata.gpx.wpt.
 		# Execute
 		$CacheLoadCmd.ExecuteNonQuery() | Out-Null;
 
-		Update-CacheOwner -GCNum $GCNum -OwnerId $($CacheWaypoint | Select-Object -ExpandProperty owner | Select-Object -ExpandProperty id) -PlacedByName $($CacheWaypoint | Select-Object -ExpandProperty placed_by);
+		Update-CacheOwner -DBConnection $DBConnection -GCNum $GCNum -OwnerId $($CacheWaypoint | Select-Object -ExpandProperty owner | Select-Object -ExpandProperty id) -PlacedByName $($CacheWaypoint | Select-Object -ExpandProperty placed_by);
 	}
 	end {
 		$CacheLoadCmd.Dispose();
@@ -1975,31 +1977,61 @@ function Update-Log {
 #>
 [cmdletbinding()]
 param (
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
+	[Parameter(Mandatory=$true)]
 	[int]$LogId,
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
+	[Parameter(Mandatory=$true)]
 	[string]$CacheId,
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
+	[Parameter(Mandatory=$true)]
 	[DateTimeOffset]$LogDate,
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
+	[Parameter(Mandatory=$true)]
 	[string]$LogTypeName,
-	[Parameter(Mandatory=$true,ParameterSetName="ExplicitLogDetails")]
+	[Parameter(Mandatory=$true)]
 	[int]$Finder,
-	[Parameter(Mandatory=$false,ParameterSetName="ExplicitLogDetails")]
+	[Parameter(Mandatory=$false)]
 	[string]$LogText="",
-	[Parameter(Mandatory=$false,ParameterSetName="ExplicitLogDetails")]
+	[Parameter(Mandatory=$false)]
 	[float]$Latitude,
-	[Parameter(Mandatory=$false,ParameterSetName="ExplicitLogDetails")]
+	[Parameter(Mandatory=$false)]
 	[float]$Longitude,
-	[Parameter(Mandatory=$true,ParameterSetName="LogObject")]
-	[System.Xml.XmlElement]$CacheLog
+#	[Parameter(Mandatory=$true,ParameterSetName="LogObject")]
+#	[System.Xml.XmlElement]$CacheLog,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$SQLInstance,
+	[Parameter(ParameterSetName="DBConnectionDetails")]
+	[string]$DBName,
+	[Parameter(ParameterSetName="DBConnectionString")]
+	[string]$DBConnectionString,
+	[Parameter(ParameterSetName="DBConnection")]
+	[System.Data.SqlClient.SqlConnection]$DBConnection
 )
 begin {
-		$LogExistsCmd = $SQLConnection.CreateCommand();
+    switch ($PsCmdlet.ParameterSetName) {
+		    "DBConnectionDetails" {
+			    $DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+                $DBCSBuilder = New-Object System.Data.SqlClient.SqlConnectionStringBuilder;
+                $DBCSBuilder['Data Source'] = $SQLInstance;
+			    $DBCSBuilder['Initial Catalog'] = $DBName;
+                $DBCSBuilder['Application Name'] = "Cache Loader";
+                $DBCSBuilder['Integrated Security'] = "true";
+                $DBConnection.ConnectionString = $DBCSBuilder.ToString();
+			    $DBConnection.Open();
+		    }
+		    "DBConnectionString" {
+			    $DBConnection = New-Object System.Data.SqlClient.SqlConnection;
+			    $DBConnection.ConnectionString = $DBConnectionString;
+			    $DBConnection.Open();
+		    }
+			"DBConnection" {
+				$DBName = $DBConnection.Database;
+				$SQLInstance = $DBConnection.DataSource;
+				$DBConnectionString = $DBConnection.ConnectionString;
+			}
+	    }
+		$LogExistsCmd = $DBConnection.CreateCommand();
 		$LogExistsCmd.CommandText = "select count(1) from logs where logid = @LogId;"
 		$LogExistsCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt) | Out-Null;
 		$LogExistsCmd.Prepare();
-		$LogTableUpdateCmd = $SQLConnection.CreateCommand();
+		$LogTableUpdateCmd = $DBConnection.CreateCommand();
 		$LogTableUpdateCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@CacherId", [System.Data.SqlDbType]::VarChar, 50) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@LogDate", [System.Data.SqlDbType]::DateTimeOffset) | Out-Null;
@@ -2008,32 +2040,18 @@ begin {
 		$LogTableUpdateCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::Float) | Out-Null;
 		$LogTableUpdateCmd.Parameters.Add("@Long", [System.Data.SqlDbType]::Float) | Out-Null;
 		$LogTypes = Get-DataFromQuery -DBConnection $DBConnection -Query "select logtypeid,logtypedesc from log_types";
-		$LogLinkToCacheCmd = $SQLConnection.CreateCommand();
+		$LogLinkToCacheCmd = $DBConnection.CreateCommand();
 		$LogLinkToCacheCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt) | Out-Null;
 		$LogLinkToCacheCmd.Parameters.Add("@CacheId", [System.Data.SqlDbType]::VarChar, 8) | Out-Null;
 		$LogLinkToCacheCmd.CommandText = "insert into cache_logs (cacheid,logid) values (@CacheId, @LogId)";
 		$LogLinkToCacheCmd.Prepare();
-		$LogLinkedCmd = $SQLConnection.CreateCommand();
+		$LogLinkedCmd = $DBConnection.CreateCommand();
 		$LogLinkedCmd.Parameters.Add("@LogId", [System.Data.SqlDbType]::BigInt) | Out-Null;
 		$LogLinkedCmd.CommandText = "select count(1) from cache_logs where logid = @LogId";
 		$LogLinkedCmd.Prepare();
 	}
 	process{
-		switch ($PsCmdlet.ParameterSetName) {
-			"LogObject" {
-				$Finder = $CacheLog.finder.id;
-				$LogId = $CacheLog.id;
-				[DateTimeOffset]$LogDate = Get-Date $CacheLog.date;
-				$LogType = $LogTypes | Where-Object{$_.logtypedesc -eq $CacheLog.type};
-				$LogText = $CacheLog.text;
-				$Latitude = $CacheLog.lat;
-				$Longitude = $CacheLog.lon;
-			}
-			"ExplicitLogDetails" {
-				$LogType = $LogTypes | Where-Object{$_.logtypedesc -eq $LogTypeName} | Select-Object -ExpandProperty logtypeid;
-			}
-		}
-
+        $LogType = $LogTypes | Where-Object{$_.logtypedesc -eq $LogTypeName} | Select-Object -ExpandProperty logtypeid;
 		$LogExistsCmd.Parameters["@LogId"].Value = $LogId;
 		$LogExists = $LogExistsCmd.ExecuteScalar();
 		if ($LogExists){
@@ -2061,6 +2079,12 @@ begin {
 	end {
 		$LogExistsCmd.Dispose();
 		$LogTableUpdateCmd.Dispose();
+        switch ($PsCmdlet.ParameterSetName) {
+			{$_ -ne "DBConnection"} {
+				$DBConnection.Close();
+				$DBConnection.Dispose();
+			}
+		}
 	}
 }
 
