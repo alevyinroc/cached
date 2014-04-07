@@ -30,7 +30,7 @@ param (
 )
 
 $ErrorActionPreference = "Stop";
-#Clear-Host;
+Clear-Host;
 $Error.Clear();
 Push-Location;
 if ((Get-Module | Where-Object{$_.name -eq "SQLPS"} | Measure-Object).Count -lt 1){
