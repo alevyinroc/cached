@@ -780,7 +780,7 @@ param(
 	process {
 
 
-		switch ($Type) {
+		switch ($LookupType) {
 			"State" {
 				$NewLookupItemCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
 				$GetIdCmd.Parameters.Add("@LookupTextValue", [System.Data.SqlDbType]::NVarChar, 50) | Out-Null;
