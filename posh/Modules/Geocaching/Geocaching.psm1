@@ -1771,7 +1771,7 @@ param (
 		$CacheLoadCmd.Parameters.Add("@CacheName", [System.Data.SqlDbType]::nVarChar, 50) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@Lat", [System.Data.SqlDbType]::float) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@Long", [System.Data.SqlDbType]::float) | Out-Null;
-		$CacheLoadCmd.Parameters.Add("@Placed", [System.Data.SqlDbType]::datetime) | Out-Null;
+		$CacheLoadCmd.Parameters.Add("@Placed", [System.Data.SqlDbType]::datetimeoffset) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@PlacedBy", [System.Data.SqlDbType]::nVarChar) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@TypeId", [System.Data.SqlDbType]::int) | Out-Null;
 		$CacheLoadCmd.Parameters.Add("@SizeId", [System.Data.SqlDbType]::int) | Out-Null;
@@ -1854,7 +1854,7 @@ param (
 				 ,@Archived
 				 ,@PremOnly
 				 ,@CacheStatus
-				 ,getdate()
+				 ,SYSDATETIMEOFFSET()
 				 ,@StateId
 				 ,@CountryId
 				 );
