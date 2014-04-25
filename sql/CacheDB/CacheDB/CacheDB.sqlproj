@@ -194,6 +194,8 @@
     <Build Include="dbo\Sequences\CountryId.sql" />
     <Build Include="dbo\Sequences\CacheSizeId.sql" />
     <Build Include="dbo\Functions\DistanceInMiles.sql" />
+    <Build Include="dbo\Sequences\CountyId.sql" />
+    <Build Include="dbo\Tables\Counties.sql" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="CacheDB.refactorlog" />

@@ -35,4 +35,11 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="[IX_logs_cacherid]" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="ff8f2e42-7716-4ab7-a9f5-d5331621f7c8" ChangeDateTime="04/25/2014 18:35:10">
+    <Property Name="ElementName" Value="[dbo].[Counties].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[Counties]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="CountyId" />
+  </Operation>
 </Operations>
