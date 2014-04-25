@@ -27,6 +27,7 @@
     [StateId]            INT                NULL,
     [CorrectedLatLong]   AS                 ([geography]::Point(isnull([CorrectedLatitude],(0)),isnull([CorrectedLongitude],(0)),(4326))) PERSISTED,
     [latlong]            AS                 ([geography]::Point([latitude],[longitude],(4326))) PERSISTED,
+	[Elevation]		 float default(0) not null,
     CONSTRAINT [pk_caches] PRIMARY KEY CLUSTERED ([cacheid] ASC),
     CONSTRAINT [fk_cache_size] FOREIGN KEY ([sizeid]) REFERENCES [dbo].[cache_sizes] ([sizeid]),
     CONSTRAINT [fk_cache_status] FOREIGN KEY ([cachestatus]) REFERENCES [dbo].[statuses] ([statusid]),
