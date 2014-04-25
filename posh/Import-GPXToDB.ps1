@@ -53,7 +53,9 @@ $SQLConnection.Open();
 
 #endregion
 
-[xml]$cachedata = get-content $FileToImport -Encoding UTF8;
+$cachedata = new-object -type XML;
+$cachedata.load($FileToImport);
+
 [DateTimeOffset]$script:GPXDate = get-date $cachedata.gpx.time;
 # For each $cachedata.gpx.wpt
 # Check for a cache child element
@@ -99,7 +101,7 @@ if ($Geocaches -ne $null) {
 				};
 				$AllAttributes.Add($CacheAttribute);
 			};
-			Drop-Attributes -CacheID $GCNum -DBConnection $SQLConnection;
+			Remove-Attribute -CacheID $GCNum -DBConnection $SQLConnection;
 			$AllAttributes | Register-AttributeToCache -DBConnection $SQLConnection;
 		}
 #TODO: Make this pipeline aware with $cachedata.gpx.wpt.cache.travelbugs.travelbug | update-travelbugs
