@@ -15,7 +15,7 @@ ORDER BY l.logdate DESC
 
 SET STATISTICS IO OFF;
 
-SELECT c2.cacheid
+SELECT row_number() over (order by l.logdate asc) as FindNum,c3.cachename,c2.cacheid
 	,l.logdate,lt.CountsAsFind,l.logtypeid,lt.logtypedesc,c3.CountryId,c4.Name
 FROM logs l
 JOIN cachers c ON c.cacherid = l.cacherid
@@ -25,5 +25,4 @@ JOIN caches c3 ON c2.cacheid = c3.cacheid
 join countries c4 on c3.CountryId = c4.CountryId
 WHERE c.cachername = 'dakboy'
 	AND lt.countsasfind = 1
-	and c4.Name not in ('united states','canada')
-ORDER BY l.logdate DESC;
+ORDER BY l.logdate asc;
