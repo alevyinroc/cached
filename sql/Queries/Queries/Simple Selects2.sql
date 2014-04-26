@@ -15,4 +15,4 @@ SELECT cacheid,latlong from caches where @home.STDistance(latlong)/1000 <= 50;
 SELECT cacheid,latlong from caches where @home.STDistance(latlong)/1000 <= 50 AND @rick.STDistance(latlong)/1000 <= 50;
 
 
-SELECT locationname, @p1.STDistance(locationgeo)/1000 as [Distance from home] from Locations order by [Distance from home];
+SELECT locationname, @p1.STDistance(locationgeo)/1000 as [Distance from home] from CenterPoints order by [Distance from home];
