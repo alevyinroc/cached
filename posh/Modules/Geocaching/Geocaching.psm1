@@ -428,7 +428,7 @@ param (
 		$script:PointTypeLookup = Get-PointTypeLookups -DBConnection $DBConnection;
 	}
 
-	$PointTypeId = $script:PointTypeLookup.where({$_.typename -eq $PointTypeName}) | Select-Object -ExpandProperty typeid;
+    $PointTypeId = $script:PointTypeLookup | where-object{$_.typename -eq $PointTypeName} | Select-Object -ExpandProperty typeid;
 	if ($PointTypeId -eq $null) {
 		$PointTypeId = New-LookupEntry -LookupName $PointTypeName -DBConnection $DBConnection -LookupType Point;
 		$script:PointTypeLookup = Get-PointTypeLookups -DBConnection $DBConnection;
@@ -496,7 +496,7 @@ param (
 		$script:CacheSizeLookup = Get-CacheSizeLookup -DBConnection $DBConnection;
 	}
 
-	$CacheSizeId = $script:CacheSizeLookup.where({$_.sizename -eq $SizeName}) | Select-Object -ExpandProperty sizeid;
+	$CacheSizeId = $script:CacheSizeLookup | where-object{$_.sizename -eq $SizeName} | Select-Object -ExpandProperty sizeid;
 	if ($CacheSizeId -eq $null) {
 		$CacheSizeId = New-LookupEntry -LookupName $SizeName -DBConnection $DBConnection -LookupType Size;
 		$script:CacheSizeLookup = Get-CacheSizeLookup -DBConnection $DBConnection;
@@ -561,7 +561,8 @@ param (
 		$script:CacheStatusLookup = Get-CacheStatusLookup -DBConnection $DBConnection;
 	}
 
-	$CacheStatusId = $script:CacheStatusLookup.where({$_.statusname -eq $StatusName}) | Select-Object -ExpandProperty statusid;
+	$CacheStatusId = $script:CacheStatusLookup | where-object{$_.statusname -eq $StatusName} | Select-Object -ExpandProperty statusid;
+
 	if ($CacheStatusId -eq $null) {
 		$CacheStatusId = New-CacheStatus -LookupName $StatusName -DBConnection $DBConnection -LookupType Status;
 		$script:CacheStatusLookup = Get-CacheStatusLookup -DBConnection $DBConnection;
@@ -630,7 +631,7 @@ param (
 			$script:StateLookup = Get-StateLookup -DBConnection $DBConnection;
 		}
 
-		$StateId = $script:StateLookup.where({$_.Name -eq $StateName}) | Select-Object -ExpandProperty StateId;
+		$StateId = $script:StateLookup | where-object{$_.Name -eq $StateName} | Select-Object -ExpandProperty StateId;
 		if ($StateId -eq $null) {
 			$StateId = New-LookupEntry -LookupName $StateName -DBConnection $DBConnection -LookupType State;
 			$script:StateLookup = Get-StateLookup -DBConnection $DBConnection;
@@ -702,7 +703,7 @@ param (
 			$script:CountryLookup = Get-CountryLookup -DBConnection $DBConnection;
 		}
 
-		$CountryId = $script:CountryLookup.where({$_.Name -eq $CountryName}) | Select-Object -ExpandProperty CountryId;
+		$CountryId = $script:CountryLookup | where-object{$_.Name -eq $CountryName} | Select-Object -ExpandProperty CountryId;
 		if ($CountryId -eq $null) {
 			$CountryId = New-LookupEntry -LookupName $CountryName -DBConnection $DBConnection -LookupType Country;
 			$script:CountryLookup = Get-CountryLookup -DBConnection $DBConnection;
@@ -1897,9 +1898,17 @@ param (
 
 		$CacheLoadCmd.Parameters["@SizeId"].Value = Get-CacheSizeId -SizeName $($CacheWaypoint | Select-Object -ExpandProperty container) -DBConnection $DBConnection;
 
-
-		$StateName = $CacheWaypoint | Select-Object -ExpandProperty state;
-		$CountryName = $CacheWaypoint | Select-Object -ExpandProperty country;
+        if ([string]::IsNullOrEmpty($CacheWaypoint.state)) {
+            $StateName = "Not Set";
+        } else {
+            $StateName = $CacheWaypoint.state;
+        }
+        if ([string]::IsNullOrEmpty($CacheWaypoint.country)) {
+            $CountryName = "Not Set";
+        } else {
+            $CountryName = $CacheWaypoint.country;
+        }
+		
 		$StateId = Get-StateId -StateName $StateName -DBConnection $DBConnection;
 		$CountryId = Get-CountryId -CountryName $CountryName -DBConnection $DBConnection;
 
@@ -2051,7 +2060,7 @@ begin {
 		$LogLinkedCmd.Prepare();
 	}
 	process{
-        $LogType = $LogTypes.where({$psitem.logtypedesc -eq "archive"}) | Select-Object -ExpandProperty logtypeid;
+        $LogType = $LogTypes | Where-Object{$_.logtypedesc -eq $LogTypeName} | Select-Object -ExpandProperty logtypeid;
 		$LogExistsCmd.Parameters["@LogId"].Value = $LogId;
 		$LogExists = $LogExistsCmd.ExecuteScalar();
 		if ($LogExists){

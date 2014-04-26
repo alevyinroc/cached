@@ -31,51 +31,57 @@
           <AssociatedConnUserName />
           <FullPath>Clear Tables.sql</FullPath>
         </FileNode>
+        <FileNode Name="Findable caches.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:win81:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>win81</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Findable caches.sql</FullPath>
+        </FileNode>
         <FileNode Name="Limit Number of Logs Per Cache.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:win81:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>win81</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>Limit Number of Logs Per Cache.sql</FullPath>
         </FileNode>
         <FileNode Name="LoadLocations.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:win81:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>win81</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>LoadLocations.sql</FullPath>
         </FileNode>
         <FileNode Name="Location Testing.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:win81:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>win81</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>Location Testing.sql</FullPath>
         </FileNode>
         <FileNode Name="My Finds.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:win81:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>win81</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>My Finds.sql</FullPath>
         </FileNode>
         <FileNode Name="Performance Comparisons.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:win81:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>win81</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>Performance Comparisons.sql</FullPath>
         </FileNode>
         <FileNode Name="Simple Selects.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:win81:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>win81</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>Simple Selects.sql</FullPath>
         </FileNode>
         <FileNode Name="Simple Selects2.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:win81:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>win81</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>Simple Selects2.sql</FullPath>
         </FileNode>
         <FileNode Name="SQLQuery2.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:win81:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>win81</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>SQLQuery2.sql</FullPath>
         </FileNode>

@@ -11,3 +11,5 @@ select count(1) from logs;
 select * from cache_logs;
 SELECT * FROM waypoints order by waypointid;
 SELECT * from waypoints where waypointid = 'PK20YRA';
+
+select cacheid,count(logid) from cache_logs group by cacheid order by 2 desc;
