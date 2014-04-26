@@ -43,10 +43,6 @@ FROM #myfinds;
 SELECT @z = AVG((@axis / (SQRT(1 - (@ecc * SIN(RADIANS(Latitude + 0))) * SIN(RADIANS(Latitude + 0))))) * (1 - @ecc) * SIN(RADIANS(latitude + 0)))
 FROM #myfinds;
 
-SELECT @x
-	,@y
-	,@z;
-
 -- Project the average point back up to the surface of the WGS84 Ellipsoid
 -- Note this requires iteration
 -- Longitude = ATN2(x, -y)
