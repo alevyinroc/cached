@@ -45,3 +45,6 @@ where
 	s.statusname = 'Disabled'
 order by 
 	@home.STDistance(latlong) desc;
+
+	select * from point_types;
+	select c.* from caches c join point_types p on p.typeid = c.typeid where c.cachename like '%multi%' and p.typename = 'unknown cache' order by placed desc;
