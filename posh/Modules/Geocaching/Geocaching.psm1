@@ -1834,7 +1834,8 @@ param (
 				 ,[cachestatus]
 				 ,[created]
 				 ,[StateId]
-				 ,[CountryId])
+				 ,[CountryId]
+,[NeedsExternalUpdate],[Elevation])
 			 VALUES
 				 (@CacheId
 				 ,@GSID
@@ -1858,6 +1859,7 @@ param (
 				 ,SYSDATETIMEOFFSET()
 				 ,@StateId
 				 ,@CountryId
+,1,0
 				 );
 "@;
 		} else {
