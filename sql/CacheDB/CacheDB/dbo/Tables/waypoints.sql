@@ -9,6 +9,7 @@
     [url]         NVARCHAR (2038)    NOT NULL,
     [urldesc]     NVARCHAR (200)     NOT NULL,
     [LastUpdated] DATETIMEOFFSET (7) NULL,
+[Created] DATETIMEOFFSET (7) NULL,
     [latlong]     AS                 ([geography]::Point([latitude],[longitude],(4326))) PERSISTED,
     CONSTRAINT [pk_waypoints] PRIMARY KEY CLUSTERED ([waypointid] ASC),
     CONSTRAINT [fk_waypoint_cacheid] FOREIGN KEY ([parentcache]) REFERENCES [dbo].[caches] ([cacheid]),
