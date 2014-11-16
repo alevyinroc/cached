@@ -943,11 +943,13 @@ where
 "@;
 		} else {
 
-		$WptUpsertCmd.Parameters.Add("@Created", [System.Data.SqlDbType]::DateTimeOffset) | Out-Null;
+		
 			$WptUpsertCmd.CommandText = @"
 insert into waypoints (waypointid,parentcache,latitude,longitude,name,description,url,urldesc,typeid,LastUpdated,Created) values (
 @wptid, @cacheid,@lat,@long,@name,@desc,@url,@urldesc,@pointtype,@LastUpdated,@Created);
 "@;
+$WptUpsertCmd.Parameters.Add("@Created", [System.Data.SqlDbType]::DateTimeOffset) | Out-Null;
+$WptUpsertCmd.Parameters["@Created"].Value = $LastUpdated;
 		}
 		$WptUpsertCmd.Parameters["@wptid"].Value = $Id;
 		$WptUpsertCmd.Parameters["@cacheid"].Value = $ParentCache;
@@ -959,7 +961,6 @@ insert into waypoints (waypointid,parentcache,latitude,longitude,name,descriptio
 		$WptUpsertCmd.Parameters["@urldesc"].Value = $UrlDesc;
 		$WptUpsertCmd.Parameters["@pointtype"].Value = $PointTypeId;
 		$WptUpsertCmd.Parameters["@LastUpdated"].Value = $LastUpdated;
-		$WptUpsertCmd.Parameters["@Created"].Value = $LastUpdated;
 		$WptUpsertCmd.ExecuteNonQuery() | Out-Null;
 		$WaypointsProcessed++;
 	}
