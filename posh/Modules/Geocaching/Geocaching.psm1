@@ -925,6 +925,8 @@ param (
 		$PointType = $Waypoint | Select-Object -ExpandProperty PointType;
 		$PointTypeId = Get-PointTypeId -PointTypeName $PointType -DBConnection $DBConnection;
 
+$WptUpsetCmd.Parameters.Remove("@Created");
+
 # Check for point type. If it doesn't exist, create it
 		if ($WaypointExists) {
 			$WptUpsertCmd.CommandText = @"
