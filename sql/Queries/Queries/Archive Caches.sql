@@ -1,5 +1,42 @@
+use cachedb;
 -- Locate caches which aren't in the GSAK database
-select c.cacheid,c.cachename, s.Name,c.lastupdated from caches c left outer join (select cast(code as varchar) code,state from OPENQUERY(GSAKMain, 'select code,state from caches')) g on c.cacheid = g.code join states s on s.StateId = c.StateId join statuses st on c.cachestatus = st.statusid where st.statusname <> 'Archived' and  g.code is null and s.name = 'new york' order by c.lastupdated;
+SELECT c.cacheid
+	,c.cachename
+	,s.NAME
+	,c.lastupdated
+FROM caches c
+LEFT OUTER JOIN (
+	SELECT cast(code AS VARCHAR) code
+		,STATE
+		,Archived
+	FROM OPENQUERY(GSAKMain, 'select code,state,archived from caches')
+	) g ON c.cacheid = g.code
+JOIN states s ON s.StateId = c.StateId
+JOIN statuses st ON c.cachestatus = st.statusid
+WHERE st.statusname <> 'Archived'
+	AND (
+		g.code IS NULL
+		OR g.archived <> 0
+		)
+	AND s.NAME = 'new york'
+ORDER BY c.lastupdated;
 
 -- Archive all caches not found in GSAK
-update  c set c.cachestatus = 2, c.lastupdated = getutcdate() from caches c left outer join (select cast(code as varchar) code,state from OPENQUERY(GSAKMain, 'select code,state from caches')) g on c.cacheid = g.code join states s on s.StateId = c.StateId  join statuses st on c.cachestatus = st.statusid where st.statusname <> 'Archived' and g.code is null and s.name = 'new york';
+UPDATE c
+SET c.cachestatus = 2
+	,c.lastupdated = getutcdate()
+FROM caches c
+LEFT OUTER JOIN (
+	SELECT cast(code AS VARCHAR) code
+		,STATE
+		,Archived
+	FROM OPENQUERY(GSAKMain, 'select code,state,Archived from caches')
+	) g ON c.cacheid = g.code
+JOIN states s ON s.StateId = c.StateId
+JOIN statuses st ON c.cachestatus = st.statusid
+WHERE st.statusname <> 'Archived'
+	AND (
+		g.code IS NULL
+		OR g.archived <> 0
+		)
+	AND s.NAME = 'new york';
