@@ -1,0 +1,1 @@
+select c.cacheid,lt.logtypedesc,count(l.logid) as LogCount,lt.CountsAsFind from caches c join cache_logs cl on c.cacheid = cl.cacheid join logs l on l.logid = cl.logid join log_types lt on l.logtypeid = lt.logtypeid group by c.placed,c.cacheid,lt.logtypedesc,lt.CountsAsFind order by c.cacheid,lt.CountsAsFind desc;
