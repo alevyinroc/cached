@@ -12,7 +12,7 @@ SELECT cast(code as varchar) as code, archived from OPENQUERY([Niagara Falls], '
 SELECT cast(code as varchar) as code, archived from OPENQUERY([NJ], 'select code, archived from caches') UNION 
 SELECT cast(code as varchar) as code, archived from OPENQUERY([Seattle], 'select code, archived from caches') ) A;
 
---select * from #ArchivedGSAK;
+select * from #ArchivedGSAK where archived = 1 order by code;
 
 --SELECT c.cacheid
 --	,c.cachename
@@ -28,6 +28,7 @@ SELECT c.cacheid
 FROM caches c
 left outer JOIN #ArchivedGSAK A on c.cacheid = a.code
 JOIN statuses st ON  c.cachestatus = st.statusid
-where st.statusname <> 'archived' and (a.code is null or a.archived = 1);
+where st.statusname <> 'archived' and (a.code is null or a.archived = 1)
+order by a.archived desc, c.cacheid;
 
 drop table #ArchivedGSAK;
