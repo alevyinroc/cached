@@ -1,6 +1,8 @@
 ﻿Clear-Host;
 $GPXPath = Join-Path -Path $Env:TEMP -ChildPath "PQs";
-Remove-Item -Force -Path $GPXPath -Confirm -Recurse
+if (test-path -path $GPXPath) {
+    Remove-Item -Force -Path $GPXPath -Confirm -Recurse;
+}
 $GPXFiles = .\Get-GPXFromPQs.ps1 -DirWithPQs C:\Users\andy\Dropbox\PQs;
 $GPXFILES = $GPXFiles |sort timestamp;
 $filesprocessed = 0;

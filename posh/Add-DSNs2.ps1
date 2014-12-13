@@ -2,4 +2,5 @@
 	$DSNName = $_.split("\")[6];
 	Add-OdbcDsn -Name $DSNName -DriverName "SQLite3 ODBC Driver" -Platform 64-bit -DsnType System -SetPropertyValue "Database=$_";
 };
-Get-OdbcDsn -DriverName "SQLite3 ODBC Driver";
+Get-OdbcDsn -DriverName "SQLite3 ODBC Driver" | Format-Table -AutoSize;
+Get-OdbcDsn -DriverName "SQLite3 ODBC Driver" | Format-Table -AutoSize | Out-File -FilePath C:\Users\andy\Documents\cachedb\createdDSNs.txt;
