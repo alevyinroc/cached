@@ -69,7 +69,24 @@ create clustered index IX_WPUpdated on dbo.waypoints (Created asc) with fillfact
 alter table dbo.centerpoints add constraint PK_CenterPoints primary key  (locationname);
 
 alter table Counties add constraint PK_Counties PRIMARY KEY (CountyId,StateId);
-alter table countries add constraint PC_Countries PRIMARY KEY (CountryId);
+alter table countries add constraint PK_Countries PRIMARY KEY (CountryId);
 alter table Counties add constraint FK_Counties_State  FOREIGN KEY (StateId) references States(StateId);
 alter table Caches add constraint FK_Caches_Statuses FOREIGN KEY (cachestatus) references statuses(statusid);
 alter table Caches add constraint FK_Caches_Countries  FOREIGN KEY (CountryId) references Countries(CountryId);
+----
+create nonclustered index [IX_caches_Stateid] on [Caches] ([StateId]);
+create nonclustered index [IX_caches_CountryId] on [Caches]([CountryId]);
+create nonclustered index [IX_caches_statusid] on [Caches](cachestatus);
+alter table logs add constraint FK_logs_cacherid FOREIGN KEY (cacherid) references Cachers(cacherid);
+create nonclustered index [IX_logs_cacherid] on [logs]([cacherid]);
+create nonclustered index [IX_logs_logtypeid] on [logs]([logtypeid]);
+create nonclustered index [IX_waypoints_parentcache] on [waypoints](parentcache);
+create nonclustered index [IX_waypoints_typeid] on [waypoints](typeid);
+alter table countries drop constraint PC_Countries;
+alter table countries add constraint PK_Countries PRIMARY KEY (CountryId);
+----
+create nonclustered index [IX_caches_cachesize] on [caches](sizeid);
+create nonclustered index [IX_caches_pointtype] on [caches](typeid);
+alter table caches drop constraint FK_Caches_Statuses;
+create nonclustered index [IX_tbinventory_cacheid] on [tbinventory](cacheid);
+create nonclustered index [IX_tbinventory_tbpublicid] on [tbinventory](tbpublicid);
