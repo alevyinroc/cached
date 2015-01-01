@@ -48,7 +48,7 @@ select top 1 * from #foundmultis where cachename like 'u%'
 union
 select top 1 * from #foundmultis where cachename like 'l%' 
 union
-select top 1  * from #foundmultis where cachename like 't%' and cachename not like 'the%' 
+select top 1  * from #foundmultis where cachename like 't%' and cachename not like 'the %' 
 union
 select top 1  * from #foundmultis where cachename like 'i%' 
 union

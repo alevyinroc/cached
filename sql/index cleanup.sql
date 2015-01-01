@@ -67,3 +67,9 @@ alter table dbo.waypoints add constraint FK_Waypoints_Typeid foreign key (typeid
 alter table dbo.waypoints add Created datetimeoffset null;
 create clustered index IX_WPUpdated on dbo.waypoints (Created asc) with fillfactor=90;
 alter table dbo.centerpoints add constraint PK_CenterPoints primary key  (locationname);
+
+alter table Counties add constraint PK_Counties PRIMARY KEY (CountyId,StateId);
+alter table countries add constraint PC_Countries PRIMARY KEY (CountryId);
+alter table Counties add constraint FK_Counties_State  FOREIGN KEY (StateId) references States(StateId);
+alter table Caches add constraint FK_Caches_Statuses FOREIGN KEY (cachestatus) references statuses(statusid);
+alter table Caches add constraint FK_Caches_Countries  FOREIGN KEY (CountryId) references Countries(CountryId);
