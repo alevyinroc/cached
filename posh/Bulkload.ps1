@@ -3,7 +3,7 @@ $GPXPath = Join-Path -Path $Env:TEMP -ChildPath "PQs";
 if (test-path -path $GPXPath) {
     Remove-Item -Force -Path $GPXPath -Confirm -Recurse;
 }
-$GPXFiles = .\Get-GPXFromPQs.ps1 -DirWithPQs C:\Users\andy\Dropbox\PQs;
+$GPXFiles = .\Get-GPXFromPQs.ps1 -DirWithPQs C:\Users\andy.levynetscus\Dropbox\PQs;
 $GPXFILES = $GPXFiles |sort timestamp;
 $filesprocessed = 0;
 $cachefiles = $GPXFiles|Where-Object {$_.filepath -notlike "*-wpts.gpx"};

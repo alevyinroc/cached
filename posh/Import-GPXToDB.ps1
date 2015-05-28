@@ -40,7 +40,7 @@ Pop-Location;
 if ((Get-Module | Where-Object{$_.name -eq "Geocaching"} | Measure-Object).Count -ge 1){
 	Remove-Module geocaching;
 }
-Import-Module C:\Users\andy\Documents\cachedb\posh\Modules\Geocaching;
+Import-Module C:\Users\andy.levynetscus\Documents\cachedb\posh\Modules\Geocaching;
 
 #region Globals
 $SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
