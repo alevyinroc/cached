@@ -1,0 +1,15 @@
+delete from cache_attributes;
+delete FROM attributes;
+delete from cache_logs;
+delete from cache_owners;
+delete from logs;
+delete from waypoints;
+DELETE from tbinventory;
+delete from travelbugs;
+DELETE from caches;
+delete from cachers;
+delete from cache_sizes;
+DELETE from states;
+delete from countries;
+delete from point_types;
+delete from log_types;

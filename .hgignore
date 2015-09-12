@@ -1,0 +1,12 @@
+syntax: glob
+sql/CacheDB/CacheDB/bin/*
+sql/CacheDB/CacheDB/obj/*
+*.suo
+scratchpad/*.gpx
+scratchpad/*.zip
+sql/PerformanceCompare/PerformanceCompare/bin/*
+sql/PerformanceCompare/PerformanceCompare/obj/*
+*.user
+*.ssms_suo
+sql\TravelMap\TravelMap\TravelMap - Backup.rdl
+*.data

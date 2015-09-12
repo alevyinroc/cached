@@ -1,0 +1,76 @@
+10/6/2013 8:08:19 PM	This log contains information about the import schema operation into project 'CacheDB' on computer 'HOBBES' by user 'andy'.
+10/6/2013 8:08:19 PM	Import of database schema has started.
+10/6/2013 8:08:56 PM	Gathering database options
+10/6/2013 8:08:56 PM	Gathering users
+10/6/2013 8:08:56 PM	Gathering roles
+10/6/2013 8:08:56 PM	Gathering application roles
+10/6/2013 8:08:56 PM	Gathering role memberships
+10/6/2013 8:08:56 PM	Gathering filegroups
+10/6/2013 8:08:56 PM	Gathering full-text catalogs
+10/6/2013 8:08:56 PM	Gathering assemblies
+10/6/2013 8:08:56 PM	Gathering certificates
+10/6/2013 8:08:56 PM	Gathering asymmetric keys
+10/6/2013 8:08:56 PM	Gathering symmetric keys
+10/6/2013 8:08:56 PM	Gathering encrypted symmetric keys
+10/6/2013 8:08:56 PM	Gathering schemas
+10/6/2013 8:08:56 PM	Gathering XML schema collections
+10/6/2013 8:08:56 PM	Gathering user-defined data types
+10/6/2013 8:08:56 PM	Gathering user-defined types
+10/6/2013 8:08:56 PM	Gathering table types
+10/6/2013 8:08:56 PM	Gathering unique keys for table types
+10/6/2013 8:08:56 PM	Gathering primary keys for table types
+10/6/2013 8:08:56 PM	Gathering check constraints for table types
+10/6/2013 8:08:56 PM	Gathering default constraints for table types
+10/6/2013 8:08:56 PM	Gathering partition functions
+10/6/2013 8:08:56 PM	Gathering partition schemes
+10/6/2013 8:08:56 PM	Gathering functions
+10/6/2013 8:08:56 PM	Gathering encrypted functions
+10/6/2013 8:08:56 PM	Gathering aggregates
+10/6/2013 8:08:57 PM	Gathering procedures
+10/6/2013 8:08:57 PM	Gathering encrypted procedures
+10/6/2013 8:08:57 PM	Gathering tables
+10/6/2013 8:08:57 PM	Gathering primary keys
+10/6/2013 8:08:57 PM	Gathering unique constraints
+10/6/2013 8:08:57 PM	Gathering foreign keys
+10/6/2013 8:08:57 PM	Gathering default constraints
+10/6/2013 8:08:57 PM	Gathering check constraints
+10/6/2013 8:08:57 PM	Gathering views
+10/6/2013 8:08:57 PM	Gathering encrypted views
+10/6/2013 8:08:57 PM	Gathering indexes
+10/6/2013 8:08:57 PM	Gathering statistics
+10/6/2013 8:08:57 PM	Gathering full-text index stoplists
+10/6/2013 8:08:57 PM	Gathering search property lists
+10/6/2013 8:08:57 PM	Gathering search properties
+10/6/2013 8:08:57 PM	Gathering full-text indexes
+10/6/2013 8:08:57 PM	Gathering column store indexes
+10/6/2013 8:08:57 PM	Gathering spatial indexes
+10/6/2013 8:08:57 PM	Gathering XML indexes
+10/6/2013 8:08:57 PM	Gathering Selective XML indexes
+10/6/2013 8:08:57 PM	Gathering encrypted triggers
+10/6/2013 8:08:57 PM	Gathering triggers
+10/6/2013 8:08:57 PM	Gathering encrypted and clr ddl triggers
+10/6/2013 8:08:57 PM	Gathering ddl triggers
+10/6/2013 8:08:57 PM	Gathering synonyms
+10/6/2013 8:08:57 PM	Gathering defaults
+10/6/2013 8:08:57 PM	Gathering data constraint uddt bindings
+10/6/2013 8:08:57 PM	Gathering rules
+10/6/2013 8:08:57 PM	Gathering data constraint uddt bindings
+10/6/2013 8:08:57 PM	Gathering message types
+10/6/2013 8:08:57 PM	Gathering queues
+10/6/2013 8:08:57 PM	Gathering contracts
+10/6/2013 8:08:57 PM	Gathering services
+10/6/2013 8:08:57 PM	Gathering event notifications
+10/6/2013 8:08:57 PM	Gathering remote service bindings
+10/6/2013 8:08:57 PM	Gathering broker priorities
+10/6/2013 8:08:57 PM	Gathering signatures
+10/6/2013 8:08:57 PM	Gathering data compression options
+10/6/2013 8:08:57 PM	Gathering sequence types
+10/6/2013 8:08:57 PM	Gathering extended properties
+10/6/2013 8:08:58 PM	Gathering credentials
+10/6/2013 8:08:58 PM	Gathering logins
+10/6/2013 8:08:58 PM	Gathering server audits
+10/6/2013 8:09:02 PM	Scanning project for duplicate elements
+10/6/2013 8:09:03 PM	Finished duplicate element processing
+10/6/2013 8:09:04 PM	Finished importing database.
+10/6/2013 8:09:04 PM	A summary of the import was saved to the following location: C:\Users\andy\Documents\Code\cachedb\sql\CacheDB\CacheDB\Import Schema Logs\CacheDB_20131007120819.log
+10/6/2013 8:09:05 PM	Click Finish to continue...
