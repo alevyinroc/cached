@@ -10,7 +10,7 @@
 param (
 	[Parameter(Mandatory=$true)]
 	[ValidateScript({Test-Path -path $_ -PathType Container})]
-	[string]$DirWithPQs = 'C:\Users\andy\Documents\Code\cachedb\scratchpad\'
+	[string]$DirWithPQs
 )
 
 function Expand-ZIPFile {
@@ -56,7 +56,7 @@ function Get-GPXFiles {
 param (
 	[Parameter(Mandatory=$true)]
 	[ValidateScript({Test-Path -path $_ -PathType Container})]
-	[string]$DirWithPQs = 'C:\Users\andy\Documents\Code\cachedb\scratchpad\'
+	[string]$DirWithPQs
 )
 	$GPXPath = Join-Path -Path $Env:TEMP -ChildPath "PQs";
 	if (-not (Test-Path -Path $GPXPath -PathType Container)) {
