@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{F14B399A-7131-4C87-9E4B-1186C45EF12D}") = "TravelMap", "TravelMap\TravelMap.rptproj", "{C071A5AF-9067-42C5-B5DF-965E8ABF3B04}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Default = Debug|Default
+		DebugLocal|Default = DebugLocal|Default
+		Release|Default = Release|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C071A5AF-9067-42C5-B5DF-965E8ABF3B04}.Debug|Default.ActiveCfg = Debug
+		{C071A5AF-9067-42C5-B5DF-965E8ABF3B04}.Debug|Default.Build.0 = DebugLocal
+		{C071A5AF-9067-42C5-B5DF-965E8ABF3B04}.Debug|Default.Deploy.0 = DebugLocal
+		{C071A5AF-9067-42C5-B5DF-965E8ABF3B04}.DebugLocal|Default.ActiveCfg = DebugLocal
+		{C071A5AF-9067-42C5-B5DF-965E8ABF3B04}.DebugLocal|Default.Build.0 = DebugLocal
+		{C071A5AF-9067-42C5-B5DF-965E8ABF3B04}.Release|Default.ActiveCfg = Release
+		{C071A5AF-9067-42C5-B5DF-965E8ABF3B04}.Release|Default.Build.0 = Release
+		{C071A5AF-9067-42C5-B5DF-965E8ABF3B04}.Release|Default.Deploy.0 = Release
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
