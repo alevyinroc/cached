@@ -1,6 +1,8 @@
 ﻿CREATE TABLE [dbo].[cache_sizes] (
-    [sizeid]   INT          NOT NULL DEFAULT Next value for CacheSizeId,
+    [sizeid]   INT          CONSTRAINT [DF_cachesizes_sizeid] DEFAULT (NEXT VALUE FOR [cachesizeid]) NOT NULL,
     [sizename] VARCHAR (16) NULL,
-    CONSTRAINT [pk_cache_sizes] PRIMARY KEY CLUSTERED ([sizeid] ASC)
+    CONSTRAINT [PK_CacheSizes] PRIMARY KEY NONCLUSTERED ([sizeid] ASC)
 );
+
+
 

@@ -1,12 +1,10 @@
-﻿CREATE TABLE [dbo].[CenterPoints] (
-    [Locationname] VARCHAR (20) NOT NULL,
-    [Latitude]     DECIMAL(8, 6)   NULL,
-    [Longitude]    DECIMAL(9, 6)   NULL,
+﻿CREATE TABLE [dbo].[CenterPoints](
+	[Locationname] [varchar](20) NOT NULL,
+	[Latitude] [decimal](8, 6) NULL,
+	[Longitude] [decimal](9, 6) NULL,
     [latlong]      AS           ([geography]::Point([Latitude],[Longitude],(4326))) PERSISTED,
-    CONSTRAINT [pk_centerpoints] PRIMARY KEY CLUSTERED ([Locationname] ASC)
-);
-
-
-
-
-
+ CONSTRAINT [PK_CenterPoints] PRIMARY KEY CLUSTERED 
+(
+	[Locationname] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]

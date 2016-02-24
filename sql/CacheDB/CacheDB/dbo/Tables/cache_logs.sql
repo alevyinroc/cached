@@ -1,12 +1,25 @@
-﻿CREATE TABLE [dbo].[cache_logs] (
-    [cacheid] VARCHAR (8) NOT NULL,
-    [logid]   BIGINT      NOT NULL,
-    CONSTRAINT [pk_cache_logs] PRIMARY KEY CLUSTERED ([cacheid] ASC, [logid] ASC),
-    CONSTRAINT [fk_log_cacheid] FOREIGN KEY ([cacheid]) REFERENCES [dbo].[caches] ([cacheid]),
-    CONSTRAINT [fk_log_logid] FOREIGN KEY ([logid]) REFERENCES [dbo].[logs] ([logid])
-);
-
+CREATE TABLE [dbo].[cache_logs](
+	[cacheid] [varchar](8) NOT NULL,
+	[logid] [bigint] NOT NULL,
+ CONSTRAINT [PK_CacheLogs] PRIMARY KEY NONCLUSTERED 
+(
+	[cacheid] ASC,
+	[logid] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
 
 GO
 
-CREATE INDEX [IX_cache_logs_logid] ON [dbo].[cache_logs] ([logid])
+ALTER TABLE [dbo].[cache_logs]  WITH CHECK ADD  CONSTRAINT [FK_CacheLogs_LogID] FOREIGN KEY([logid])
+REFERENCES [dbo].[logs] ([logid])
+GO
+
+ALTER TABLE [dbo].[cache_logs] CHECK CONSTRAINT [FK_CacheLogs_LogID]
+GO
+
+ALTER TABLE [dbo].[cache_logs]  WITH CHECK ADD  CONSTRAINT [FK_CLCacheID] FOREIGN KEY([cacheid])
+REFERENCES [dbo].[caches] ([cacheid])
+GO
+
+ALTER TABLE [dbo].[cache_logs] CHECK CONSTRAINT [FK_CLCacheID]
+GO
