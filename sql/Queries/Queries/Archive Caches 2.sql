@@ -1,4 +1,5 @@
 use cachedb;
+--exec CopyCorrectedCoords 1,1,1;
 create table #ArchivedGSAK (
 	code varchar(8) not null,
 	archived int not null
@@ -11,7 +12,9 @@ SELECT cast(code as varchar) as code, archived from OPENQUERY([My Hides], 'selec
 SELECT cast(code as varchar) as code, archived from OPENQUERY([New England], 'select code, archived from caches') UNION 
 SELECT cast(code as varchar) as code, archived from OPENQUERY([Niagara Falls], 'select code, archived from caches') UNION 
 SELECT cast(code as varchar) as code, archived from OPENQUERY([NJ], 'select code, archived from caches') UNION 
-SELECT cast(code as varchar) as code, archived from OPENQUERY([Seattle], 'select code, archived from caches') 
+SELECT cast(code as varchar) as code, archived from OPENQUERY([Seattle], 'select code, archived from caches') UNION 
+SELECT cast(code as varchar) as code, archived from OPENQUERY([CanadaEvent], 'select code, archived from caches') UNION 
+SELECT cast(code as varchar) as code, archived from OPENQUERY([Cruise], 'select code, archived from caches')  
 ) A;
 
 --select * from #ArchivedGSAK where archived = 1 order by code;
