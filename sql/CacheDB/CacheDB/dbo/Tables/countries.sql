@@ -1,6 +1,8 @@
 ﻿CREATE TABLE [dbo].[Countries] (
-    [CountryId] INT           NOT NULL DEFAULT next value for CountryId,
+    [CountryId] INT           CONSTRAINT [DF_Countries_CountryId] DEFAULT (NEXT VALUE FOR [countryid]) NOT NULL,
     [Name]      NVARCHAR (50) NULL,
-    CONSTRAINT [pk_countries] PRIMARY KEY CLUSTERED ([CountryId] ASC)
+    CONSTRAINT [PC_Countries] PRIMARY KEY CLUSTERED ([CountryId] ASC)
 );
+
+
 

@@ -196,6 +196,18 @@
     <Build Include="dbo\Functions\DistanceInMiles.sql" />
     <Build Include="dbo\Sequences\CountyId.sql" />
     <Build Include="dbo\Tables\Counties.sql" />
+    <Build Include="dbo\Stored Procedures\GetFindsByCacherName.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="dbo\Stored Procedures\CopyCorrectedCoords.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
+    <Build Include="dbo\Stored Procedures\ArchiveCaches.sql">
+      <AnsiNulls>On</AnsiNulls>
+      <QuotedIdentifier>On</QuotedIdentifier>
+    </Build>
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="CacheDB.refactorlog" />

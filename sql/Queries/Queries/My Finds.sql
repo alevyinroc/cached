@@ -1,3 +1,4 @@
+use cachedb;
 SET STATISTICS IO ON;
 
 SELECT c3.cachename
@@ -8,7 +9,7 @@ JOIN cachers c ON c.cacherid = l.cacherid
 JOIN log_types lt ON l.logtypeid = lt.logtypeid
 JOIN cache_logs c2 ON c2.logid = l.logid
 JOIN caches c3 ON c2.cacheid = c3.cacheid
-WHERE c.cachername = 'dakboy'
+WHERE c.cachername in ('dakboy','ri123','chilipepperd','littleguyty')
 	AND lt.countsasfind = 1
 ORDER BY l.logdate DESC
 	,l.logid DESC;
@@ -40,7 +41,7 @@ JOIN caches c3 ON c2.cacheid = c3.cacheid
 join point_types p on c3.typeid = p.typeid
 WHERE c.cachername = 'dakboy'
 	AND lt.countsasfind = 1
-	and p.typename = 'Multi-Cache';
+	and p.typename like 'multi%'
 
 select top 1 1,* from #foundmultis where cachename like 'm%' 
 union

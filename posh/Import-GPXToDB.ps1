@@ -40,7 +40,7 @@ Pop-Location;
 if ((Get-Module | Where-Object{$_.name -eq "Geocaching"} | Measure-Object).Count -ge 1){
 	Remove-Module geocaching;
 }
-Import-Module C:\Users\andy.levynetscus\Documents\cachedb\posh\Modules\Geocaching;
+Import-Module "f:\azure acct 1\cachedb\posh\modules\Geocaching";
 
 #region Globals
 $SQLConnectionString = "Server=$SQLInstance;Database=$Database;Trusted_Connection=True;Application Name=Geocache Loader;";
@@ -63,7 +63,7 @@ $cachedata.load($FileToImport);
 # Otherwise, it's a waypoint
 $CachesProcessed = 0;
 $Geocaches = $cachedata.gpx.wpt | where-object{$_.type.split(" | ")[0] -eq "Geocache"};
-
+Write-Output $filetoimport;
 # New method of loading attributes into database
 $Geocaches | Select-Object -expandproperty cache | where-object{$_.attributes.attribute -ne $null} |
 	Select-Object -expandproperty attributes|Select-Object -expandproperty attribute |
