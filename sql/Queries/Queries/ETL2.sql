@@ -58,3 +58,5 @@ limit 1
   left join counties CT on CT.CountyName = cast(c.realcounty as varchar(100)) and CT.StateId = S.StateId
   --join states S on cast([c.realstate] as nvarchar(100)) = S.Name
   ;
+
+  
