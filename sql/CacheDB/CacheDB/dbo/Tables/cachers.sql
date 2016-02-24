@@ -1,10 +1,14 @@
-﻿CREATE TABLE [dbo].[cachers] (
-    [cacherid]   INT          NOT NULL,
-    [cachername] NVARCHAR(50) NOT NULL,
-    CONSTRAINT [pk_cachers] PRIMARY KEY CLUSTERED ([cacherid] ASC)
+CREATE TABLE [dbo].[cachers] (
+    [cacherid]   INT           NOT NULL,
+    [cachername] NVARCHAR (50) NOT NULL,
+    CONSTRAINT [PK_CacherId] PRIMARY KEY CLUSTERED ([cacherid] ASC)
 );
 
 
-GO
 
-CREATE INDEX [IX_cachers_CacherName] ON [dbo].[cachers] (cachername)
+
+GO
+CREATE NONCLUSTERED INDEX [ix_cachername]
+    ON [dbo].[cachers]([cachername] ASC)
+    INCLUDE([cacherid]);
+

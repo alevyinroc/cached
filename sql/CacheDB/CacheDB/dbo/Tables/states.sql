@@ -1,6 +1,8 @@
 ﻿CREATE TABLE [dbo].[States] (
-    [StateId] INT           NOT NULL DEFAULT next value for StateId,
+    [StateId] INT           CONSTRAINT [DF_states_stateid] DEFAULT (NEXT VALUE FOR [stateid]) NOT NULL,
     [Name]    NVARCHAR (50) NULL,
-    CONSTRAINT [pk_states] PRIMARY KEY CLUSTERED ([StateId] ASC)
+    CONSTRAINT [PK_States] PRIMARY KEY NONCLUSTERED ([StateId] ASC)
 );
+
+
 
