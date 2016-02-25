@@ -14,8 +14,6 @@
     [shortdesc]           NVARCHAR (2048)    NOT NULL,
     [longdesc]            NTEXT              NOT NULL,
     [hint]                NVARCHAR (1024)    NULL,
-    [available]           BIT                NOT NULL,
-    [archived]            BIT                NOT NULL,
     [premiumonly]         BIT                NOT NULL,
     [cachestatus]         INT                NOT NULL,
     [created]             DATETIMEOFFSET (7) NOT NULL,
