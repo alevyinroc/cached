@@ -59,21 +59,21 @@ limit 1
   ;
 
   -- Get all cache IDs in GSAK but not my database
-select * into #GSAKcaches from (SELECT * FROM OPENQUERY([Far-off puzzles], 'select C.*, cm.ShortDescription, cm.LongDescription, CM.Hints, CM.URL ,cc.kafterlat, cc.kafterlon, coalesce(cc.kafterstate,c.state) as realstate, coalesce(cc.kaftercounty,c.county) as realcounty,kbeforelat,kbeforelon from caches C join cachememo CM on C.code = CM.code left outer join corrected cc on c.code = cc.kcode') UNION ALL
+select * into #GSAKcaches from (
+--SELECT * FROM OPENQUERY([Far-off puzzles], 'select C.*, cm.ShortDescription, cm.LongDescription, CM.Hints, CM.URL ,cc.kafterlat, cc.kafterlon, coalesce(cc.kafterstate,c.state) as realstate, coalesce(cc.kaftercounty,c.county) as realcounty,kbeforelat,kbeforelon from caches C join cachememo CM on C.code = CM.code left outer join corrected cc on c.code = cc.kcode') UNION ALL
 SELECT * FROM OPENQUERY([Home200], 'select C.*, cm.ShortDescription, cm.LongDescription, CM.Hints, CM.URL ,cc.kafterlat, cc.kafterlon, coalesce(cc.kafterstate,c.state) as realstate, coalesce(cc.kaftercounty,c.county) as realcounty,kbeforelat,kbeforelon from caches C join cachememo CM on C.code = CM.code left outer join corrected cc on c.code = cc.kcode') UNION ALL
-SELECT * FROM OPENQUERY([My Finds], 'select C.*, cm.ShortDescription, cm.LongDescription, CM.Hints, CM.URL ,cc.kafterlat, cc.kafterlon, coalesce(cc.kafterstate,c.state) as realstate, coalesce(cc.kaftercounty,c.county) as realcounty,kbeforelat,kbeforelon from caches C join cachememo CM on C.code = CM.code left outer join corrected cc on c.code = cc.kcode') UNION ALL
-SELECT * FROM OPENQUERY([My Hides], 'select C.*, cm.ShortDescription, cm.LongDescription, CM.Hints, CM.URL ,cc.kafterlat, cc.kafterlon, coalesce(cc.kafterstate,c.state) as realstate, coalesce(cc.kaftercounty,c.county) as realcounty,kbeforelat,kbeforelon from caches C join cachememo CM on C.code = CM.code left outer join corrected cc on c.code = cc.kcode') UNION ALL
+--SELECT * FROM OPENQUERY([My Finds], 'select C.*, cm.ShortDescription, cm.LongDescription, CM.Hints, CM.URL ,cc.kafterlat, cc.kafterlon, coalesce(cc.kafterstate,c.state) as realstate, coalesce(cc.kaftercounty,c.county) as realcounty,kbeforelat,kbeforelon from caches C join cachememo CM on C.code = CM.code left outer join corrected cc on c.code = cc.kcode') UNION ALL
+--SELECT * FROM OPENQUERY([My Hides], 'select C.*, cm.ShortDescription, cm.LongDescription, CM.Hints, CM.URL ,cc.kafterlat, cc.kafterlon, coalesce(cc.kafterstate,c.state) as realstate, coalesce(cc.kaftercounty,c.county) as realcounty,kbeforelat,kbeforelon from caches C join cachememo CM on C.code = CM.code left outer join corrected cc on c.code = cc.kcode') UNION ALL
 SELECT * FROM OPENQUERY([New England], 'select C.*, cm.ShortDescription, cm.LongDescription, CM.Hints, CM.URL ,cc.kafterlat, cc.kafterlon, coalesce(cc.kafterstate,c.state) as realstate, coalesce(cc.kaftercounty,c.county) as realcounty,kbeforelat,kbeforelon from caches C join cachememo CM on C.code = CM.code left outer join corrected cc on c.code = cc.kcode') UNION ALL
-SELECT * FROM OPENQUERY([Niagara Falls], 'select C.*, cm.ShortDescription, cm.LongDescription, CM.Hints, CM.URL ,cc.kafterlat, cc.kafterlon, coalesce(cc.kafterstate,c.state) as realstate, coalesce(cc.kaftercounty,c.county) as realcounty,kbeforelat,kbeforelon from caches C join cachememo CM on C.code = CM.code left outer join corrected cc on c.code = cc.kcode') UNION ALL
+SELECT * FROM OPENQUERY([Niagara Falls], 'select C.*, cm.ShortDescription, cm.LongDescription, CM.Hints, CM.URL ,cc.kafterlat, cc.kafterlon, coalesce(cc.kafterstate,c.state) as realstate, coalesce(cc.kaftercounty,c.county) as realcounty,kbeforelat,kbeforelon from caches C join cachememo CM on C.code = CM.code left outer join corrected cc on c.code = cc.kcode where c.country=''Canada''') UNION ALL
 SELECT * FROM OPENQUERY([NJ], 'select C.*, cm.ShortDescription, cm.LongDescription, CM.Hints, CM.URL ,cc.kafterlat, cc.kafterlon, coalesce(cc.kafterstate,c.state) as realstate, coalesce(cc.kaftercounty,c.county) as realcounty,kbeforelat,kbeforelon from caches C join cachememo CM on C.code = CM.code left outer join corrected cc on c.code = cc.kcode') UNION ALL
 SELECT * FROM OPENQUERY([Seattle], 'select C.*, cm.ShortDescription, cm.LongDescription, CM.Hints, CM.URL ,cc.kafterlat, cc.kafterlon, coalesce(cc.kafterstate,c.state) as realstate, coalesce(cc.kaftercounty,c.county) as realcounty,kbeforelat,kbeforelon from caches C join cachememo CM on C.code = CM.code left outer join corrected cc on c.code = cc.kcode') UNION ALL
 SELECT * FROM OPENQUERY([CanadaEvent], 'select C.*, cm.ShortDescription, cm.LongDescription, CM.Hints, CM.URL ,cc.kafterlat, cc.kafterlon, coalesce(cc.kafterstate,c.state) as realstate, coalesce(cc.kaftercounty,c.county) as realcounty,kbeforelat,kbeforelon from caches C join cachememo CM on C.code = CM.code left outer join corrected cc on c.code = cc.kcode') UNION ALL
-SELECT * FROM OPENQUERY([Cruise], 'select C.*, cm.ShortDescription, cm.LongDescription, CM.Hints, CM.URL ,cc.kafterlat, cc.kafterlon, coalesce(cc.kafterstate,c.state) as realstate, coalesce(cc.kaftercounty,c.county) as realcounty,kbeforelat,kbeforelon from caches C join cachememo CM on C.code = CM.code left outer join corrected cc on c.code = cc.kcode') ) A;
+SELECT * FROM OPENQUERY([Cruise], 'select C.*, cm.ShortDescription, cm.LongDescription, CM.Hints, CM.URL ,cc.kafterlat, cc.kafterlon, coalesce(cc.kafterstate,c.state) as realstate, coalesce(cc.kaftercounty,c.county) as realcounty,kbeforelat,kbeforelon from caches C join cachememo CM on C.code = CM.code left outer join corrected cc on c.code = cc.kcode')
+) A;
 delete G from #GSAKCaches G where exists (select 1 from caches c where c.cacheid = cast(g.code as varchar(10)));
-
 /* TODO: Go through #GSAKCaches and delete duplicates. Use windowing function and LastUpdated date to find most recent record for each */
 
-begin transaction
 insert into caches(cacheid, gsid, cachename, latitude, longitude, lastupdated, placed, placedby, typeid
 , sizeid,difficulty,terrain, shortdesc,longdesc,hint, premiumonly,cachestatus,created, url,
 CountryId,Elevation,StateId,CountyId, CorrectedLatitude,CorrectedLongitude,NeedsExternalUpdate) 
@@ -117,6 +117,4 @@ end
   join States S on s.name = cast(c.realstate as varchar(100))
   left join counties CT on CT.CountyName = cast(c.realcounty as varchar(100)) and CT.StateId = S.StateId
   ;
- select count(*) from caches;
-rollback transaction
 drop table #GSAKCaches;
