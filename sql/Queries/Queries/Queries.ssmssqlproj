@@ -55,6 +55,12 @@
           <AssociatedConnUserName />
           <FullPath>ETL2.sql</FullPath>
         </FileNode>
+        <FileNode Name="ETL3.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>ETL3.sql</FullPath>
+        </FileNode>
         <FileNode Name="Findable caches.sql">
           <AssociatedConnectionMoniker />
           <AssociatedConnSrvName />
