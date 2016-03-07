@@ -1,3 +1,4 @@
+use cachedb2;
 --select * FROM OPENQUERY([Home200], 'select * from logsall limit 1')
 --sp_help logs
 SELECT

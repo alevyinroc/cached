@@ -1,4 +1,4 @@
-use cachedb;
+use cachedb2;
   -- Get all cache IDs in GSAK but not my database
 select * into #GSAKcaches from (
 --SELECT * FROM OPENQUERY([Far-off puzzles], 'select C.*, cm.ShortDescription, cm.LongDescription, CM.Hints, CM.URL ,cc.kafterlat, cc.kafterlon, coalesce(cc.kafterstate,c.state) as realstate, coalesce(cc.kaftercounty,c.county) as realcounty,kbeforelat,kbeforelon from caches C join cachememo CM on C.code = CM.code left outer join corrected cc on c.code = cc.kcode') UNION ALL
@@ -52,16 +52,20 @@ end
 , c.kafterlon as CorrectedLongitude
 ,0 as NeedsExternalUpdate
   FROM #GSAKcaches as C
-  join Countries C2 on cast(c.country as nvarchar(100)) = C2.Name
+  join Countries C2 on cast(c.country as nvarchar(50)) = C2.Name
   join point_types PT on PT.GSAK_Lookup = cast(C.cachetype as char(1))
   join cache_sizes CS on CS.sizename = cast(c.Container as varchar(16))
-  join States S on s.name = cast(c.realstate as varchar(100))
+  join States S on s.name = c.realstate
   left join counties CT on CT.CountyName = cast(c.realcounty as varchar(100)) and CT.StateId = S.StateId
   ;
--- Get cache owners
-insert into cache_owners(cacheid,cacherid) select cast(code as varchar(10)) as cacheid,convert(int, convert(varchar(50), ownerid)) as ownerid from #GSAKcaches;
 
-select * from caches C left outer join cache_owners cO on c.cacheid = co.cacheid where co.cacherid is null;
-select count(*) from cache_owners
-select count(*) from caches
+-- Get cache owners
+insert into cache_owners(cacheid,cacherid)
+select cast(code as varchar(10)) as cacheid,convert(int, convert(varchar(50), ownerid)) as ownerid
+from
+#GSAKcaches G
+join caches c on c.cacheid = cast(g.code as varchar(10))
+left outer join cache_owners co on cast(g.cacheid as varchar(10)) = co.cacheid
+where co.cacheid is null order by cast(code as varchar(10));
+
 drop table #GSAKCaches;
