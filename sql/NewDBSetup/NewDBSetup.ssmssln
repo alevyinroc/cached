@@ -1,0 +1,17 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# SQL Server Management Studio Solution File, Format Version 13.00
+Project("{4F2E2C19-372F-40D8-9FA7-9D2138C6997A}") = "NewDBSetup", "NewDBSetup\NewDBSetup.ssmssqlproj", "{7884AB1F-3B55-4221-AE7B-338442D9C05D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Default|Default = Default|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7884AB1F-3B55-4221-AE7B-338442D9C05D}.Default|Default.ActiveCfg = Default
+		{9704DDD2-3361-413C-B213-FDA1BABDFBC6}.Default|Default.ActiveCfg = Default
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

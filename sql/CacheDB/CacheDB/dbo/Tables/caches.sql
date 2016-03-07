@@ -26,7 +26,7 @@
     [Elevation]           FLOAT (53)         NOT NULL,
     [NeedsExternalUpdate] BIT                NOT NULL,
     [latlong]             AS                 ([geography]::Point([latitude],[longitude],(4326))) PERSISTED NOT NULL,
-    [Correctedlatlong]    AS                 ([geography]::Point(isnull([correctedlatitude],(0)),isnull([correctedlongitude],(0)),(4326))) PERSISTED,
+    [Correctedlatlong]    AS                 ([geography]::Point(isnull([CorrectedLatitude],(0)),isnull([CorrectedLongitude],(0)),(4326))) PERSISTED,
 	[CountyId] INT NULL,
     CONSTRAINT [PK_caches] PRIMARY KEY NONCLUSTERED ([cacheid] ASC),
     CONSTRAINT [FK_Caches_Countries] FOREIGN KEY ([CountryId]) REFERENCES [dbo].[Countries] ([CountryId]),
@@ -34,7 +34,7 @@
     CONSTRAINT [FK_Caches_SizeId] FOREIGN KEY ([sizeid]) REFERENCES [dbo].[cache_sizes] ([sizeid]),
     CONSTRAINT [FK_Caches_StateId] FOREIGN KEY ([StateId]) REFERENCES [dbo].[States] ([StateId]),
     CONSTRAINT [FK_Caches_StatusId] FOREIGN KEY ([cachestatus]) REFERENCES [dbo].[statuses] ([statusid]),
-	CONSTRAINT [FK_Caches_CountyId] FOREIGN KEY ([CountyId]) REFERENCES [dbo].[Counties] ([CountyId])
+	CONSTRAINT [FK_Caches_CountyId] FOREIGN KEY([CountyId], [StateId]) REFERENCES [dbo].[Counties] ([CountyId], [StateId])
 );
 
 

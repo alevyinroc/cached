@@ -1,0 +1,226 @@
+<?xml version="1.0"?>
+<SqlWorkbenchSqlProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="NewDBSetup">
+  <Items>
+    <LogicalFolder Name="Connections" Type="2" Sorted="true">
+      <Items>
+        <ConnectionNode Name="andrewle-a2981\sql2014:HOMEPROPERTIES\AndrewLe">
+          <Created>2016-03-04T16:31:25.2129093-05:00</Created>
+          <Type>SQL</Type>
+          <Server>andrewle-a2981\sql2014</Server>
+          <UserName />
+          <Authentication>Windows Authentication</Authentication>
+          <InitialDB>CacheDB</InitialDB>
+          <LoginTimeout>15</LoginTimeout>
+          <ExecutionTimeout>0</ExecutionTimeout>
+          <ConnectionProtocol>NotSpecified</ConnectionProtocol>
+          <ApplicationName>Microsoft SQL Server Management Studio - Query</ApplicationName>
+        </ConnectionNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Queries" Type="0" Sorted="true">
+      <Items>
+        <FileNode Name="ArchiveCaches.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>ArchiveCaches.sql</FullPath>
+        </FileNode>
+        <FileNode Name="attributes.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>attributes.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Bearing.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Bearing.sql</FullPath>
+        </FileNode>
+        <FileNode Name="cache_attributes.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>cache_attributes.sql</FullPath>
+        </FileNode>
+        <FileNode Name="cache_logs.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>cache_logs.sql</FullPath>
+        </FileNode>
+        <FileNode Name="cache_owners.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>cache_owners.sql</FullPath>
+        </FileNode>
+        <FileNode Name="cache_sizes.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>cache_sizes.sql</FullPath>
+        </FileNode>
+        <FileNode Name="CacheDensity.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>CacheDensity.sql</FullPath>
+        </FileNode>
+        <FileNode Name="cachers.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>cachers.sql</FullPath>
+        </FileNode>
+        <FileNode Name="caches.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>caches.sql</FullPath>
+        </FileNode>
+        <FileNode Name="CacheSizeId.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>CacheSizeId.sql</FullPath>
+        </FileNode>
+        <FileNode Name="CachesNearCache.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>CachesNearCache.sql</FullPath>
+        </FileNode>
+        <FileNode Name="CenterPoints.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>CenterPoints.sql</FullPath>
+        </FileNode>
+        <FileNode Name="CopyCorrectedCoords.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>CopyCorrectedCoords.sql</FullPath>
+        </FileNode>
+        <FileNode Name="Counties.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>Counties.sql</FullPath>
+        </FileNode>
+        <FileNode Name="countries.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>countries.sql</FullPath>
+        </FileNode>
+        <FileNode Name="CountryId.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>CountryId.sql</FullPath>
+        </FileNode>
+        <FileNode Name="CountyId.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>CountyId.sql</FullPath>
+        </FileNode>
+        <FileNode Name="DistanceInMiles.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>DistanceInMiles.sql</FullPath>
+        </FileNode>
+        <FileNode Name="GetFindsByCacherName.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>GetFindsByCacherName.sql</FullPath>
+        </FileNode>
+        <FileNode Name="log_types.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>log_types.sql</FullPath>
+        </FileNode>
+        <FileNode Name="logs.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>logs.sql</FullPath>
+        </FileNode>
+        <FileNode Name="logtypeid.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>logtypeid.sql</FullPath>
+        </FileNode>
+        <FileNode Name="OrigVsCorrectedCoords.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>OrigVsCorrectedCoords.sql</FullPath>
+        </FileNode>
+        <FileNode Name="point_types.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>point_types.sql</FullPath>
+        </FileNode>
+        <FileNode Name="pointtypeid.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>pointtypeid.sql</FullPath>
+        </FileNode>
+        <FileNode Name="StateId.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>StateId.sql</FullPath>
+        </FileNode>
+        <FileNode Name="states.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>states.sql</FullPath>
+        </FileNode>
+        <FileNode Name="statuses.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>statuses.sql</FullPath>
+        </FileNode>
+        <FileNode Name="statusid.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>statusid.sql</FullPath>
+        </FileNode>
+        <FileNode Name="tbinventory.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>tbinventory.sql</FullPath>
+        </FileNode>
+        <FileNode Name="travelbugs.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>travelbugs.sql</FullPath>
+        </FileNode>
+        <FileNode Name="waypoints.sql">
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnUserName />
+          <FullPath>waypoints.sql</FullPath>
+        </FileNode>
+      </Items>
+    </LogicalFolder>
+    <LogicalFolder Name="Miscellaneous" Type="3" Sorted="true">
+      <Items />
+    </LogicalFolder>
+  </Items>
+</SqlWorkbenchSqlProject>
