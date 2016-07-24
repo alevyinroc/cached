@@ -1,20 +1,20 @@
-﻿CREATE TABLE [dbo].[tbinventory] (
-    [cacheid]    VARCHAR (8) NOT NULL,
-    [tbpublicid] VARCHAR (8) NOT NULL,
-    CONSTRAINT [PK_TBInventory] PRIMARY KEY NONCLUSTERED ([cacheid] ASC, [tbpublicid] ASC),
-    CONSTRAINT [FK_TBInventory_CacheId] FOREIGN KEY ([cacheid]) REFERENCES [dbo].[caches] ([cacheid]),
-    CONSTRAINT [FK_TBInventory_TBId] FOREIGN KEY ([tbpublicid]) REFERENCES [dbo].[travelbugs] ([tbpublicid])
+﻿CREATE TABLE [dbo].[TBInventory] (
+    [CacheId]    VARCHAR (8) NOT NULL,
+    [TBPublicId] VARCHAR (8) NOT NULL,
+    CONSTRAINT [PK_TBInventory] PRIMARY KEY NONCLUSTERED ([CacheId] ASC, [TBPublicId] ASC),
+    CONSTRAINT [FK_TBInventory_CacheId] FOREIGN KEY ([CacheId]) REFERENCES [dbo].[Caches] ([CacheId]),
+    CONSTRAINT [FK_TBInventory_TBId] FOREIGN KEY ([TBPublicId]) REFERENCES [dbo].[TravelBugs] ([TBPublicId])
 );
 
 
 
 
 GO
-CREATE NONCLUSTERED INDEX [IX_tbinventory_tbpublicid]
-    ON [dbo].[tbinventory]([tbpublicid] ASC);
+CREATE NONCLUSTERED INDEX [IX_TBInventory_TBPublicId]
+    ON [dbo].[TBInventory]([TBPublicId] ASC);
 
 
 GO
-CREATE NONCLUSTERED INDEX [IX_tbinventory_cacheid]
-    ON [dbo].[tbinventory]([cacheid] ASC);
+CREATE NONCLUSTERED INDEX [IX_TBInventory_CacheId]
+    ON [dbo].[TBInventory]([CacheId] ASC);
 

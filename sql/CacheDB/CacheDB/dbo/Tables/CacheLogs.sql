@@ -1,0 +1,25 @@
+CREATE TABLE [dbo].[CacheLogs](
+	[CacheId] [varchar](8) NOT NULL,
+	[LogId] [bigint] NOT NULL,
+ CONSTRAINT [PK_CacheLogs] PRIMARY KEY NONCLUSTERED 
+(
+	[CacheId] ASC,
+	[LogId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+ALTER TABLE [dbo].[CacheLogs]  WITH CHECK ADD  CONSTRAINT [FK_CacheLogs_LogID] FOREIGN KEY([logid])
+REFERENCES [dbo].[Logs] ([LogId])
+GO
+
+ALTER TABLE [dbo].[CacheLogs] CHECK CONSTRAINT [FK_CacheLogs_LogID]
+GO
+
+ALTER TABLE [dbo].[CacheLogs]  WITH CHECK ADD  CONSTRAINT [FK_CLCacheID] FOREIGN KEY([cacheid])
+REFERENCES [dbo].[Caches] ([CacheId])
+GO
+
+ALTER TABLE [dbo].[CacheLogs] CHECK CONSTRAINT [FK_CLCacheID]
+GO

@@ -1,0 +1,7 @@
+C:\Users\andy\Documents\GitHub\cachedb\sql\CacheDB\CacheDB\bin\Debug\CacheDB2.dacpac
+C:\Users\andy\Documents\GitHub\cachedb\sql\CacheDB\CacheDB\obj\Debug\Model.xml
+C:\Users\andy\Documents\GitHub\cachedb\sql\CacheDB\CacheDB\obj\Debug\refactor.xml
+C:\Users\andy\Documents\GitHub\cachedb\sql\CacheDB\CacheDB\obj\Debug\postdeploy.sql
+C:\Users\andy\Documents\GitHub\cachedb\sql\CacheDB\CacheDB\obj\Debug\predeploy.sql
+C:\Users\andy\Documents\GitHub\cachedb\sql\CacheDB\CacheDB\obj\Debug\CacheDB.dll
+C:\Users\andy\Documents\GitHub\cachedb\sql\CacheDB\CacheDB\obj\Debug\CacheDB.pdb

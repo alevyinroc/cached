@@ -114,63 +114,63 @@
     <Folder Include="dbo\Views" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="dbo\Tables\point_types.sql">
+    <Build Include="dbo\Tables\PointTypes.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\cache_sizes.sql">
+    <Build Include="dbo\Tables\CacheSizes.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\countries.sql">
+    <Build Include="dbo\Tables\Countries.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\states.sql">
+    <Build Include="dbo\Tables\States.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\statuses.sql">
+    <Build Include="dbo\Tables\Statuses.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\caches.sql">
+    <Build Include="dbo\Tables\Caches.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\attributes.sql">
+    <Build Include="dbo\Tables\Attributes.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\cache_attributes.sql">
+    <Build Include="dbo\Tables\CacheAttributes.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\cachers.sql">
+    <Build Include="dbo\Tables\Cachers.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\cache_owners.sql">
+    <Build Include="dbo\Tables\CacheOwners.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\log_types.sql">
+    <Build Include="dbo\Tables\LogTypes.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\logs.sql">
+    <Build Include="dbo\Tables\Logs.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\cache_logs.sql">
+    <Build Include="dbo\Tables\CacheLogs.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\travelbugs.sql">
+    <Build Include="dbo\Tables\TravelBugs.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\tbinventory.sql">
+    <Build Include="dbo\Tables\TBInventory.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
@@ -178,7 +178,7 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Tables\waypoints.sql">
+    <Build Include="dbo\Tables\Waypoints.sql">
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
@@ -186,9 +186,9 @@
       <AnsiNulls>On</AnsiNulls>
       <QuotedIdentifier>On</QuotedIdentifier>
     </Build>
-    <Build Include="dbo\Sequences\statusid.sql" />
-    <Build Include="dbo\Sequences\logtypeid.sql" />
-    <Build Include="dbo\Sequences\pointtypeid.sql" />
+    <Build Include="dbo\Sequences\StatusId.sql" />
+    <Build Include="dbo\Sequences\LogTypeId.sql" />
+    <Build Include="dbo\Sequences\PointTypeId.sql" />
     <Build Include="dbo\Stored Procedures\CachesNearCache.sql" />
     <Build Include="dbo\Stored Procedures\CacheDensity.sql" />
     <Build Include="dbo\Sequences\StateId.sql" />

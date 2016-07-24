@@ -1,13 +1,13 @@
-﻿create procedure dbo.CachesNearCache @centerpoint varchar(8), @searchradius int as
+﻿create procedure dbo.CachesNearCache @CenterPoint varchar(8), @SearchRadius int as
 begin
 	declare @p1 geography;
 SELECT
 	@p1 = latlong
 FROM caches
-WHERE cacheid = @centerpoint;
+WHERE cacheid = @CenterPoint;
 
 SELECT
-	cacheid
-FROM caches
-WHERE @p1.STDistance(latlong) / 1000 < @searchradius;
+	CacheId
+FROM Caches
+WHERE @p1.STDistance(latlong) / 1000 < @SearchRadius;
 end;
