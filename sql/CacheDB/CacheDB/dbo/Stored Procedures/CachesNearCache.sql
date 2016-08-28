@@ -2,12 +2,12 @@
 begin
 	declare @p1 geography;
 SELECT
-	@p1 = latlong
-FROM caches
-WHERE cacheid = @CenterPoint;
+	@p1 = LatLong
+FROM Caches
+WHERE CacheId = @CenterPoint;
 
 SELECT
 	CacheId
 FROM Caches
-WHERE @p1.STDistance(latlong) / 1000 < @SearchRadius;
+WHERE @p1.STDistance(LatLong) / 1000 < @SearchRadius;
 end;

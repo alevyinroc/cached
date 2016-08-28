@@ -1,4 +1,4 @@
-CREATE TABLE [dbo].[cachers] (
+CREATE TABLE [dbo].[Cachers] (
     [CacherId]   INT           NOT NULL,
     [CacherName] NVARCHAR (50) NOT NULL,
     CONSTRAINT [PK_CacherId] PRIMARY KEY CLUSTERED ([CacherId] ASC)

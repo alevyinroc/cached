@@ -22,15 +22,16 @@ SELECT cast(code as varchar) as code, cast(cast(latitude as varchar(12)) as deci
 ) A;
 if (@ReturnChanges = 1)
 begin 
-	select c.cacheid,c.latitude,c.longitude, c.CorrectedLatitude,c.CorrectedLongitude,cc.latitude,cc.longitude from caches c join #correctedcoords cc on c.cacheid = cc.code
-where (@OnlyDifferent = 1 and ((cc.latitude <> c.correctedlatitude and cc.longitude <> c.CorrectedLongitude) or c.CorrectedLatitude is null or c.CorrectedLongitude is null)) or @OnlyDifferent = 0;
+	select c.CacheId,c.Latitude,c.Longitude, c.CorrectedLatitude,c.CorrectedLongitude,cc.latitude,cc.longitude
+	from Caches c join #correctedcoords cc on c.CacheId = cc.code
+where (@OnlyDifferent = 1 and ((cc.latitude <> c.CorrectedLatitude and cc.longitude <> c.CorrectedLongitude) or c.CorrectedLatitude is null or c.CorrectedLongitude is null)) or @OnlyDifferent = 0;
 end
 
 if (@performupdate =1) 
 begin
-update c set c.correctedlatitude = cc.latitude, c.correctedlongitude = cc.longitude
-from  caches c join #correctedcoords cc on c.cacheid = cc.code
-where (@OnlyDifferent = 1 and ((cc.latitude <> c.correctedlatitude and cc.longitude <> c.CorrectedLongitude) or c.CorrectedLatitude is null or c.CorrectedLongitude is null)) or @OnlyDifferent = 0;
+update c set c.CorrectedLatitude = cc.latitude, c.CorrectedLongitude = cc.longitude
+from  Caches c join #correctedcoords cc on c.CacheId = cc.code
+where (@OnlyDifferent = 1 and ((cc.latitude <> c.CorrectedLatitude and cc.longitude <> c.CorrectedLongitude) or c.CorrectedLatitude is null or c.CorrectedLongitude is null)) or @OnlyDifferent = 0;
 end
 
 drop table #CorrectedCoords;

@@ -10,14 +10,14 @@ CREATE TABLE [dbo].[CacheLogs](
 
 GO
 
-ALTER TABLE [dbo].[CacheLogs]  WITH CHECK ADD  CONSTRAINT [FK_CacheLogs_LogID] FOREIGN KEY([logid])
+ALTER TABLE [dbo].[CacheLogs]  WITH CHECK ADD  CONSTRAINT [FK_CacheLogs_LogID] FOREIGN KEY([LogId])
 REFERENCES [dbo].[Logs] ([LogId])
 GO
 
 ALTER TABLE [dbo].[CacheLogs] CHECK CONSTRAINT [FK_CacheLogs_LogID]
 GO
 
-ALTER TABLE [dbo].[CacheLogs]  WITH CHECK ADD  CONSTRAINT [FK_CLCacheID] FOREIGN KEY([cacheid])
+ALTER TABLE [dbo].[CacheLogs]  WITH CHECK ADD  CONSTRAINT [FK_CLCacheID] FOREIGN KEY([CacheId])
 REFERENCES [dbo].[Caches] ([CacheId])
 GO
 

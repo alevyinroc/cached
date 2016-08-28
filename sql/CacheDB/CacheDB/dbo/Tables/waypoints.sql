@@ -15,12 +15,6 @@
     CONSTRAINT [FK_Waypoints_Cacheid] FOREIGN KEY ([ParentCache]) REFERENCES [dbo].[Caches] ([CacheId]),
     CONSTRAINT [FK_Waypoints_Typeid] FOREIGN KEY ([TypeId]) REFERENCES [dbo].[PointTypes] ([PointTypeId])
 );
-
-
-
-
-
-
 GO
 CREATE CLUSTERED INDEX [IX_WPUpdated]
     ON [dbo].[Waypoints]([Created] ASC) WITH (FILLFACTOR = 90);

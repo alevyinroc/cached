@@ -23,30 +23,30 @@ SELECT cast(code as varchar) as code, archived from OPENQUERY([Cruise], 'select 
 
 if (@ReturnChanges = 1)
 begin 
-SELECT c.cacheid
-	,c.cachename
-	,c.lastupdated,a.archived,a.code,c.latitude,c.longitude
-	,c.cachestatus
-	,st.statusname, c.latlong
-FROM caches c
-JOIN statuses st ON  c.cachestatus = st.statusid
-JOIN #ArchivedGSAK A on c.cacheid = a.code
+SELECT c.CacheId
+	,c.CacheName
+	,c.LastUpdated,a.archived,a.code,c.Latitude,c.Longitude
+	,c.CacheStatus
+	,st.StatusName, c.LatLong
+FROM Caches c
+JOIN Statuses st ON  c.CacheStatus = st.StatusId
+JOIN #ArchivedGSAK A on c.CacheId = a.code
 where
- st.statusname <> 'archived'  and
+ st.StatusName <> 'archived'  and
   a.archived = 1
-order by a.archived desc, c.cacheid;
+order by a.archived desc, c.CacheId;
 end
 
 if (@PerformArchive =1) 
 begin
 UPDATE c
-SET c.cachestatus = 2
-	,c.lastupdated = getutcdate()
-FROM caches c
-join #ArchivedGSAK a on c.cacheid = a.code
-JOIN states s ON s.StateId = c.StateId
-JOIN statuses st ON c.cachestatus = st.statusid
-WHERE st.statusname <> 'Archived'
+SET c.CacheStatus = 2
+	,c.LastUpdated = getutcdate()
+FROM Caches c
+join #ArchivedGSAK a on c.CacheId = a.code
+JOIN States s ON s.StateId = c.StateId
+JOIN Statuses st ON c.CacheStatus = st.StatusId
+WHERE st.StatusName <> 'Archived'
 	AND a.archived = 1;
 end
 
