@@ -8,7 +8,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>4.1</ProjectVersion>
     <ProjectGuid>{be39322c-ee7a-4fdc-912e-706e86aceb00}</ProjectGuid>
-    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql120DatabaseSchemaProvider</DSP>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
     <OutputType>Database</OutputType>
     <RootPath>
     </RootPath>
@@ -61,7 +61,7 @@
     <DatabaseState>ONLINE</DatabaseState>
     <CloseCursorOnCommitEnabled>False</CloseCursorOnCommitEnabled>
     <DefaultCursor>GLOBAL</DefaultCursor>
-    <AutoClose>True</AutoClose>
+    <AutoClose>False</AutoClose>
     <AutoCreateStatistics>True</AutoCreateStatistics>
     <AutoShrink>False</AutoShrink>
     <AutoUpdateStatistics>True</AutoUpdateStatistics>
@@ -70,6 +70,7 @@
     <Recovery>FULL</Recovery>
     <EnableFullTextSearch>True</EnableFullTextSearch>
     <DefaultFilegroup>PRIMARY</DefaultFilegroup>
+    <QueryStoreDesiredState>ReadWrite</QueryStoreDesiredState>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -94,7 +95,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <TreatTSqlWarningsAsErrors>True</TreatTSqlWarningsAsErrors>
-    <SqlTargetName>CacheDB2</SqlTargetName>
+    <SqlTargetName>CacheDB</SqlTargetName>
+    <SuppressTSqlWarnings>
+    </SuppressTSqlWarnings>
   </PropertyGroup>
   <!-- VS10 without SP1 will not have VisualStudioVersion set, so do that here -->
   <PropertyGroup>

@@ -27,7 +27,7 @@ begin
 where (@OnlyDifferent = 1 and ((cc.latitude <> c.CorrectedLatitude and cc.longitude <> c.CorrectedLongitude) or c.CorrectedLatitude is null or c.CorrectedLongitude is null)) or @OnlyDifferent = 0;
 end
 
-if (@performupdate =1) 
+if (@PerformUpdate =1) 
 begin
 update c set c.CorrectedLatitude = cc.latitude, c.CorrectedLongitude = cc.longitude
 from  Caches c join #correctedcoords cc on c.CacheId = cc.code

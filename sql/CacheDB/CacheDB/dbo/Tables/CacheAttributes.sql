@@ -11,14 +11,14 @@
 
 GO
 
-ALTER TABLE [dbo].[CacheAttributes]  WITH CHECK ADD  CONSTRAINT [FK_AttrId] FOREIGN KEY([AttributeId])
-REFERENCES [dbo].[attributes] ([AttributeId])
+ALTER TABLE [dbo].[CacheAttributes]   ADD  CONSTRAINT [FK_AttrId] FOREIGN KEY([AttributeId])
+REFERENCES [dbo].[Attributes] ([AttributeId])
 GO
 
 ALTER TABLE [dbo].[CacheAttributes] CHECK CONSTRAINT [FK_AttrId]
 GO
 
-ALTER TABLE [dbo].[CacheAttributes]  WITH CHECK ADD  CONSTRAINT [FK_CacheId] FOREIGN KEY([CacheId])
+ALTER TABLE [dbo].[CacheAttributes]   ADD  CONSTRAINT [FK_CacheId] FOREIGN KEY([CacheId])
 REFERENCES [dbo].[Caches] ([CacheId])
 GO
 

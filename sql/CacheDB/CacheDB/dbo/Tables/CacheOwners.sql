@@ -10,14 +10,14 @@
 
 GO
 
-ALTER TABLE [dbo].[CacheOwners]  WITH CHECK ADD  CONSTRAINT [FK_CacheOwners_CacheID] FOREIGN KEY([CacheId])
+ALTER TABLE [dbo].[CacheOwners]   ADD  CONSTRAINT [FK_CacheOwners_CacheID] FOREIGN KEY([CacheId])
 REFERENCES [dbo].[Caches] ([CacheId])
 GO
 
 ALTER TABLE [dbo].[CacheOwners] CHECK CONSTRAINT [FK_CacheOwners_CacheID]
 GO
 
-ALTER TABLE [dbo].[CacheOwners]  WITH CHECK ADD  CONSTRAINT [FK_CacheOwners_CacherID] FOREIGN KEY([CacherId])
+ALTER TABLE [dbo].[CacheOwners]   ADD  CONSTRAINT [FK_CacheOwners_CacherID] FOREIGN KEY([CacherId])
 REFERENCES [dbo].[Cachers] ([CacherId])
 GO
 

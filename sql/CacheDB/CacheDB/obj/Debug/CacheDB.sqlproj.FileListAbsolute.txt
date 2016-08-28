@@ -5,3 +5,4 @@ C:\Users\andy\Documents\GitHub\cachedb\sql\CacheDB\CacheDB\obj\Debug\postdeploy.
 C:\Users\andy\Documents\GitHub\cachedb\sql\CacheDB\CacheDB\obj\Debug\predeploy.sql
 C:\Users\andy\Documents\GitHub\cachedb\sql\CacheDB\CacheDB\obj\Debug\CacheDB.dll
 C:\Users\andy\Documents\GitHub\cachedb\sql\CacheDB\CacheDB\obj\Debug\CacheDB.pdb
+C:\Users\andy\Documents\GitHub\cachedb\sql\CacheDB\CacheDB\bin\Debug\CacheDB.dacpac

@@ -16,13 +16,13 @@ CREATE TABLE [dbo].[Logs](
 
 GO
 
-ALTER TABLE [dbo].[Logs]  WITH CHECK ADD  CONSTRAINT [FK_Log_LogType] FOREIGN KEY([LogTypeId])
+ALTER TABLE [dbo].[Logs] ADD  CONSTRAINT [FK_Log_LogType] FOREIGN KEY([LogTypeId])
 REFERENCES [dbo].[LogTypes] ([LogTypeId])
 GO
 
 ALTER TABLE [dbo].[Logs] CHECK CONSTRAINT [FK_Log_LogType]
 GO
 
-ALTER TABLE [dbo].[Logs]  WITH CHECK ADD  CONSTRAINT [FK_Logs_CacherId] FOREIGN KEY([CacherId])
+ALTER TABLE [dbo].[Logs] ADD  CONSTRAINT [FK_Logs_CacherId] FOREIGN KEY([CacherId])
 REFERENCES [dbo].[Cachers] ([CacherId])
 GO

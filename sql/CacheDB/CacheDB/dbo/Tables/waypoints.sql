@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[waypoints] (
+﻿CREATE TABLE [dbo].[Waypoints] (
     [WaypointId]  VARCHAR (10)       NOT NULL,
     [ParentCache] VARCHAR (8)        NOT NULL,
     [Latitude]    DECIMAL (8, 6)     NOT NULL,
