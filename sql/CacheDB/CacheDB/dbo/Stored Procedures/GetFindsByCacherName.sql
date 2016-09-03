@@ -8,7 +8,7 @@ SELECT c3.CacheName
 	,l.LogDate
 FROM Logs l
 JOIN Cachers c ON c.CacherId = l.CacherId
-JOIN LogTypes lt ON l.logtypeid = lt.logtypeid
+JOIN LogTypes lt ON l.LogTypeId = lt.LogTypeId
 JOIN CacheLogs c2 ON c2.LogId = l.LogId
 JOIN Caches c3 ON c2.CacheId = c3.CacheId
 WHERE c.CacherName = @cacher

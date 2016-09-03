@@ -9,16 +9,17 @@ create table #ArchivedGSAK (
 	archived int not null
 	);
 insert into #ArchivedGSAK select a.code, a.archived from (
-SELECT cast(code as varchar) as code, archived from OPENQUERY([Far-off puzzles], 'select code, archived from caches') UNION 
 SELECT cast(code as varchar) as code, archived from OPENQUERY([Home200], 'select code, archived from caches')
-UNION SELECT cast(code as varchar) as code, archived from OPENQUERY([My Finds], 'select code, archived from caches') UNION 
-SELECT cast(code as varchar) as code, archived from OPENQUERY([My Hides], 'select code, archived from caches') UNION 
-SELECT cast(code as varchar) as code, archived from OPENQUERY([New England], 'select code, archived from caches') UNION 
-SELECT cast(code as varchar) as code, archived from OPENQUERY([Niagara Falls], 'select code, archived from caches') UNION 
-SELECT cast(code as varchar) as code, archived from OPENQUERY([NJ], 'select code, archived from caches') UNION 
-SELECT cast(code as varchar) as code, archived from OPENQUERY([Seattle], 'select code, archived from caches') UNION 
-SELECT cast(code as varchar) as code, archived from OPENQUERY([CanadaEvent], 'select code, archived from caches') UNION 
-SELECT cast(code as varchar) as code, archived from OPENQUERY([Cruise], 'select code, archived from caches')  
+--UNION
+--SELECT cast(code as varchar) as code, archived from OPENQUERY([Far-off puzzles], 'select code, archived from caches') UNION 
+--UNION SELECT cast(code as varchar) as code, archived from OPENQUERY([My Finds], 'select code, archived from caches') UNION 
+--SELECT cast(code as varchar) as code, archived from OPENQUERY([My Hides], 'select code, archived from caches') UNION 
+--SELECT cast(code as varchar) as code, archived from OPENQUERY([New England], 'select code, archived from caches') UNION 
+--SELECT cast(code as varchar) as code, archived from OPENQUERY([Niagara Falls], 'select code, archived from caches') UNION 
+--SELECT cast(code as varchar) as code, archived from OPENQUERY([NJ], 'select code, archived from caches') UNION 
+--SELECT cast(code as varchar) as code, archived from OPENQUERY([Seattle], 'select code, archived from caches') UNION 
+--SELECT cast(code as varchar) as code, archived from OPENQUERY([CanadaEvent], 'select code, archived from caches') UNION 
+--SELECT cast(code as varchar) as code, archived from OPENQUERY([Cruise], 'select code, archived from caches')  
 ) A;
 
 if (@ReturnChanges = 1)

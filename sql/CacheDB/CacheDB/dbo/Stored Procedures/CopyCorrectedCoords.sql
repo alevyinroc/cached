@@ -9,21 +9,22 @@ create table #CorrectedCoords (
 	longitude decimal(9,6) not null
 	);
 insert into #CorrectedCoords select a.code, a.latitude, a.longitude from (
-SELECT cast(code as varchar) as code, cast(cast(latitude as varchar(12)) as decimal(8,6)) as latitude, cast(cast(longitude as varchar(12)) as decimal(9,6)) as longitude from OPENQUERY([Far-off puzzles], 'select code, latitude, longitude from caches where hascorrected = 1') UNION all
-SELECT cast(code as varchar) as code, cast(cast(latitude as varchar(12)) as decimal(8,6)) as latitude, cast(cast(longitude as varchar(12)) as decimal(9,6)) as longitude from OPENQUERY([Home200], 'select code, latitude, longitude from caches where hascorrected = 1')
-UNION all SELECT cast(code as varchar) as code, cast(cast(latitude as varchar(12)) as decimal(8,6)) as latitude, cast(cast(longitude as varchar(12)) as decimal(9,6)) as longitude from OPENQUERY([My Finds], 'select code, latitude, longitude from caches where hascorrected = 1') UNION all
-SELECT cast(code as varchar) as code, cast(cast(latitude as varchar(12)) as decimal(8,6)) as latitude, cast(cast(longitude as varchar(12)) as decimal(9,6)) as longitude from OPENQUERY([My Hides], 'select code, latitude, longitude from caches where hascorrected = 1') UNION all
-SELECT cast(code as varchar) as code, cast(cast(latitude as varchar(12)) as decimal(8,6)) as latitude, cast(cast(longitude as varchar(12)) as decimal(9,6)) as longitude from OPENQUERY([New England], 'select code, latitude, longitude from caches where hascorrected = 1') UNION all
-SELECT cast(code as varchar) as code, cast(cast(latitude as varchar(12)) as decimal(8,6)) as latitude, cast(cast(longitude as varchar(12)) as decimal(9,6)) as longitude from OPENQUERY([Niagara Falls], 'select code, latitude, longitude from caches where hascorrected = 1') UNION all 
-SELECT cast(code as varchar) as code, cast(cast(latitude as varchar(12)) as decimal(8,6)) as latitude, cast(cast(longitude as varchar(12)) as decimal(9,6)) as longitude from OPENQUERY([NJ], 'select code, latitude, longitude from caches where hascorrected = 1') UNION all
-SELECT cast(code as varchar) as code, cast(cast(latitude as varchar(12)) as decimal(8,6)) as latitude, cast(cast(longitude as varchar(12)) as decimal(9,6)) as longitude from OPENQUERY([Seattle], 'select code, latitude, longitude from caches where hascorrected = 1') UNION all
-SELECT cast(code as varchar) as code, cast(cast(latitude as varchar(12)) as decimal(8,6)) as latitude, cast(cast(longitude as varchar(12)) as decimal(9,6)) as longitude from OPENQUERY([CanadaEvent], 'select code, latitude, longitude from caches where hascorrected = 1') UNION all
-SELECT cast(code as varchar) as code, cast(cast(latitude as varchar(12)) as decimal(8,6)) as latitude, cast(cast(longitude as varchar(12)) as decimal(9,6)) as longitude from OPENQUERY([Cruise], 'select code, latitude, longitude from caches where hascorrected = 1')
+SELECT cast(code as varchar) as code, archived from OPENQUERY([Home200], 'select code, archived from caches')
+--UNION
+--SELECT cast(code as varchar) as code, archived from OPENQUERY([Far-off puzzles], 'select code, archived from caches') UNION 
+--UNION SELECT cast(code as varchar) as code, archived from OPENQUERY([My Finds], 'select code, archived from caches') UNION 
+--SELECT cast(code as varchar) as code, archived from OPENQUERY([My Hides], 'select code, archived from caches') UNION 
+--SELECT cast(code as varchar) as code, archived from OPENQUERY([New England], 'select code, archived from caches') UNION 
+--SELECT cast(code as varchar) as code, archived from OPENQUERY([Niagara Falls], 'select code, archived from caches') UNION 
+--SELECT cast(code as varchar) as code, archived from OPENQUERY([NJ], 'select code, archived from caches') UNION 
+--SELECT cast(code as varchar) as code, archived from OPENQUERY([Seattle], 'select code, archived from caches') UNION 
+--SELECT cast(code as varchar) as code, archived from OPENQUERY([CanadaEvent], 'select code, archived from caches') UNION 
+--SELECT cast(code as varchar) as code, archived from OPENQUERY([Cruise], 'select code, archived from caches')  
 ) A;
 if (@ReturnChanges = 1)
 begin 
 	select c.CacheId,c.Latitude,c.Longitude, c.CorrectedLatitude,c.CorrectedLongitude,cc.latitude,cc.longitude
-	from Caches c join #correctedcoords cc on c.CacheId = cc.code
+	from Caches c join #CorrectedCoords cc on c.CacheId = cc.code
 where (@OnlyDifferent = 1 and ((cc.latitude <> c.CorrectedLatitude and cc.longitude <> c.CorrectedLongitude) or c.CorrectedLatitude is null or c.CorrectedLongitude is null)) or @OnlyDifferent = 0;
 end
 
