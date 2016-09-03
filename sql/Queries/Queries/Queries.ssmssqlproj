@@ -3,10 +3,10 @@
   <Items>
     <LogicalFolder Name="Connections" Type="2" Sorted="true">
       <Items>
-        <ConnectionNode Name="andrewle-a2981\sql2014:HOMEPROPERTIES\AndrewLe">
-          <Created>2016-02-13T06:22:12.0886798-05:00</Created>
+        <ConnectionNode Name="planex\sql2016:PLANEX\andy">
+          <Created>2016-09-03T11:50:16.9193105+00:00</Created>
           <Type>SQL</Type>
-          <Server>andrewle-a2981\sql2014</Server>
+          <Server>planex\sql2016</Server>
           <UserName />
           <Authentication>Windows Authentication</Authentication>
           <InitialDB />
@@ -26,14 +26,14 @@
           <FullPath>Average age of caches.sql</FullPath>
         </FileNode>
         <FileNode Name="Base Cleanup.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Base Cleanup.sql</FullPath>
         </FileNode>
         <FileNode Name="Centroid.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Centroid.sql</FullPath>
         </FileNode>
@@ -44,20 +44,20 @@
           <FullPath>Clear Tables.sql</FullPath>
         </FileNode>
         <FileNode Name="ETL.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:planex\sql2016:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>planex\sql2016</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>ETL.sql</FullPath>
         </FileNode>
         <FileNode Name="ETL2.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:planex\sql2016:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>planex\sql2016</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>ETL2.sql</FullPath>
         </FileNode>
         <FileNode Name="ETL3.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>ETL3.sql</FullPath>
         </FileNode>
@@ -68,8 +68,8 @@
           <FullPath>Findable caches.sql</FullPath>
         </FileNode>
         <FileNode Name="latest finds.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>latest finds.sql</FullPath>
         </FileNode>
@@ -80,8 +80,8 @@
           <FullPath>Limit Number of Logs Per Cache.sql</FullPath>
         </FileNode>
         <FileNode Name="LoadLocations.sql">
-          <AssociatedConnectionMoniker />
-          <AssociatedConnSrvName />
+          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:planex\sql2016:True</AssociatedConnectionMoniker>
+          <AssociatedConnSrvName>planex\sql2016</AssociatedConnSrvName>
           <AssociatedConnUserName />
           <FullPath>LoadLocations.sql</FullPath>
         </FileNode>
@@ -92,14 +92,14 @@
           <FullPath>Location Testing.sql</FullPath>
         </FileNode>
         <FileNode Name="My Finds.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>My Finds.sql</FullPath>
         </FileNode>
         <FileNode Name="Performance Comparisons.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Performance Comparisons.sql</FullPath>
         </FileNode>
@@ -116,14 +116,14 @@
           <FullPath>Simple Selects2.sql</FullPath>
         </FileNode>
         <FileNode Name="SQLQuery2.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>SQLQuery2.sql</FullPath>
         </FileNode>
         <FileNode Name="Star Plot.sql">
-          <AssociatedConnectionMoniker>8c91a03d-f9b4-46c0-a305-b5dcc79ff907:andrewle-a2981\sql2014:True</AssociatedConnectionMoniker>
-          <AssociatedConnSrvName>andrewle-a2981\sql2014</AssociatedConnSrvName>
+          <AssociatedConnectionMoniker />
+          <AssociatedConnSrvName />
           <AssociatedConnUserName />
           <FullPath>Star Plot.sql</FullPath>
         </FileNode>

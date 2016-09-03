@@ -199,7 +199,7 @@ VALUES (
 	,- 77.796233
 	);
 
-INSERT INTO log_types (
+INSERT INTO LogTypes(
 	logtypedesc
 	,CountsAsFind
 	)
@@ -208,7 +208,7 @@ VALUES (
 	,1
 	);
 
-INSERT INTO log_types (
+INSERT INTO LogTypes (
 	logtypedesc
 	,CountsAsFind
 	)
@@ -217,7 +217,7 @@ VALUES (
 	,1
 	);
 
-INSERT INTO log_types (
+INSERT INTO LogTypes (
 	logtypedesc
 	,CountsAsFind
 	)
