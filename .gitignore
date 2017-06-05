@@ -4,3 +4,4 @@ bin
 obj
 *.dll
 sql/CacheDB/CacheDB/obj/Debug/CacheDB.pdb
+*.suo

@@ -15,25 +15,22 @@ SELECT cast(code as nvarchar) as GCID, convert(datetimeoffset, convert(varchar(3
 --SELECT * FROM OPENQUERY([Cruise], 'select * from caches')
 ) A;
 
-select cacheownerid
-,cast(ownername as varchar)
-from #caches c
-where c.LastUpdated =
-(select max(LastUpdated)
-	from #caches where #caches.cacheownerid = C.cacheownerid);
-
-
 /* Populate cachers */
 begin transaction;
 with CacheOwners (cacherid,cachername) as (select distinct cast(cast(ownerid as varchar) as int)
 ,cast(ownername as varchar)
 from #caches c
 where c.LastUpdated =
-(select LastUpdated
-	from #caches where #caches.GCID = C.GCID))
-insert into cachers (cacherid,cachername) select distinct O.cacherid,O.cachername from CacheOwners O left outer join cachers C on o.cacherid = C.cacherid where C.cacherid is null;
-rollback transaction
-select * from cachers
+(select max(LastUpdated)
+	from #caches where #caches.cacheownerid = C.cacheownerid))
+insert into cachers (cacherid,cachername)
+select distinct O.cacherid,O.cachername
+from CacheOwners O
+left outer join cachers C on o.cacherid = C.cacherid
+where C.cacherid is null;
+commit transaction
+select * from cachers order by cacherid
+
 
 select distinct cast(cast(ownerid as varchar) as int) as cacherid
 ,cast(ownername as varchar) as cachername
