@@ -1,5 +1,6 @@
 ﻿import-module dbatools
 function Add-GcDsn {
+    [cmdletBinding(SupportsShouldProcess = $true)]
     Param
     (
         [Parameter(Mandatory = $true, Position = 0)]
@@ -12,10 +13,10 @@ function Add-GcDsn {
     Begin {
     }
     Process {
-        Get-OdbcDsn | Where-Object { $_.Name -notlike "sqlite*" } | Remove-OdbcDsn;
+        Get-OdbcDsn | Where-Object { $_.Name -notlike "sqlite*" } | Remove-OdbcDsn -WhatIf:$WhatIfPreference -Verbose:$VerbosePreference;
         Get-ChildItem -Path $GSAKDataDirectory -Recurse -Filter sqlite.db3 | Select-Object -ExpandProperty FullName | ForEach-Object {
             $DSNName = $_.split("\")[6];
-            Add-OdbcDsn -Name $DSNName -DriverName "SQLite3 ODBC Driver" -Platform 64-bit -DsnType System -SetPropertyValue "Database=$_";
+            Add-OdbcDsn -Name $DSNName -DriverName "SQLite3 ODBC Driver" -Platform 64-bit -DsnType System -SetPropertyValue "Database=$_"  -Verbose:$VerbosePreference;
         };
 
         $AllDSNs = Get-OdbcDsn -DriverName "SQLite3 ODBC Driver" | where-object { $_.name -notlike "sqlite*" };
