@@ -23,7 +23,7 @@ SET @Bearing = ATN2(
 SIN(@dLon) * COS(@Lat2),
 (COS(@Lat1) * SIN(@Lat2)) - (SIN(@Lat1) * COS(@Lat2) * COS(@dLon))
 )
-SET @Bearing = (DEGREES(@Bearing) + 360) % 360
+  SET @Bearing = (DEGREES(@Bearing) + 360) % 360
   RETURN @Bearing
 END
 
